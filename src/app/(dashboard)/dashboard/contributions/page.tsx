@@ -5,6 +5,7 @@ import { getContributionsByWedding, getWeddingTotals } from "@/queries/contribut
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { ExportCsvButton } from "@/components/dashboard/export-csv-button"
 
 export const metadata: Metadata = { title: "Contributions" }
 
@@ -39,11 +40,14 @@ export default async function ContributionsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Contributions</h1>
-        <p className="text-sm text-muted-foreground">
-          {totals.count} contribution{totals.count !== 1 ? "s" : ""} reçue{totals.count !== 1 ? "s" : ""}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Contributions</h1>
+          <p className="text-sm text-muted-foreground">
+            {totals.count} contribution{totals.count !== 1 ? "s" : ""} reçue{totals.count !== 1 ? "s" : ""}
+          </p>
+        </div>
+        {contributions.length > 0 && <ExportCsvButton />}
       </div>
 
       {/* Totaux */}

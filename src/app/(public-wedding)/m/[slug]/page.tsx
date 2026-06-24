@@ -21,12 +21,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
 
+  const description = `Site de mariage de ${wedding.partner1_first_name} et ${wedding.partner2_first_name}. Retrouvez toutes les informations et participez à leur liste de cadeaux.`
   return {
     title,
-    description: `Site de mariage de ${wedding.partner1_first_name} et ${wedding.partner2_first_name}.`,
+    description,
     openGraph: {
       title,
-      images: wedding.cover_image_url ? [{ url: wedding.cover_image_url }] : [],
+      description,
+      type: "website",
+      locale: "fr_FR",
+      images: wedding.cover_image_url
+        ? [{ url: wedding.cover_image_url, alt: title }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   }
 }
@@ -37,12 +48,40 @@ export default async function WeddingPublicPage({ params }: Props) {
 
   if (!wedding) notFound()
 
-  // theme_id peut être "classic" ou "contemporary" (valeurs de WEDDING_THEMES dans constants.ts)
   const themeClass =
     wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"
+  const pageUrl = `${baseUrl}/m/${slug}`
+  const eventName = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
+
+  const schemaOrg = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: eventName,
+    url: pageUrl,
+    ...(wedding.wedding_date && { startDate: wedding.wedding_date }),
+    ...(wedding.cover_image_url && { image: wedding.cover_image_url }),
+    organizer: {
+      "@type": "Person",
+      name: `${wedding.partner1_first_name} & ${wedding.partner2_first_name}`,
+    },
+    offers: wedding.gifts.length > 0
+      ? {
+          "@type": "Offer",
+          url: `${pageUrl}/contribuer`,
+          availability: "https://schema.org/InStock",
+          priceCurrency: "EUR",
+        }
+      : undefined,
+  }
+
   return (
     <div className={themeClass}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+      />
       <WeddingHero wedding={wedding} />
 
       {wedding.story_md && <WeddingStory storyMd={wedding.story_md} />}

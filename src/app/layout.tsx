@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Fraunces, Inter } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
+import { CookieBanner } from "@/components/shared/cookie-banner"
 import "./globals.css"
 
 const inter = Inter({
@@ -16,14 +17,37 @@ const fraunces = Fraunces({
   display: "swap",
 })
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+const DEFAULT_DESCRIPTION =
+  "Créez votre liste de mariage et votre site personnalisé. Simple, élégant, mobile-first."
+
 export const metadata: Metadata = {
   title: {
     default: "Amora — Liste de mariage & cagnotte en ligne",
     template: "%s | Amora",
   },
-  description:
-    "Créez votre liste de mariage et votre site de mariage personnalisé. Simple, élégant, mobile-first.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  description: DEFAULT_DESCRIPTION,
+  metadataBase: new URL(APP_URL),
+  openGraph: {
+    type: "website",
+    siteName: "Amora",
+    locale: "fr_FR",
+    title: "Amora — Liste de mariage & cagnotte en ligne",
+    description: DEFAULT_DESCRIPTION,
+    url: APP_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Amora — Liste de mariage & cagnotte en ligne",
+    description: DEFAULT_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  other: {
+    "theme-color": "#ffffff",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body>
           {children}
           <Toaster richColors position="top-right" />
+          <CookieBanner />
         </body>
       </html>
     </ClerkProvider>
