@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
+import { CrispChat } from "@/components/crisp-chat"
 import "./globals.css"
 
 const inter = Inter({
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
+          <CrispChat />
           {process.env.NEXT_PUBLIC_GA_ID && (
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
           )}
