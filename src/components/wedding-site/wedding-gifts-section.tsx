@@ -1,14 +1,16 @@
 import Image from "next/image"
+import Link from "next/link"
 import { ExternalLink, Gift } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
 import type { Gift as GiftType } from "@/queries/gifts"
 
 interface WeddingGiftsSectionProps {
   gifts: GiftType[]
-  weddingSlug: string  // réservé pour le lien "contribuer" au Sprint 3
+  weddingSlug: string
 }
 
-function GiftCard({ gift }: { gift: GiftType }) {
+function GiftCard({ gift, weddingSlug }: { gift: GiftType; weddingSlug: string }) {
   const percent = Math.min(
     100,
     Math.round((Number(gift.current_amount) / Number(gift.target_amount)) * 100)
@@ -72,13 +74,18 @@ function GiftCard({ gift }: { gift: GiftType }) {
             </span>
           </div>
         </div>
+
+        {!isFunded && (
+          <Button asChild size="sm" className="mt-3 w-full">
+            <Link href={`/m/${weddingSlug}/contribuer?gift=${gift.id}`}>Participer</Link>
+          </Button>
+        )}
       </div>
     </article>
   )
 }
 
-// weddingSlug sera utilisé au Sprint 3 pour le lien de contribution
-export function WeddingGiftsSection({ gifts }: WeddingGiftsSectionProps) {
+export function WeddingGiftsSection({ gifts, weddingSlug }: WeddingGiftsSectionProps) {
   if (gifts.length === 0) return null
 
   return (
@@ -90,8 +97,13 @@ export function WeddingGiftsSection({ gifts }: WeddingGiftsSectionProps) {
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {gifts.map((gift) => (
-            <GiftCard key={gift.id} gift={gift} />
+            <GiftCard key={gift.id} gift={gift} weddingSlug={weddingSlug} />
           ))}
+        </div>
+        <div className="mt-12 text-center">
+          <Button asChild variant="outline" size="lg">
+            <Link href={`/m/${weddingSlug}/contribuer`}>Faire une contribution libre</Link>
+          </Button>
         </div>
       </div>
     </section>
