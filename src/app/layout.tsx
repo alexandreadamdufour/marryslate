@@ -41,6 +41,9 @@ export const metadata: Metadata = {
     title: "Amora — Liste de mariage & cagnotte en ligne",
     description: DEFAULT_DESCRIPTION,
   },
+  alternates: {
+    canonical: APP_URL,
+  },
   robots: {
     index: true,
     follow: true,

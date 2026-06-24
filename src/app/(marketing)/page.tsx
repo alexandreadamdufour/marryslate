@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Liste de mariage & cagnotte en ligne | Amora",
+  title: { absolute: "Amora — Liste de mariage & cagnotte en ligne" },
   description:
     "Créez votre liste de mariage et votre site personnalisé en 2 minutes. Vos invités participent en ligne, vous retirez les fonds quand vous voulez.",
   openGraph: {
