@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Fraunces, Inter } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
+import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import "./globals.css"
 
@@ -61,6 +62,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster richColors position="top-right" />
           <CookieBanner />
+          {process.env.NEXT_PUBLIC_GA_ID && (
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+          )}
         </body>
       </html>
     </ClerkProvider>
