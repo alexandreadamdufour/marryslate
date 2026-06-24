@@ -55,26 +55,40 @@ export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl
 
   const supabase = createAdminClient()
 
-  const { data: user } = await supabase
+  const { data: user, error: userDbError } = await supabase
     .from("users")
     .select("id, email, stripe_account_id")
     .eq("clerk_user_id", clerkUserId)
     .maybeSingle()
 
+  if (userDbError) {
+    console.error("[setupStripeConnect] DB user lookup:", userDbError.message, userDbError.code)
+    // Colonne stripe_account_id absente = migration non appliquée
+    if (userDbError.code === "42703") return { error: "MIGRATION_NOT_APPLIED" }
+    return { error: "DB_ERROR" }
+  }
   if (!user) return { error: "USER_NOT_FOUND" }
 
   let stripeAccountId = user.stripe_account_id
 
   if (!stripeAccountId) {
-    // Créer un nouveau compte Express Stripe
     const email = clerkUser.emailAddresses[0]?.emailAddress ?? user.email
-    stripeAccountId = await createConnectedAccount(email)
 
-    // Persister sur user ET wedding
-    await supabase
+    try {
+      stripeAccountId = await createConnectedAccount(email)
+    } catch (err) {
+      console.error("[setupStripeConnect] Stripe createConnectedAccount:", err)
+      return { error: "STRIPE_API_ERROR" }
+    }
+
+    const { error: updateUserError } = await supabase
       .from("users")
       .update({ stripe_account_id: stripeAccountId })
       .eq("id", user.id)
+
+    if (updateUserError) {
+      console.error("[setupStripeConnect] DB update user:", updateUserError.message)
+    }
 
     const { data: coowner } = await supabase
       .from("wedding_coowners")
@@ -91,8 +105,13 @@ export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl
     }
   }
 
-  const onboardingUrl = await createOnboardingLink(stripeAccountId)
-  return { data: { onboardingUrl } }
+  try {
+    const onboardingUrl = await createOnboardingLink(stripeAccountId)
+    return { data: { onboardingUrl } }
+  } catch (err) {
+    console.error("[setupStripeConnect] Stripe createOnboardingLink:", err)
+    return { error: "STRIPE_API_ERROR" }
+  }
 }
 
 export async function requestPayout(amountEuros: number): Promise<ActionResult<{ payoutId: string }>> {

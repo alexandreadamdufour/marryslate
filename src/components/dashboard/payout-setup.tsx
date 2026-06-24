@@ -40,7 +40,17 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: Payo
     setOnboardingLoading(true)
     const result = await setupStripeConnect()
     if ("error" in result) {
-      setMessage({ type: "error", text: "Impossible de créer le compte Stripe. Réessayez." })
+      const connectErrors: Record<string, string> = {
+        UNAUTHORIZED: "Session expirée, veuillez vous reconnecter.",
+        USER_NOT_FOUND: "Votre compte est introuvable. Reconnectez-vous.",
+        MIGRATION_NOT_APPLIED: "La migration base de données n'a pas été appliquée. Exécutez pnpm supabase db push.",
+        DB_ERROR: "Erreur base de données. Vérifiez les logs serveur.",
+        STRIPE_API_ERROR: "Erreur Stripe. Vérifiez la clé STRIPE_SECRET_KEY dans .env.local.",
+      }
+      setMessage({
+        type: "error",
+        text: connectErrors[result.error as string] ?? `Erreur inattendue : ${result.error}`,
+      })
       setOnboardingLoading(false)
       return
     }
