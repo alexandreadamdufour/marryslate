@@ -1,14 +1,15 @@
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
-import { createServerClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()
   if (!userId) redirect("/connexion")
 
-  // Rediriger vers l'onboarding si le user n'a pas encore de wedding
-  const supabase = await createServerClient()
+  // Rediriger vers l'onboarding si le user n'a pas encore de wedding.
+  // adminClient requis : createServerClient() n'envoie pas de JWT Clerk à Supabase.
+  const supabase = createAdminClient()
   const { data: user } = await supabase
     .from("users")
     .select("id")

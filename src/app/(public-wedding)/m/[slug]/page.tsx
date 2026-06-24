@@ -1,6 +1,14 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import type { Metadata } from "next"
-import { getWeddingBySlug } from "@/queries/wedding"
+import { getWeddingPublicData } from "@/queries/wedding"
+import { WeddingHero } from "@/components/wedding-site/wedding-hero"
+import { WeddingStory } from "@/components/wedding-site/wedding-story"
+import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
+import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
+
+// ISR : revalidation toutes les 60 secondes
+export const revalidate = 60
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -8,41 +16,50 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const wedding = await getWeddingBySlug(slug)
+  const wedding = await getWeddingPublicData(slug)
   if (!wedding) return { title: "Page introuvable" }
 
+  const title = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
+
   return {
-    title: `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`,
+    title,
     description: `Site de mariage de ${wedding.partner1_first_name} et ${wedding.partner2_first_name}.`,
+    openGraph: {
+      title,
+      images: wedding.cover_image_url ? [{ url: wedding.cover_image_url }] : [],
+    },
   }
 }
 
 export default async function WeddingPublicPage({ params }: Props) {
   const { slug } = await params
-  const wedding = await getWeddingBySlug(slug)
+  const wedding = await getWeddingPublicData(slug)
 
   if (!wedding) notFound()
 
+  // theme_id peut être "classic" ou "contemporary" (valeurs de WEDDING_THEMES dans constants.ts)
+  const themeClass =
+    wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
+
   return (
-    <main>
-      {/* Hero — Sprint 2 */}
-      <section className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
-        <h1 className="text-4xl sm:text-6xl">
-          {wedding.partner1_first_name} & {wedding.partner2_first_name}
-        </h1>
-        {wedding.wedding_date && (
-          <p className="text-lg text-muted-foreground">
-            {new Date(wedding.wedding_date).toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        )}
-        <p className="mt-8 text-sm text-muted-foreground">
-          Le site de mariage complet arrive bientôt — Sprint 2.
+    <div className={themeClass}>
+      <WeddingHero wedding={wedding} />
+
+      {wedding.story_md && <WeddingStory storyMd={wedding.story_md} />}
+
+      <WeddingEventsSection events={wedding.events} />
+
+      <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
+
+      {/* Footer minimal */}
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
+        <p>
+          Créé avec{" "}
+          <Link href="/" className="underline underline-offset-4 hover:text-foreground">
+            Amora
+          </Link>
         </p>
-      </section>
-    </main>
+      </footer>
+    </div>
   )
 }

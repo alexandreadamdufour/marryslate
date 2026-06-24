@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserButton } from "@clerk/nextjs"
+import type { Route } from "next"
 import {
   LayoutDashboard,
   Gift,
@@ -16,7 +17,7 @@ import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/logo"
 
 interface NavItem {
-  href: string
+  href: Route
   label: string
   icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>
   exact?: boolean

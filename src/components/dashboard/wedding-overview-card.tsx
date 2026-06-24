@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Route } from "next"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { Globe, Calendar, ExternalLink } from "lucide-react"
@@ -11,7 +12,7 @@ interface WeddingOverviewCardProps {
 }
 
 export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
-  const siteUrl = `/m/${wedding.slug}`
+  const siteUrl = `/m/${wedding.slug}` as Route
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

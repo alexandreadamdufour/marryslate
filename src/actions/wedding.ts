@@ -1,8 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { auth } from "@clerk/nextjs/server"
-import { createServerClient } from "@/lib/supabase/server"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { Database } from "@/lib/supabase/types"
 import { createWeddingSchema, updateWeddingSchema } from "@/lib/validators/wedding"
@@ -11,6 +10,43 @@ import type { CreateWeddingInput, UpdateWeddingInput } from "@/lib/validators/we
 type ActionResult<T> =
   | { data: T; error?: never }
   | { error: string; details?: unknown; data?: never }
+
+// Helper : récupère ou crée le user interne depuis son clerkUserId.
+// On utilise adminClient car createServerClient() n'envoie pas de JWT Clerk à Supabase,
+// ce qui rend la RLS users_select_own inopérante dans les Server Actions.
+async function getOrCreateUser(clerkUserId: string) {
+  const adminClient = createAdminClient()
+
+  let { data: user } = await adminClient
+    .from("users")
+    .select("id")
+    .eq("clerk_user_id", clerkUserId)
+    .maybeSingle()
+
+  if (!user) {
+    // Filet de sécurité : webhook user.created manqué (ex: ngrok redémarré).
+    // On crée le user à la volée depuis la session Clerk.
+    const clerkUser = await currentUser()
+    if (!clerkUser) return null
+
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? ""
+    const displayName = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null
+
+    const { data: newUser, error } = await adminClient
+      .from("users")
+      .insert({ clerk_user_id: clerkUserId, email, display_name: displayName })
+      .select("id")
+      .single()
+
+    if (error) {
+      console.error("[getOrCreateUser]", error.message)
+      return null
+    }
+    user = newUser
+  }
+
+  return user
+}
 
 export async function createWedding(
   input: CreateWeddingInput
@@ -21,28 +57,18 @@ export async function createWedding(
   const parsed = createWeddingSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
 
-  const supabase = await createServerClient()
-
-  // Récupérer l'ID interne du user
-  const { data: user } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", clerkUserId)
-    .maybeSingle()
-
+  const user = await getOrCreateUser(clerkUserId)
   if (!user) return { error: "USER_NOT_FOUND" }
 
-  // Vérifier unicité du slug
-  const { data: existing } = await supabase
+  const adminClient = createAdminClient()
+
+  const { data: existing } = await adminClient
     .from("weddings")
     .select("id")
     .eq("slug", parsed.data.slug)
     .maybeSingle()
 
   if (existing) return { error: "SLUG_TAKEN" }
-
-  // Créer le wedding (utilise service_role pour bypasser RLS à la création initiale)
-  const adminClient = createAdminClient()
 
   const { data: wedding, error: weddingError } = await adminClient
     .from("weddings")
@@ -61,7 +87,6 @@ export async function createWedding(
     return { error: "DB_ERROR" }
   }
 
-  // Ajouter en tant que coowner
   await adminClient.from("wedding_coowners").insert({
     wedding_id: wedding.id,
     user_id: user.id,
@@ -81,20 +106,14 @@ export async function updateWedding(
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
 
   const { weddingId, ...rest } = parsed.data
-  const supabase = await createServerClient()
 
-  // Vérifier que le user existe
-  const { data: user } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", clerkUserId)
-    .maybeSingle()
-
+  const user = await getOrCreateUser(clerkUserId)
   if (!user) return { error: "USER_NOT_FOUND" }
 
-  // Vérifier unicité du slug si changement
+  const adminClient = createAdminClient()
+
   if (rest.slug) {
-    const { data: existing } = await supabase
+    const { data: existing } = await adminClient
       .from("weddings")
       .select("id")
       .eq("slug", rest.slug)
@@ -104,7 +123,6 @@ export async function updateWedding(
     if (existing) return { error: "SLUG_TAKEN" }
   }
 
-  // Construire le payload (seulement les champs fournis) avec le bon type Supabase
   type WeddingUpdate = Database["public"]["Tables"]["weddings"]["Update"]
   const updatePayload: WeddingUpdate = {
     ...(rest.partner1FirstName !== undefined && { partner1_first_name: rest.partner1FirstName }),
@@ -118,8 +136,17 @@ export async function updateWedding(
     ...(rest.isPublished !== undefined && { is_published: rest.isPublished }),
   }
 
-  // RLS s'assure que seul un coowner peut mettre à jour
-  const { data: wedding, error: updateError } = await supabase
+  // L'autorisation coowner est vérifiée via la table wedding_coowners (admin bypasse RLS).
+  const { data: isCoowner } = await adminClient
+    .from("wedding_coowners")
+    .select("wedding_id")
+    .eq("wedding_id", weddingId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (!isCoowner) return { error: "FORBIDDEN" }
+
+  const { data: wedding, error: updateError } = await adminClient
     .from("weddings")
     .update(updatePayload)
     .eq("id", weddingId)
@@ -143,9 +170,9 @@ export async function checkSlugAvailability(
   excludeWeddingId?: string
 ): Promise<{ available: boolean }> {
   const trimmed = slug.trim().toLowerCase()
-  const supabase = await createServerClient()
+  const adminClient = createAdminClient()
 
-  let query = supabase.from("weddings").select("id").eq("slug", trimmed)
+  let query = adminClient.from("weddings").select("id").eq("slug", trimmed)
   if (excludeWeddingId) query = query.neq("id", excludeWeddingId)
 
   const { data } = await query.maybeSingle()
