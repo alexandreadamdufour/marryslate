@@ -1,5 +1,6 @@
-// AUTO-GENERATED — ne pas éditer manuellement.
-// Générer : pnpm supabase gen types typescript --local > src/lib/supabase/types.ts
+// AUTO-GENERATED — ne pas éditer manuellement en temps normal.
+// Exception : colonnes Stripe ajoutées manuellement (migration 20260624140000) car Docker non disponible.
+// Régénérer dès que possible : pnpm supabase gen types typescript --local > src/lib/supabase/types.ts
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
@@ -21,6 +22,7 @@ export interface Database {
           display_name: string | null
           role: UserRole
           mangopay_user_id: string | null
+          stripe_account_id: string | null
           kyc_status: KycStatus
           created_at: string
           updated_at: string
@@ -32,6 +34,7 @@ export interface Database {
           display_name?: string | null
           role?: UserRole
           mangopay_user_id?: string | null
+          stripe_account_id?: string | null
           kyc_status?: KycStatus
           created_at?: string
           updated_at?: string
@@ -43,6 +46,7 @@ export interface Database {
           display_name?: string | null
           role?: UserRole
           mangopay_user_id?: string | null
+          stripe_account_id?: string | null
           kyc_status?: KycStatus
           updated_at?: string
         }
@@ -62,6 +66,7 @@ export interface Database {
           story_md: string | null
           is_published: boolean
           mangopay_wallet_id: string | null
+          stripe_account_id: string | null
           created_at: string
           updated_at: string
         }
@@ -78,6 +83,7 @@ export interface Database {
           story_md?: string | null
           is_published?: boolean
           mangopay_wallet_id?: string | null
+          stripe_account_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -93,6 +99,7 @@ export interface Database {
           story_md?: string | null
           is_published?: boolean
           mangopay_wallet_id?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -203,6 +210,7 @@ export interface Database {
           fee_amount: number
           net_amount: number
           mangopay_payment_id: string | null
+          stripe_payment_intent_id: string | null
           payment_status: PaymentStatus
           is_anonymous: boolean
           created_at: string
@@ -219,6 +227,7 @@ export interface Database {
           fee_amount: number
           net_amount: number
           mangopay_payment_id?: string | null
+          stripe_payment_intent_id?: string | null
           payment_status?: PaymentStatus
           is_anonymous?: boolean
           created_at?: string
@@ -233,6 +242,7 @@ export interface Database {
           fee_amount?: number
           net_amount?: number
           mangopay_payment_id?: string | null
+          stripe_payment_intent_id?: string | null
           payment_status?: PaymentStatus
           is_anonymous?: boolean
           updated_at?: string
@@ -405,6 +415,7 @@ export interface Database {
           amount: number
           iban_last4: string | null
           mangopay_payout_id: string | null
+          stripe_payout_id: string | null
           status: WithdrawalStatus
           requested_at: string
           processed_at: string | null
@@ -417,6 +428,7 @@ export interface Database {
           amount: number
           iban_last4?: string | null
           mangopay_payout_id?: string | null
+          stripe_payout_id?: string | null
           status?: WithdrawalStatus
           requested_at?: string
           processed_at?: string | null
@@ -427,6 +439,7 @@ export interface Database {
           amount?: number
           iban_last4?: string | null
           mangopay_payout_id?: string | null
+          stripe_payout_id?: string | null
           status?: WithdrawalStatus
           processed_at?: string | null
           updated_at?: string
