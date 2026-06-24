@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Palette : crème, terracotta, vert sauge */
+    --background: 36 33% 97%;
+    --foreground: 20 14% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 15%;
+
+    --primary: 16 45% 45%;       /* terracotta */
+    --primary-foreground: 36 33% 97%;
+
+    --secondary: 95 18% 55%;     /* vert sauge */
+    --secondary-foreground: 20 14% 15%;
+
+    --muted: 36 20% 92%;
+    --muted-foreground: 20 10% 45%;
+
+    --accent: 36 30% 90%;
+    --accent-foreground: 20 14% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 36 20% 88%;
+    --input: 36 20% 88%;
+    --ring: 16 45% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+}

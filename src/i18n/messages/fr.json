@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "Amora",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "back": "Retour",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "required": "Ce champ est obligatoire"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "liste": "Liste de cadeaux",
+    "site": "Mon site mariage",
+    "cagnotte": "Cagnotte",
+    "contributions": "Contributions",
+    "retrait": "Retrait",
+    "parametres": "Paramètres"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Qui sont les mariés ?",
+      "partner1": "Prénom du/de la marié·e 1",
+      "partner2": "Prénom du/de la marié·e 2"
+    },
+    "step2": {
+      "title": "Quelle est la date de votre mariage ?",
+      "date": "Date du mariage",
+      "skip": "Je ne sais pas encore"
+    },
+    "step3": {
+      "title": "Choisissez l'adresse de votre site",
+      "slug": "Adresse personnalisée",
+      "hint": "amora.fr/m/",
+      "checking": "Vérification…",
+      "available": "Disponible !",
+      "taken": "Cette adresse est déjà prise"
+    },
+    "step4": {
+      "title": "Votre site est prêt !",
+      "subtitle": "Commencez à personnaliser votre espace et partagez le lien avec vos invités.",
+      "cta": "Accéder à mon tableau de bord"
+    }
+  },
+  "wedding": {
+    "created": "Votre mariage a été créé",
+    "updated": "Modifications enregistrées",
+    "slugTaken": "Cette adresse est déjà utilisée",
+    "published": "Votre site est maintenant public",
+    "unpublished": "Votre site est maintenant privé"
+  }
+}

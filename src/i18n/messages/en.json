@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "Amora",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "required": "This field is required"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "liste": "Gift list",
+    "site": "My wedding site",
+    "cagnotte": "Collection",
+    "contributions": "Contributions",
+    "retrait": "Withdraw",
+    "parametres": "Settings"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Who are the newlyweds?",
+      "partner1": "Partner 1 first name",
+      "partner2": "Partner 2 first name"
+    },
+    "step2": {
+      "title": "When is your wedding?",
+      "date": "Wedding date",
+      "skip": "I don't know yet"
+    },
+    "step3": {
+      "title": "Choose your site address",
+      "slug": "Custom address",
+      "hint": "amora.fr/m/",
+      "checking": "Checking…",
+      "available": "Available!",
+      "taken": "This address is already taken"
+    },
+    "step4": {
+      "title": "Your site is ready!",
+      "subtitle": "Start customizing your space and share the link with your guests.",
+      "cta": "Go to my dashboard"
+    }
+  },
+  "wedding": {
+    "created": "Your wedding has been created",
+    "updated": "Changes saved",
+    "slugTaken": "This address is already taken",
+    "published": "Your site is now public",
+    "unpublished": "Your site is now private"
+  }
+}
