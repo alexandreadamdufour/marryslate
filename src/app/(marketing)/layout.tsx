@@ -35,7 +35,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground sm:flex-row sm:justify-between">
             <Logo className="text-lg" />
-            <div className="flex gap-6">
+            <div className="flex flex-wrap justify-center gap-6 sm:justify-end">
+              <Link href="/trouver-une-liste" className="hover:text-foreground">
+                Trouver une liste
+              </Link>
               <Link href="/mentions-legales" className="hover:text-foreground">
                 Mentions légales
               </Link>
