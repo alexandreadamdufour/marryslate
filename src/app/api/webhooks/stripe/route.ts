@@ -42,6 +42,27 @@ export async function POST(req: Request) {
         .update({ payment_status: "succeeded", stripe_payment_intent_id: pi.id })
         .eq("id", contributionId)
 
+      // Recalcule current_amount depuis zéro (idempotent, cohérent avec le trigger DB)
+      const giftId = existing.gift_id ?? pi.metadata?.gift_id ?? null
+      if (giftId) {
+        const { data: rows } = await supabase
+          .from("contributions")
+          .select("net_amount")
+          .eq("gift_id", giftId)
+          .eq("payment_status", "succeeded")
+
+        const total = rows?.reduce((sum, r) => sum + Number(r.net_amount), 0) ?? 0
+
+        const { error: giftUpdateError } = await supabase
+          .from("gifts")
+          .update({ current_amount: total })
+          .eq("id", giftId)
+
+        if (giftUpdateError) {
+          console.error("[webhook] gift current_amount update:", giftUpdateError.message)
+        }
+      }
+
       // Récupérer infos pour les emails
       const { data: wedding } = await supabase
         .from("weddings")
