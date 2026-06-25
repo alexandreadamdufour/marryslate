@@ -95,7 +95,13 @@ export default async function WeddingPublicPage({ params }: Props) {
       />
       <WeddingHero wedding={wedding} />
 
-      {wedding.story_md && <WeddingStory storyMd={wedding.story_md} />}
+      {wedding.story_md && (
+        <WeddingStory
+          title={wedding.story_title}
+          text={wedding.story_md}
+          images={(wedding.story_images as string[] | null) ?? []}
+        />
+      )}
 
       <WeddingEventsSection events={wedding.events} />
 

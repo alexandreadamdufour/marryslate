@@ -67,6 +67,8 @@ export interface Database {
           theme_id: string
           primary_color: string | null
           story_md: string | null
+          story_title: string | null
+          story_images: Json | null
           is_published: boolean
           rsvp_enabled: boolean
           practical_info: Json | null
@@ -86,6 +88,8 @@ export interface Database {
           theme_id?: string
           primary_color?: string | null
           story_md?: string | null
+          story_title?: string | null
+          story_images?: Json | null
           is_published?: boolean
           rsvp_enabled?: boolean
           practical_info?: Json | null
@@ -104,6 +108,8 @@ export interface Database {
           theme_id?: string
           primary_color?: string | null
           story_md?: string | null
+          story_title?: string | null
+          story_images?: Json | null
           is_published?: boolean
           rsvp_enabled?: boolean
           practical_info?: Json | null

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { getMyWedding } from "@/queries/wedding"
 import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingSettingsForm } from "@/components/dashboard/wedding-settings-form"
+import { StoryForm } from "@/components/dashboard/story-form"
 import { PracticalInfoForm } from "@/components/dashboard/practical-info-form"
 import { TimelineEditor } from "@/components/dashboard/timeline-editor"
 import { Separator } from "@/components/ui/separator"
@@ -22,6 +23,18 @@ export default async function SitePage() {
       </div>
 
       <WeddingSettingsForm wedding={wedding} />
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Notre histoire</h2>
+          <p className="text-sm text-muted-foreground">
+            Racontez votre histoire et ajoutez jusqu&apos;à 3 photos souvenirs.
+          </p>
+        </div>
+        <StoryForm wedding={wedding} />
+      </div>
 
       <Separator />
 
