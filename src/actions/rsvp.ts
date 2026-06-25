@@ -1,9 +1,11 @@
 "use server"
 
+import { headers } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { submitRsvpSchema, type SubmitRsvpInput } from "@/lib/validators/rsvp"
 import { sendRsvpConfirmationToGuest, sendRsvpNotifToCouple } from "@/lib/resend/send"
 import { revalidatePath } from "next/cache"
+import { checkRsvpRateLimit } from "@/lib/rate-limit"
 
 type ActionResult<T> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -12,6 +14,11 @@ export async function submitRsvp(
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = submitRsvpSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
+
+  const headersList = await headers()
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous"
+  const allowed = await checkRsvpRateLimit(ip, parsed.data.weddingId)
+  if (!allowed) return { error: "RATE_LIMITED" }
 
   const { weddingId, firstName, lastName, email, attending, guestCount, dietary, message } =
     parsed.data

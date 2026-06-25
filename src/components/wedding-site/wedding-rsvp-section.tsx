@@ -52,6 +52,10 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
 
   async function onSubmit(values: SubmitRsvpInput) {
     const result = await submitRsvp(values)
+    if (result.error === "RATE_LIMITED") {
+      toast.error("Trop de tentatives, réessayez dans une heure.")
+      return
+    }
     if (result.error) {
       toast.error("Une erreur est survenue. Veuillez réessayer.")
       return
