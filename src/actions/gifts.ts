@@ -147,12 +147,13 @@ export async function deleteGift(giftId: string): Promise<ActionResult> {
 
   if (!gift) return { error: "NOT_FOUND" }
 
+  const isCoowner = await assertWeddingCoowner(clerkUserId, gift.wedding_id)
+  if (!isCoowner) return { error: "FORBIDDEN" }
+
   if (Number(gift.current_amount) > 0) {
     // Soft-delete si des contributions existent déjà
     await supabase.from("gifts").update({ is_active: false }).eq("id", giftId)
   } else {
-    const isCoowner = await assertWeddingCoowner(clerkUserId, gift.wedding_id)
-    if (!isCoowner) return { error: "FORBIDDEN" }
     await supabase.from("gifts").delete().eq("id", giftId)
   }
 
@@ -177,7 +178,11 @@ export async function reorderGifts(
   // Batch update des positions
   await Promise.all(
     parsed.data.positions.map(({ id, position }) =>
-      supabase.from("gifts").update({ position }).eq("id", id)
+      supabase
+        .from("gifts")
+        .update({ position })
+        .eq("id", id)
+        .eq("wedding_id", parsed.data.weddingId)
     )
   )
 

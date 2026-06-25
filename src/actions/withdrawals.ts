@@ -122,7 +122,9 @@ export async function requestPayout(amountEuros: number): Promise<ActionResult<{
   if (!ctx) return { error: "UNAUTHORIZED" }
   const { user, wedding } = ctx
 
-  const stripeAccountId = user.stripe_account_id ?? wedding?.stripe_account_id
+  if (!wedding) return { error: "NO_WEDDING" }
+
+  const stripeAccountId = user.stripe_account_id ?? wedding.stripe_account_id
   if (!stripeAccountId) return { error: "STRIPE_NOT_CONFIGURED" }
 
   const amountCentimes = Math.round(amountEuros * 100)
@@ -137,7 +139,7 @@ export async function requestPayout(amountEuros: number): Promise<ActionResult<{
   // Créer l'entrée withdrawal
   const supabase = createAdminClient()
   await supabase.from("withdrawals").insert({
-    wedding_id: wedding!.id,
+    wedding_id: wedding.id,
     amount: amountEuros,
     stripe_payout_id: payoutId,
     status: "processing",
