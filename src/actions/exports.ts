@@ -85,3 +85,64 @@ export async function exportContributionsCSV(): Promise<ActionResult<{ csv: stri
 
   return { data: { csv, filename } }
 }
+
+export async function exportRsvpCSV(): Promise<ActionResult<{ csv: string; filename: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  const supabase = createAdminClient()
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("id")
+    .eq("clerk_user_id", clerkUserId)
+    .maybeSingle()
+
+  if (!user) return { error: "USER_NOT_FOUND" }
+
+  const { data: coowner } = await supabase
+    .from("wedding_coowners")
+    .select("wedding_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (!coowner) return { error: "NO_WEDDING" }
+
+  const { data } = await supabase
+    .from("rsvp_responses")
+    .select("*")
+    .eq("wedding_id", coowner.wedding_id)
+    .order("created_at", { ascending: false })
+
+  const responses = data ?? []
+
+  const headers = [
+    "Date",
+    "Prénom",
+    "Nom",
+    "Email",
+    "Présent",
+    "Nombre de personnes",
+    "Régime alimentaire",
+    "Message",
+  ]
+
+  const rows = responses.map((r) => [
+    escapeCsv(formatDate(r.created_at)),
+    escapeCsv(r.first_name),
+    escapeCsv(r.last_name),
+    escapeCsv(r.email),
+    escapeCsv(r.attending ? "Oui" : "Non"),
+    escapeCsv(r.attending ? String(r.guest_count) : ""),
+    escapeCsv(r.dietary),
+    escapeCsv(r.message),
+  ])
+
+  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
+
+  const date = new Date().toISOString().slice(0, 10)
+  const filename = `amora-invites-${date}.csv`
+
+  return { data: { csv, filename } }
+}

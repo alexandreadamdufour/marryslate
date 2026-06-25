@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { RsvpToggle } from "@/components/dashboard/rsvp-toggle"
+import { ExportRsvpCsvButton } from "@/components/dashboard/export-rsvp-csv-button"
 
 export const metadata: Metadata = { title: "Invités" }
 
@@ -37,7 +38,10 @@ export default async function InvitesPage() {
             {responses.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <RsvpToggle weddingId={wedding.id} initialEnabled={wedding.rsvp_enabled} />
+        <div className="flex items-center gap-2">
+          {responses.length > 0 && <ExportRsvpCsvButton />}
+          <RsvpToggle weddingId={wedding.id} initialEnabled={wedding.rsvp_enabled} />
+        </div>
       </div>
 
       {/* Résumé */}
