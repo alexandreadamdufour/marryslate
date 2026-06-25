@@ -127,7 +127,21 @@ export default async function WeddingPublicPage({ params }: Props) {
 
       <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
 
-      <WeddingTimelineSection steps={timelineSteps} />
+      <WeddingTimelineSection
+        steps={timelineSteps}
+        weddingDate={wedding.wedding_date}
+        weddingSlug={slug}
+        location={
+          (wedding.practical_info as PracticalInfo | null)?.venue_ceremony
+            ? [
+                (wedding.practical_info as PracticalInfo | null)?.venue_ceremony?.name,
+                (wedding.practical_info as PracticalInfo | null)?.venue_ceremony?.address,
+              ]
+                .filter(Boolean)
+                .join(", ") || undefined
+            : undefined
+        }
+      />
 
       {wedding.rsvp_enabled && (
         <WeddingRsvpSection

@@ -1,11 +1,24 @@
+import { CalendarDays } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { CalendarStepButton } from "@/components/wedding-site/calendar-step-button"
 import type { TimelineStep } from "@/queries/timeline"
 
 interface WeddingTimelineSectionProps {
   steps: TimelineStep[]
+  weddingDate: string | null
+  weddingSlug: string
+  location?: string
 }
 
-export function WeddingTimelineSection({ steps }: WeddingTimelineSectionProps) {
+export function WeddingTimelineSection({
+  steps,
+  weddingDate,
+  weddingSlug,
+  location,
+}: WeddingTimelineSectionProps) {
   if (steps.length === 0) return null
+
+  const hasDate = !!weddingDate
 
   return (
     <section id="programme-journee" className="py-20">
@@ -24,10 +37,12 @@ export function WeddingTimelineSection({ steps }: WeddingTimelineSectionProps) {
               </div>
 
               {/* Content */}
-              <div className={index < steps.length - 1 ? "pb-10" : "pb-0"}>
+              <div className={index < steps.length - 1 ? "pb-8" : "pb-0"}>
                 <div className="flex flex-wrap items-baseline gap-2">
                   {step.emoji && (
-                    <span className="text-xl" aria-hidden="true">{step.emoji}</span>
+                    <span className="text-xl" aria-hidden="true">
+                      {step.emoji}
+                    </span>
                   )}
                   <span className="font-serif text-lg font-semibold text-primary">
                     {step.time}
@@ -39,10 +54,32 @@ export function WeddingTimelineSection({ steps }: WeddingTimelineSectionProps) {
                     {step.description}
                   </p>
                 )}
+                {hasDate && (
+                  <CalendarStepButton
+                    step={step}
+                    weddingDate={weddingDate}
+                    weddingSlug={weddingSlug}
+                    location={location}
+                  />
+                )}
               </div>
             </div>
           ))}
         </div>
+
+        {hasDate && steps.length > 1 && (
+          <div className="mt-10 text-center">
+            <Button variant="outline" size="sm" asChild>
+              <a
+                href={`/api/calendar/${weddingSlug}/all.ics`}
+                download={`mariage-${weddingSlug}.ics`}
+              >
+                <CalendarDays className="mr-2 h-4 w-4" aria-hidden="true" />
+                Ajouter tout le programme
+              </a>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )
