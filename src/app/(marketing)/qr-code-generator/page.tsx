@@ -6,7 +6,7 @@ import { QrCodeGenerator } from "@/components/marketing/qr-code-generator"
 export const metadata: Metadata = {
   title: "Générateur de QR code mariage gratuit — Amora",
   description:
-    "Créez gratuitement le QR code de votre site de mariage en quelques secondes. Téléchargez-le en PNG pour l'imprimer sur vos faire-parts, menus de table ou espace photobooth.",
+    "Générez gratuitement le QR code de votre site mariage en quelques secondes. Téléchargez en PNG pour l'imprimer sur vos faire-parts et menus de table.",
 }
 
 const TIPS = [

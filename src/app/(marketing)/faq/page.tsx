@@ -11,7 +11,7 @@ import {
 export const metadata: Metadata = {
   title: "FAQ — Questions fréquentes | Amora",
   description:
-    "Toutes les réponses à vos questions sur la création de site mariage, la liste de cadeaux et la participation des invités avec Amora.",
+    "Toutes les réponses à vos questions sur Amora : créer un site de mariage, gérer votre liste de cadeaux, collecter les contributions et être payé directement.",
 }
 
 const SECTIONS = [

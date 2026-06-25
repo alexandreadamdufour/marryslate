@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "Comment ça marche — Amora",
   description:
-    "Créez votre site de mariage et votre liste de cadeaux en 2 minutes. Découvrez comment Amora fonctionne, étape par étape.",
+    "Créez votre site de mariage et liste de cadeaux en 2 minutes. RSVP, livre d'or, QR code inclus. Découvrez comment Amora fonctionne étape par étape.",
 }
 
 const STEPS = [

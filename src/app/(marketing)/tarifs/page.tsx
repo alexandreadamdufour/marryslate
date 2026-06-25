@@ -6,7 +6,7 @@ import { Check, X, Minus } from "lucide-react"
 export const metadata: Metadata = {
   title: "Tarifs",
   description:
-    "Amora est gratuit à créer. Seulement 2,9 % + 0,30 € par contribution reçue. Aucun abonnement, aucun frais caché.",
+    "Amora est 100 % gratuit à créer. Seulement 2,9 % + 0,30 € par contribution reçue. Zéro abonnement, zéro frais caché. Vos invités contribuent en 2 clics.",
 }
 
 const INCLUDED = [

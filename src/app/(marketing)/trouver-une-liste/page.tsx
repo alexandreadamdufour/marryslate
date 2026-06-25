@@ -5,7 +5,7 @@ import { WeddingSearch } from "@/components/marketing/wedding-search"
 export const metadata: Metadata = {
   title: "Trouver une liste de mariage — Amora",
   description:
-    "Retrouvez le site de mariage de vos proches. Recherchez par prénom pour accéder à leur liste de cadeaux et contribuer.",
+    "Retrouvez facilement le site de mariage de vos proches et contribuez à leur liste de cadeaux. Recherchez par prénom des mariés pour trouver leur site Amora.",
   openGraph: {
     title: "Trouver une liste de mariage — Amora",
     description: "Retrouvez le site de mariage de vos proches et contribuez à leur liste.",

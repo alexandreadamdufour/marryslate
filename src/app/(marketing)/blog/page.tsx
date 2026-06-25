@@ -7,7 +7,7 @@ import { Clock } from "lucide-react"
 export const metadata = {
   title: "Blog — Conseils mariage | Amora",
   description:
-    "Guides et conseils pour organiser votre mariage : liste de cadeaux, cagnotte, site mariage, faire-part. Tout pour que votre mariage soit parfait.",
+    "Guides pratiques pour votre mariage : liste de cadeaux en ligne, cagnotte, site personnalisé. Tous les conseils pour préparer le plus beau jour de votre vie.",
 }
 
 export default function BlogPage() {
