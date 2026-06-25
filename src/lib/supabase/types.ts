@@ -75,6 +75,7 @@ export interface Database {
           practical_info: Json | null
           access_code: string | null
           access_code_enabled: boolean
+          notifications_enabled: boolean
           view_count: number
           mangopay_wallet_id: string | null
           stripe_account_id: string | null
@@ -100,6 +101,7 @@ export interface Database {
           practical_info?: Json | null
           access_code?: string | null
           access_code_enabled?: boolean
+          notifications_enabled?: boolean
           view_count?: number
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
@@ -124,6 +126,7 @@ export interface Database {
           practical_info?: Json | null
           access_code?: string | null
           access_code_enabled?: boolean
+          notifications_enabled?: boolean
           view_count?: number
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null

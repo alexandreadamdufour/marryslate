@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       // Récupérer infos pour les emails
       const { data: wedding } = await supabase
         .from("weddings")
-        .select("partner1_first_name, partner2_first_name, slug, owner_id")
+        .select("partner1_first_name, partner2_first_name, slug, owner_id, notifications_enabled")
         .eq("id", existing.wedding_id)
         .maybeSingle()
 
@@ -88,8 +88,8 @@ export async function POST(req: Request) {
         }).catch((e) => console.error("[webhook] receipt email:", e))
       }
 
-      // Notification au couple
-      if (wedding?.owner_id) {
+      // Notification au couple (respecte la préférence)
+      if (wedding?.owner_id && wedding.notifications_enabled) {
         const { data: owner } = await supabase
           .from("users")
           .select("email")

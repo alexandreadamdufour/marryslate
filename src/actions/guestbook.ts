@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { submitGuestbookSchema, type SubmitGuestbookInput } from "@/lib/validators/guestbook"
+import { sendGuestbookNotifToCouple } from "@/lib/resend/send"
 
 type ActionResult<T> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -17,7 +18,7 @@ export async function submitGuestbookEntry(
 
   const { data: wedding } = await supabase
     .from("weddings")
-    .select("slug")
+    .select("slug, partner1_first_name, partner2_first_name, owner_id, notifications_enabled")
     .eq("id", weddingId)
     .eq("is_published", true)
     .maybeSingle()
@@ -37,6 +38,24 @@ export async function submitGuestbookEntry(
 
   revalidatePath(`/m/${wedding.slug}`)
   revalidatePath("/dashboard/livre-d-or")
+
+  if (wedding.notifications_enabled) {
+    const { data: owner } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", wedding.owner_id)
+      .maybeSingle()
+
+    if (owner?.email) {
+      sendGuestbookNotifToCouple({
+        coupleEmail: owner.email,
+        authorName,
+        message,
+        weddingPartner1: wedding.partner1_first_name,
+        weddingPartner2: wedding.partner2_first_name,
+      }).catch((e) => console.error("[guestbook] notif:", e))
+    }
+  }
 
   return { data: { id: data.id } }
 }

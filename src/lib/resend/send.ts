@@ -1,5 +1,13 @@
 import { resend, FROM_EMAIL } from "./client"
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+}
+
 interface ContributionReceiptParams {
   guestEmail: string
   guestName: string
@@ -163,6 +171,46 @@ export async function sendRsvpNotifToCouple(p: RsvpCoupleNotifParams) {
              style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px;
                     border-radius: 6px; text-decoration: none; font-size: 14px;">
             Voir toutes les réponses
+          </a>
+        </p>
+        <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
+        <p style="font-size: 12px; color: #999;">Amora — Liste de mariage &amp; cagnotte en ligne.</p>
+      </div>
+    `,
+  })
+}
+
+interface GuestbookNotifParams {
+  coupleEmail: string
+  authorName: string
+  message: string
+  weddingPartner1: string
+  weddingPartner2: string
+}
+
+export async function sendGuestbookNotifToCouple(p: GuestbookNotifParams) {
+  const preview = p.message.length > 300 ? p.message.slice(0, 300) + "…" : p.message
+  const htmlMessage = escapeHtml(preview).replace(/\n/g, "<br/>")
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: p.coupleEmail,
+    subject: `Nouveau message dans votre livre d'or — ${p.authorName}`,
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">Nouveau message 💌</h1>
+        <p style="color: #666; margin-bottom: 20px;">
+          <strong>${p.authorName}</strong> vous a laissé un message dans votre livre d'or.
+        </p>
+        <blockquote style="margin: 0 0 24px; padding: 16px 20px; border-left: 3px solid #c4714a;
+                           background: #faf8f6; border-radius: 0 6px 6px 0; color: #444; font-style: italic;">
+          ${htmlMessage}
+        </blockquote>
+        <p style="margin-top: 24px;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/livre-d-or"
+             style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px;
+                    border-radius: 6px; text-decoration: none; font-size: 14px;">
+            Voir le livre d'or
           </a>
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />

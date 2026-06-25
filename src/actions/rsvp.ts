@@ -20,7 +20,7 @@ export async function submitRsvp(
 
   const { data: wedding } = await supabase
     .from("weddings")
-    .select("id, is_published, rsvp_enabled, partner1_first_name, partner2_first_name, owner_id, slug")
+    .select("id, is_published, rsvp_enabled, partner1_first_name, partner2_first_name, owner_id, slug, notifications_enabled")
     .eq("id", weddingId)
     .maybeSingle()
 
@@ -68,7 +68,7 @@ export async function submitRsvp(
     .eq("id", wedding.owner_id)
     .maybeSingle()
 
-  if (owner?.email) {
+  if (owner?.email && wedding.notifications_enabled) {
     sendRsvpNotifToCouple({
       coupleEmail: owner.email,
       guestName,
