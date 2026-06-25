@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import Image from "next/image"
 import { getMyWedding } from "@/queries/wedding"
 import { getContributionsByWedding, getWeddingTotals } from "@/queries/contributions"
 import { Badge } from "@/components/ui/badge"
@@ -98,8 +99,21 @@ export default async function ContributionsPage() {
             return (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-lg border bg-card px-4 py-3"
+                className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3"
               >
+                {/* Photo souvenir */}
+                {c.contributor_photo_url && (
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md">
+                    <Image
+                      src={c.contributor_photo_url}
+                      alt="Photo souvenir"
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">
@@ -109,7 +123,7 @@ export default async function ContributionsPage() {
                       {status.label}
                     </Badge>
                   </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                     {c.gift && <span>{c.gift.title}</span>}
                     {c.guest_message && (
                       <span className="truncate italic">&quot;{c.guest_message}&quot;</span>
@@ -117,7 +131,8 @@ export default async function ContributionsPage() {
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{formatDate(c.created_at)}</p>
                 </div>
-                <div className="ml-4 shrink-0 text-right">
+
+                <div className="ml-auto shrink-0 text-right">
                   <p className="font-semibold">
                     {Number(c.gross_amount).toLocaleString("fr-FR", {
                       style: "currency",

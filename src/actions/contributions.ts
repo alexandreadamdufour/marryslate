@@ -9,6 +9,47 @@ type ActionResult<T> =
   | { data: T; error?: never }
   | { error: string; details?: unknown; data?: never }
 
+export async function uploadContributorPhoto(
+  formData: FormData
+): Promise<ActionResult<{ url: string }>> {
+  const file = formData.get("file") as File | null
+  const weddingSlug = formData.get("weddingSlug") as string | null
+  if (!file || !weddingSlug) return { error: "INVALID_INPUT" }
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"]
+  if (!allowedTypes.includes(file.type)) return { error: "INVALID_FILE_TYPE" }
+  if (file.size > 5 * 1024 * 1024) return { error: "FILE_TOO_LARGE" }
+
+  // Vérifie que le mariage existe et est publié — seul garde anti-spam sans auth
+  const supabase = createAdminClient()
+  const { data: wedding } = await supabase
+    .from("weddings")
+    .select("id")
+    .eq("slug", weddingSlug)
+    .eq("is_published", true)
+    .maybeSingle()
+  if (!wedding) return { error: "WEDDING_NOT_FOUND" }
+
+  const ext = file.type.split("/")[1]
+  const path = `contributions/${wedding.id}/${Date.now()}.${ext}`
+  const arrayBuffer = await file.arrayBuffer()
+
+  const { error } = await supabase.storage
+    .from("gift-images")
+    .upload(path, arrayBuffer, { contentType: file.type, upsert: false })
+
+  if (error) {
+    console.error("[uploadContributorPhoto]", error.message)
+    return { error: "UPLOAD_ERROR" }
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("gift-images").getPublicUrl(path)
+
+  return { data: { url: publicUrl } }
+}
+
 function computeFees(grossEuros: number): { fee: number; net: number } {
   const fee = Math.ceil((grossEuros * COMMISSION_RATE + COMMISSION_FIXED) * 100) / 100
   return { fee: Math.round(fee * 100) / 100, net: Math.round((grossEuros - fee) * 100) / 100 }
@@ -20,7 +61,7 @@ export async function createPaymentIntent(
   const parsed = createContributionSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
 
-  const { weddingSlug, giftId, guestName, guestEmail, guestMessage, grossAmountEuros, isAnonymous } =
+  const { weddingSlug, giftId, guestName, guestEmail, guestMessage, contributorPhotoUrl, grossAmountEuros, isAnonymous } =
     parsed.data
 
   const supabase = createAdminClient()
@@ -61,6 +102,7 @@ export async function createPaymentIntent(
       guest_name: guestName,
       guest_email: guestEmail || null,
       guest_message: guestMessage || null,
+      contributor_photo_url: contributorPhotoUrl ?? null,
       gross_amount: grossAmountEuros,
       fee_amount: fee,
       net_amount: net,

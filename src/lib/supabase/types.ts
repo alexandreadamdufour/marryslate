@@ -221,6 +221,7 @@ export interface Database {
           guest_name: string
           guest_email: string | null
           guest_message: string | null
+          contributor_photo_url: string | null
           gross_amount: number
           fee_amount: number
           net_amount: number
@@ -238,6 +239,7 @@ export interface Database {
           guest_name: string
           guest_email?: string | null
           guest_message?: string | null
+          contributor_photo_url?: string | null
           gross_amount: number
           fee_amount: number
           net_amount: number
@@ -253,6 +255,7 @@ export interface Database {
           guest_name?: string
           guest_email?: string | null
           guest_message?: string | null
+          contributor_photo_url?: string | null
           gross_amount?: number
           fee_amount?: number
           net_amount?: number

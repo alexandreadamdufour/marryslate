@@ -4,9 +4,12 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import imageCompression from "browser-image-compression"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
-import { createPaymentIntent } from "@/actions/contributions"
+import { Loader2, Upload, X } from "lucide-react"
+import Image from "next/image"
+import { createPaymentIntent, uploadContributorPhoto } from "@/actions/contributions"
 import { createContributionSchema } from "@/lib/validators/contributions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 import type { Gift } from "@/queries/gifts"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -44,6 +48,8 @@ interface Step1FormProps {
 
 function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormProps) {
   const [serverError, setServerError] = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   const form = useForm<Step1Values>({
     resolver: zodResolver(step1Schema),
@@ -52,14 +58,42 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
       guestName: "",
       guestEmail: "",
       guestMessage: "",
+      contributorPhotoUrl: null,
       grossAmountEuros: 50,
       isAnonymous: false,
     },
   })
 
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1600,
+        useWebWorker: true,
+      })
+      const fd = new FormData()
+      fd.append("file", compressed, file.name)
+      fd.append("weddingSlug", weddingSlug)
+      const result = await uploadContributorPhoto(fd)
+      if (result.error || result.data === undefined) {
+        toast.error("Erreur lors de l'upload de la photo.")
+        return
+      }
+      setPhotoUrl(result.data.url)
+    } catch {
+      toast.error("Erreur lors de la compression de la photo.")
+    } finally {
+      setUploading(false)
+      e.target.value = ""
+    }
+  }
+
   async function onSubmit(values: Step1Values) {
     setServerError(null)
-    const result = await createPaymentIntent({ ...values, weddingSlug })
+    const result = await createPaymentIntent({ ...values, contributorPhotoUrl: photoUrl, weddingSlug })
     if ("error" in result) {
       const messages: Record<string, string> = {
         INVALID_INPUT: "Données invalides, vérifiez le formulaire.",
@@ -186,6 +220,53 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
           )}
         />
 
+        {/* Photo souvenir */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Joindre un souvenir <span className="font-normal text-muted-foreground">(optionnel)</span></p>
+          {photoUrl ? (
+            <div className="relative w-full">
+              <Image
+                src={photoUrl}
+                alt="Aperçu de votre photo"
+                width={400}
+                height={200}
+                className="h-40 w-full rounded-lg object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setPhotoUrl(null)}
+                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                aria-label="Supprimer la photo"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <label
+              className={[
+                "flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-muted/40 text-sm text-muted-foreground transition-colors",
+                uploading ? "opacity-60" : "hover:bg-muted/60",
+              ].join(" ")}
+            >
+              {uploading ? (
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+              ) : (
+                <>
+                  <Upload className="h-5 w-5" aria-hidden="true" />
+                  <span>Ajouter une photo (JPG, PNG, WebP — max 5 Mo)</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={uploading}
+                onChange={handlePhotoChange}
+              />
+            </label>
+          )}
+        </div>
+
         {serverError && (
           <Alert variant="destructive">
             <AlertDescription>{serverError}</AlertDescription>
@@ -195,7 +276,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
         <Button
           type="submit"
           className="w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || uploading}
         >
           {form.formState.isSubmitting ? "Chargement…" : "Continuer vers le paiement"}
         </Button>
