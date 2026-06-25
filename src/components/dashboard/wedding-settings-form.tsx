@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { toast } from "sonner"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { updateWedding, checkSlugAvailability } from "@/actions/wedding"
 import { updateWeddingSchema, type UpdateWeddingInput } from "@/lib/validators/wedding"
 import { slugify } from "@/lib/utils"
+import { useSitePreview } from "./site-preview-context"
 import type { Tables } from "@/lib/supabase/types"
 
 interface WeddingSettingsFormProps {
@@ -22,6 +23,7 @@ type SlugStatus = "idle" | "checking" | "available" | "taken" | "unchanged"
 export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("unchanged")
   const [isSaving, setIsSaving] = useState(false)
+  const { updatePreview } = useSitePreview()
 
   const form = useForm<UpdateWeddingInput>({
     resolver: zodResolver(updateWeddingSchema),
@@ -34,6 +36,18 @@ export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
       isPublished: wedding.is_published,
     },
   })
+
+  const partner1Watch = form.watch("partner1FirstName")
+  const partner2Watch = form.watch("partner2FirstName")
+  const dateWatch = form.watch("weddingDate")
+
+  useEffect(() => {
+    updatePreview({
+      partner1: partner1Watch ?? "",
+      partner2: partner2Watch ?? "",
+      date: dateWatch ?? "",
+    })
+  }, [partner1Watch, partner2Watch, dateWatch, updatePreview])
 
   const checkSlug = useCallback(
     async (value: string) => {

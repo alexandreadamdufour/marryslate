@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { WEDDING_COLORS, WEDDING_FONTS } from "@/lib/constants"
 import { updateWeddingVisual } from "@/actions/visual"
+import { useSitePreview } from "./site-preview-context"
 import type { Tables } from "@/lib/supabase/types"
 
 interface Props {
@@ -25,6 +26,7 @@ export function VisualForm({ wedding }: Props) {
   const [showCustom, setShowCustom] = useState(isCustomDefault)
   const [fontFamily, setFontFamily] = useState(wedding.font_family ?? "Fraunces")
   const [saving, setSaving] = useState(false)
+  const { updatePreview } = useSitePreview()
 
   const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
@@ -32,6 +34,7 @@ export function VisualForm({ wedding }: Props) {
     setColor(value)
     setShowCustom(false)
     setCustomHex("")
+    updatePreview({ color: value })
   }
 
   function handleCustomToggle() {
@@ -41,7 +44,10 @@ export function VisualForm({ wedding }: Props) {
 
   function handleCustomChange(v: string) {
     setCustomHex(v)
-    if (HEX_RE.test(v)) setColor(v)
+    if (HEX_RE.test(v)) {
+      setColor(v)
+      updatePreview({ color: v })
+    }
   }
 
   async function handleSave() {
@@ -141,7 +147,10 @@ export function VisualForm({ wedding }: Props) {
                 key={font.value}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => setFontFamily(font.value)}
+                onClick={() => {
+                  setFontFamily(font.value)
+                  updatePreview({ fontFamily: font.value })
+                }}
                 className={cn(
                   "flex flex-col items-center gap-1 rounded-lg border px-3 py-3 text-center transition-colors",
                   isActive
