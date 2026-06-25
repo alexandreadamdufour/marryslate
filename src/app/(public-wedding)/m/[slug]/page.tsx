@@ -2,11 +2,13 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { getWeddingPublicData } from "@/queries/wedding"
+import { getGuestbookMessages } from "@/queries/guestbook"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
 import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
+import { WeddingGuestbookSection } from "@/components/wedding-site/wedding-guestbook-section"
 
 // ISR : revalidation toutes les 60 secondes
 export const revalidate = 60
@@ -46,8 +48,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function WeddingPublicPage({ params }: Props) {
   const { slug } = await params
   const wedding = await getWeddingPublicData(slug)
-
   if (!wedding) notFound()
+
+  const guestbookMessages = await getGuestbookMessages(wedding.id)
 
   const themeClass =
     wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
@@ -98,6 +101,13 @@ export default async function WeddingPublicPage({ params }: Props) {
           partner2={wedding.partner2_first_name}
         />
       )}
+
+      <WeddingGuestbookSection
+        weddingId={wedding.id}
+        partner1={wedding.partner1_first_name}
+        partner2={wedding.partner2_first_name}
+        initialMessages={guestbookMessages}
+      />
 
       {/* Footer minimal */}
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">

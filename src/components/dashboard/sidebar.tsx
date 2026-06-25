@@ -13,6 +13,7 @@ import {
   UserCheck,
   Banknote,
   Settings,
+  BookOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/logo"
@@ -31,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/cagnotte", label: "Cagnotte", icon: Heart },
   { href: "/dashboard/contributions", label: "Contributions", icon: Users },
   { href: "/dashboard/invites", label: "Invités", icon: UserCheck },
+  { href: "/dashboard/livre-d-or", label: "Livre d'or", icon: BookOpen },
   { href: "/dashboard/retrait", label: "Retrait", icon: Banknote },
   { href: "/dashboard/parametres", label: "Paramètres", icon: Settings },
 ]
