@@ -3,12 +3,14 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { getWeddingPublicData } from "@/queries/wedding"
 import { getGuestbookMessages } from "@/queries/guestbook"
+import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
 import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
 import { WeddingGuestbookSection } from "@/components/wedding-site/wedding-guestbook-section"
+import { WeddingTimelineSection } from "@/components/wedding-site/wedding-timeline-section"
 
 // ISR : revalidation toutes les 60 secondes
 export const revalidate = 60
@@ -50,7 +52,10 @@ export default async function WeddingPublicPage({ params }: Props) {
   const wedding = await getWeddingPublicData(slug)
   if (!wedding) notFound()
 
-  const guestbookMessages = await getGuestbookMessages(wedding.id)
+  const [guestbookMessages, timelineSteps] = await Promise.all([
+    getGuestbookMessages(wedding.id),
+    getTimelineSteps(wedding.id),
+  ])
 
   const themeClass =
     wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
@@ -93,6 +98,8 @@ export default async function WeddingPublicPage({ params }: Props) {
       <WeddingEventsSection events={wedding.events} />
 
       <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
+
+      <WeddingTimelineSection steps={timelineSteps} />
 
       {wedding.rsvp_enabled && (
         <WeddingRsvpSection

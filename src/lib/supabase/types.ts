@@ -460,6 +460,44 @@ export interface Database {
           },
         ]
       }
+      wedding_timeline: {
+        Row: {
+          id: string
+          wedding_id: string
+          time: string
+          title: string
+          description: string | null
+          emoji: string | null
+          position: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_id: string
+          time: string
+          title: string
+          description?: string | null
+          emoji?: string | null
+          position?: number
+          created_at?: string
+        }
+        Update: {
+          time?: string
+          title?: string
+          description?: string | null
+          emoji?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_timeline_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guestbook_messages: {
         Row: {
           id: string
