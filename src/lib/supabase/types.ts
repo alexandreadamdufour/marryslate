@@ -24,6 +24,7 @@ export interface Database {
           mangopay_user_id: string | null
           stripe_account_id: string | null
           kyc_status: KycStatus
+          deleted_at: string | null
           created_at: string
           updated_at: string
         }
@@ -36,6 +37,7 @@ export interface Database {
           mangopay_user_id?: string | null
           stripe_account_id?: string | null
           kyc_status?: KycStatus
+          deleted_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -48,6 +50,7 @@ export interface Database {
           mangopay_user_id?: string | null
           stripe_account_id?: string | null
           kyc_status?: KycStatus
+          deleted_at?: string | null
           updated_at?: string
         }
         Relationships: []

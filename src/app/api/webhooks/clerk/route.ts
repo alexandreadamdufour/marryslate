@@ -67,11 +67,14 @@ export async function POST(req: Request) {
   }
 
   if (event.type === "user.deleted") {
-    // Soft delete : on garde le user pour ne pas casser les contributions
+    // Soft delete : on marque deleted_at mais on conserve le user
+    // pour préserver l'historique des contributions et données comptables.
+    // Clerk bloque déjà l'authentification de ce compte.
     await supabase
       .from("users")
-      .update({ role: "couple" })
+      .update({ deleted_at: new Date().toISOString() })
       .eq("clerk_user_id", event.data.id)
+      .is("deleted_at", null) // idempotence
   }
 
   return new Response("OK", { status: 200 })

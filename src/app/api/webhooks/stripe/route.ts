@@ -124,6 +124,75 @@ export async function POST(req: Request) {
       break
     }
 
+    case "payment_intent.canceled": {
+      const pi = event.data.object as Stripe.PaymentIntent
+      const contributionId = pi.metadata?.contribution_id
+      if (!contributionId) break
+
+      await supabase
+        .from("contributions")
+        .update({ payment_status: "failed" })
+        .eq("id", contributionId)
+        .eq("payment_status", "pending") // idempotence
+      break
+    }
+
+    case "charge.refunded": {
+      const charge = event.data.object as Stripe.Charge
+      const piId =
+        typeof charge.payment_intent === "string"
+          ? charge.payment_intent
+          : charge.payment_intent?.id
+      if (!piId) break
+
+      const { data: contribution } = await supabase
+        .from("contributions")
+        .select("id, gift_id, payment_status")
+        .eq("stripe_payment_intent_id", piId)
+        .maybeSingle()
+
+      if (!contribution || contribution.payment_status === "refunded") break
+
+      await supabase
+        .from("contributions")
+        .update({ payment_status: "refunded" })
+        .eq("id", contribution.id)
+
+      // Recalculer current_amount en excluant la contribution remboursée
+      if (contribution.gift_id) {
+        const { data: rows } = await supabase
+          .from("contributions")
+          .select("net_amount")
+          .eq("gift_id", contribution.gift_id)
+          .eq("payment_status", "succeeded")
+
+        const total = rows?.reduce((sum, r) => sum + Number(r.net_amount), 0) ?? 0
+
+        await supabase
+          .from("gifts")
+          .update({ current_amount: total })
+          .eq("id", contribution.gift_id)
+      }
+      break
+    }
+
+    case "account.application.deauthorized": {
+      const connectedAccountId = event.account
+      if (!connectedAccountId) break
+
+      await Promise.all([
+        supabase
+          .from("users")
+          .update({ stripe_account_id: null, kyc_status: "not_started" })
+          .eq("stripe_account_id", connectedAccountId),
+        supabase
+          .from("weddings")
+          .update({ stripe_account_id: null })
+          .eq("stripe_account_id", connectedAccountId),
+      ])
+      break
+    }
+
     case "account.updated": {
       const account = event.data.object as Stripe.Account
       const kyc_status = account.charges_enabled
