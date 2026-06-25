@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { getWeddingPublicData } from "@/queries/wedding"
-import { ContributionForm } from "@/components/wedding-site/contribution-form"
+import { ContributionFormClient } from "@/components/wedding-site/contribution-form-client"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface Props {
@@ -62,7 +62,7 @@ export default async function ContribuerPage({ params, searchParams }: Props) {
                 </AlertDescription>
               </Alert>
             ) : (
-              <ContributionForm
+              <ContributionFormClient
                 gifts={wedding.gifts}
                 defaultGiftId={selectedGift}
                 weddingSlug={slug}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import type { Metadata } from "next"
@@ -13,11 +14,19 @@ import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
 import { WeddingPracticalInfoSection } from "@/components/wedding-site/wedding-practical-info-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
-import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
-import { WeddingGuestbookSection } from "@/components/wedding-site/wedding-guestbook-section"
 import { WeddingTimelineSection } from "@/components/wedding-site/wedding-timeline-section"
 import { ViewTracker } from "@/components/wedding-site/view-tracker"
 import type { PracticalInfo } from "@/lib/validators/practical-info"
+
+const WeddingRsvpSection = dynamic(() =>
+  import("@/components/wedding-site/wedding-rsvp-section").then((m) => m.WeddingRsvpSection),
+)
+
+const WeddingGuestbookSection = dynamic(() =>
+  import("@/components/wedding-site/wedding-guestbook-section").then(
+    (m) => m.WeddingGuestbookSection,
+  ),
+)
 
 // ISR : revalidation toutes les 60 secondes
 export const revalidate = 60

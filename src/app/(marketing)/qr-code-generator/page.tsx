@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { QrCodeGenerator } from "@/components/marketing/qr-code-generator"
+import { QrCodeGeneratorClient } from "@/components/marketing/qr-code-generator-client"
 
 export const metadata: Metadata = {
   title: "Générateur de QR code mariage gratuit — Amora",
@@ -47,7 +47,7 @@ export default function QrCodeGeneratorPage() {
       {/* Generator card */}
       <section className="container mx-auto max-w-lg px-4 pb-8 sm:px-6">
         <div className="rounded-2xl border bg-card p-8 shadow-sm">
-          <QrCodeGenerator />
+          <QrCodeGeneratorClient />
         </div>
       </section>
 
