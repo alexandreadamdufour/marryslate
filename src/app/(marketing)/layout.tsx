@@ -21,6 +21,12 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             >
               Tarifs
             </Link>
+            <Link
+              href="/blog"
+              className="hidden text-sm text-muted-foreground hover:text-foreground sm:block"
+            >
+              Blog
+            </Link>
             <Button asChild variant="outline" size="sm">
               <Link href="/connexion">Connexion</Link>
             </Button>
@@ -36,6 +42,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground sm:flex-row sm:justify-between">
             <Logo className="text-lg" />
             <div className="flex flex-wrap justify-center gap-6 sm:justify-end">
+              <Link href="/blog" className="hover:text-foreground">
+                Blog
+              </Link>
               <Link href="/trouver-une-liste" className="hover:text-foreground">
                 Trouver une liste
               </Link>
