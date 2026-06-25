@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import type { Metadata } from "next"
 import { getWeddingPublicData } from "@/queries/wedding"
 import { getGuestbookMessages } from "@/queries/guestbook"
 import { getTimelineSteps } from "@/queries/timeline"
 import { hexToCssHsl, hexGetForeground } from "@/lib/utils"
 import { getWeddingFontCss } from "@/lib/constants"
+import { AccessGate } from "@/components/wedding-site/access-gate"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
@@ -55,6 +57,22 @@ export default async function WeddingPublicPage({ params }: Props) {
   const { slug } = await params
   const wedding = await getWeddingPublicData(slug)
   if (!wedding) notFound()
+
+  // Access code gate — calling cookies() here opts this render into dynamic mode
+  // (ISR cache is only used when access_code_enabled is false)
+  if (wedding.access_code_enabled && wedding.access_code) {
+    const cookieStore = await cookies()
+    const accessCookie = cookieStore.get(`amora_access_${slug}`)
+    if (accessCookie?.value !== wedding.access_code) {
+      return (
+        <AccessGate
+          weddingSlug={slug}
+          partner1={wedding.partner1_first_name}
+          partner2={wedding.partner2_first_name}
+        />
+      )
+    }
+  }
 
   const [guestbookMessages, timelineSteps] = await Promise.all([
     getGuestbookMessages(wedding.id),

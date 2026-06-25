@@ -6,6 +6,7 @@ import { VisualForm } from "@/components/dashboard/visual-form"
 import { StoryForm } from "@/components/dashboard/story-form"
 import { PracticalInfoForm } from "@/components/dashboard/practical-info-form"
 import { TimelineEditor } from "@/components/dashboard/timeline-editor"
+import { AccessCodeForm } from "@/components/dashboard/access-code-form"
 import { Separator } from "@/components/ui/separator"
 
 export const metadata: Metadata = { title: "Mon site mariage" }
@@ -71,6 +72,18 @@ export default async function SitePage() {
           </p>
         </div>
         <TimelineEditor initialSteps={timelineSteps} weddingId={wedding.id} />
+      </div>
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Confidentialité</h2>
+          <p className="text-sm text-muted-foreground">
+            Protégez votre site par un code d&apos;accès à partager dans vos invitations.
+          </p>
+        </div>
+        <AccessCodeForm wedding={wedding} />
       </div>
     </div>
   )
