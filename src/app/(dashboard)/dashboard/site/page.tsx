@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { getMyWedding } from "@/queries/wedding"
 import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingSettingsForm } from "@/components/dashboard/wedding-settings-form"
+import { PracticalInfoForm } from "@/components/dashboard/practical-info-form"
 import { TimelineEditor } from "@/components/dashboard/timeline-editor"
 import { Separator } from "@/components/ui/separator"
 
@@ -21,6 +22,18 @@ export default async function SitePage() {
       </div>
 
       <WeddingSettingsForm wedding={wedding} />
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Infos pratiques</h2>
+          <p className="text-sm text-muted-foreground">
+            Lieux, dress code et hébergements recommandés pour vos invités.
+          </p>
+        </div>
+        <PracticalInfoForm wedding={wedding} />
+      </div>
 
       <Separator />
 

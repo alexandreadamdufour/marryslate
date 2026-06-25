@@ -7,10 +7,12 @@ import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
+import { WeddingPracticalInfoSection } from "@/components/wedding-site/wedding-practical-info-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
 import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
 import { WeddingGuestbookSection } from "@/components/wedding-site/wedding-guestbook-section"
 import { WeddingTimelineSection } from "@/components/wedding-site/wedding-timeline-section"
+import type { PracticalInfo } from "@/lib/validators/practical-info"
 
 // ISR : revalidation toutes les 60 secondes
 export const revalidate = 60
@@ -96,6 +98,10 @@ export default async function WeddingPublicPage({ params }: Props) {
       {wedding.story_md && <WeddingStory storyMd={wedding.story_md} />}
 
       <WeddingEventsSection events={wedding.events} />
+
+      <WeddingPracticalInfoSection
+        info={wedding.practical_info as PracticalInfo | null}
+      />
 
       <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
 

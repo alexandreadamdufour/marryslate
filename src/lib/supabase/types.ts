@@ -69,6 +69,7 @@ export interface Database {
           story_md: string | null
           is_published: boolean
           rsvp_enabled: boolean
+          practical_info: Json | null
           mangopay_wallet_id: string | null
           stripe_account_id: string | null
           created_at: string
@@ -87,6 +88,7 @@ export interface Database {
           story_md?: string | null
           is_published?: boolean
           rsvp_enabled?: boolean
+          practical_info?: Json | null
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           created_at?: string
@@ -104,6 +106,7 @@ export interface Database {
           story_md?: string | null
           is_published?: boolean
           rsvp_enabled?: boolean
+          practical_info?: Json | null
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           updated_at?: string
