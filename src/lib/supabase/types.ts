@@ -75,6 +75,7 @@ export interface Database {
           practical_info: Json | null
           access_code: string | null
           access_code_enabled: boolean
+          view_count: number
           mangopay_wallet_id: string | null
           stripe_account_id: string | null
           created_at: string
@@ -99,6 +100,7 @@ export interface Database {
           practical_info?: Json | null
           access_code?: string | null
           access_code_enabled?: boolean
+          view_count?: number
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           created_at?: string
@@ -122,6 +124,7 @@ export interface Database {
           practical_info?: Json | null
           access_code?: string | null
           access_code_enabled?: boolean
+          view_count?: number
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           updated_at?: string
@@ -635,6 +638,10 @@ export interface Database {
       is_wedding_coowner: {
         Args: { p_wedding_id: string }
         Returns: boolean
+      }
+      increment_wedding_view_count: {
+        Args: { p_slug: string }
+        Returns: void
       }
     }
     Enums: {

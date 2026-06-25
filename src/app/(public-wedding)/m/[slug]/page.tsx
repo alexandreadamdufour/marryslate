@@ -16,6 +16,7 @@ import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-sec
 import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
 import { WeddingGuestbookSection } from "@/components/wedding-site/wedding-guestbook-section"
 import { WeddingTimelineSection } from "@/components/wedding-site/wedding-timeline-section"
+import { ViewTracker } from "@/components/wedding-site/view-tracker"
 import type { PracticalInfo } from "@/lib/validators/practical-info"
 
 // ISR : revalidation toutes les 60 secondes
@@ -185,6 +186,8 @@ export default async function WeddingPublicPage({ params }: Props) {
           </Link>
         </p>
       </footer>
+
+      <ViewTracker weddingSlug={slug} />
     </div>
   )
 }

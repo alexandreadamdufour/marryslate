@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Eye } from "lucide-react"
 import { getMyWedding } from "@/queries/wedding"
 import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingSettingsForm } from "@/components/dashboard/wedding-settings-form"
@@ -19,9 +20,20 @@ export default async function SitePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl">Mon site mariage</h1>
-        <p className="text-sm text-muted-foreground">Personnalisez votre site public.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl">Mon site mariage</h1>
+          <p className="text-sm text-muted-foreground">Personnalisez votre site public.</p>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground">
+          <Eye className="h-4 w-4" aria-hidden="true" />
+          <span>
+            <span className="font-medium tabular-nums text-foreground">
+              {(wedding.view_count ?? 0).toLocaleString("fr-FR")}
+            </span>
+            {" "}vue{wedding.view_count !== 1 ? "s" : ""}
+          </span>
+        </div>
       </div>
 
       <WeddingSettingsForm wedding={wedding} />
