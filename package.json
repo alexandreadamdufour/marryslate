@@ -38,7 +38,7 @@
     "@supabase/supabase-js": "^2.49.4",
     "@tailwindcss/typography": "^0.5.20",
     "@types/qrcode": "^1.5.6",
-    "@vercel/kv": "^3.0.0",
+    "@upstash/redis": "^1.38.0",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
