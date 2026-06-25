@@ -1,5 +1,6 @@
 import Image from "next/image"
 import type { Wedding } from "@/queries/wedding"
+import { WeddingCountdown } from "@/components/wedding-site/wedding-countdown"
 
 interface WeddingHeroProps {
   wedding: Wedding
@@ -46,6 +47,9 @@ export function WeddingHero({ wedding }: WeddingHeroProps) {
           <span className="mx-4 opacity-60">&amp;</span>
           {wedding.partner2_first_name}
         </h1>
+        {wedding.wedding_date && (
+          <WeddingCountdown weddingDate={wedding.wedding_date} />
+        )}
         {formattedDate && (
           <p className="text-lg opacity-90 sm:text-xl">{formattedDate}</p>
         )}
