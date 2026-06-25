@@ -7,7 +7,7 @@ interface WeddingStoryProps {
 }
 
 export function WeddingStory({ title, text, images }: WeddingStoryProps) {
-  const photoCount = Math.min(images.length, 3)
+  const count = images.length
 
   return (
     <section id="notre-histoire" className="py-20">
@@ -20,38 +20,73 @@ export function WeddingStory({ title, text, images }: WeddingStoryProps) {
           {text}
         </p>
 
-        {photoCount > 0 && (
-          <div
-            className={[
-              "mt-12 grid gap-3",
-              photoCount === 1 ? "grid-cols-1" : "",
-              photoCount === 2 ? "grid-cols-2" : "",
-              photoCount === 3 ? "grid-cols-3" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          >
-            {images.slice(0, 3).map((url, i) => (
-              <div
-                key={i}
-                className={[
-                  "relative overflow-hidden rounded-xl",
-                  photoCount === 1 ? "aspect-video" : "aspect-square",
-                ].join(" ")}
-              >
+        {count > 0 && (
+          <div className="mt-12">
+            {/* 1 photo — pleine largeur paysage */}
+            {count === 1 && images[0] && (
+              <div className="relative aspect-video overflow-hidden rounded-xl">
                 <Image
-                  src={url}
-                  alt={`Photo souvenir ${i + 1}`}
+                  src={images[0]}
+                  alt="Photo souvenir"
                   fill
-                  sizes={
-                    photoCount === 1
-                      ? "(max-width: 768px) 100vw, 672px"
-                      : "(max-width: 768px) 50vw, 224px"
-                  }
+                  sizes="(max-width: 768px) 100vw, 672px"
                   className="object-cover"
                 />
               </div>
-            ))}
+            )}
+
+            {/* 2 photos — côte à côte */}
+            {count === 2 && (
+              <div className="grid grid-cols-2 gap-3">
+                {images.map((url, i) => (
+                  <div key={url} className="relative aspect-square overflow-hidden rounded-xl">
+                    <Image
+                      src={url}
+                      alt={`Photo souvenir ${i + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 336px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 3 photos — grille 3 colonnes */}
+            {count === 3 && (
+              <div className="grid grid-cols-3 gap-3">
+                {images.map((url, i) => (
+                  <div key={url} className="relative aspect-square overflow-hidden rounded-xl">
+                    <Image
+                      src={url}
+                      alt={`Photo souvenir ${i + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 33vw, 224px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 4+ photos — masonry CSS colonnes, proportions naturelles */}
+            {count >= 4 && (
+              <div className="columns-2 gap-3 sm:columns-3">
+                {images.map((url, i) => (
+                  <div key={url} className="mb-3 break-inside-avoid overflow-hidden rounded-xl">
+                    <Image
+                      src={url}
+                      alt={`Photo souvenir ${i + 1}`}
+                      width={0}
+                      height={0}
+                      sizes="(max-width: 640px) calc(50vw - 1.5rem), calc(33vw - 1.5rem)"
+                      style={{ width: "100%", height: "auto" }}
+                      className="block"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
