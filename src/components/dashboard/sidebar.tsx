@@ -10,6 +10,7 @@ import {
   Globe,
   Heart,
   Users,
+  UserCheck,
   Banknote,
   Settings,
 } from "lucide-react"
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/site", label: "Mon site mariage", icon: Globe },
   { href: "/dashboard/cagnotte", label: "Cagnotte", icon: Heart },
   { href: "/dashboard/contributions", label: "Contributions", icon: Users },
+  { href: "/dashboard/invites", label: "Invités", icon: UserCheck },
   { href: "/dashboard/retrait", label: "Retrait", icon: Banknote },
   { href: "/dashboard/parametres", label: "Paramètres", icon: Settings },
 ]

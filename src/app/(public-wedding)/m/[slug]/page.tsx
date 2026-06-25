@@ -6,6 +6,7 @@ import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
+import { WeddingRsvpSection } from "@/components/wedding-site/wedding-rsvp-section"
 
 // ISR : revalidation toutes les 60 secondes
 export const revalidate = 60
@@ -89,6 +90,14 @@ export default async function WeddingPublicPage({ params }: Props) {
       <WeddingEventsSection events={wedding.events} />
 
       <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
+
+      {wedding.rsvp_enabled && (
+        <WeddingRsvpSection
+          weddingId={wedding.id}
+          partner1={wedding.partner1_first_name}
+          partner2={wedding.partner2_first_name}
+        />
+      )}
 
       {/* Footer minimal */}
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">

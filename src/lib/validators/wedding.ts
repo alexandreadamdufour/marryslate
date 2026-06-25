@@ -29,6 +29,7 @@ export const updateWeddingSchema = z.object({
     .nullable(),
   storyMd: z.string().max(10_000).optional().nullable(),
   isPublished: z.boolean().optional(),
+  rsvpEnabled: z.boolean().optional(),
 })
 
 export type CreateWeddingInput = z.infer<typeof createWeddingSchema>

@@ -65,6 +65,7 @@ export interface Database {
           primary_color: string | null
           story_md: string | null
           is_published: boolean
+          rsvp_enabled: boolean
           mangopay_wallet_id: string | null
           stripe_account_id: string | null
           created_at: string
@@ -82,6 +83,7 @@ export interface Database {
           primary_color?: string | null
           story_md?: string | null
           is_published?: boolean
+          rsvp_enabled?: boolean
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           created_at?: string
@@ -98,6 +100,7 @@ export interface Database {
           primary_color?: string | null
           story_md?: string | null
           is_published?: boolean
+          rsvp_enabled?: boolean
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           updated_at?: string
@@ -479,6 +482,50 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "guestbook_messages_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rsvp_responses: {
+        Row: {
+          id: string
+          wedding_id: string
+          first_name: string
+          last_name: string
+          email: string | null
+          attending: boolean
+          guest_count: number
+          dietary: string | null
+          message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_id: string
+          first_name: string
+          last_name: string
+          email?: string | null
+          attending: boolean
+          guest_count?: number
+          dietary?: string | null
+          message?: string | null
+          created_at?: string
+        }
+        Update: {
+          first_name?: string
+          last_name?: string
+          email?: string | null
+          attending?: boolean
+          guest_count?: number
+          dietary?: string | null
+          message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_responses_wedding_id_fkey"
             columns: ["wedding_id"]
             isOneToOne: false
             referencedRelation: "weddings"

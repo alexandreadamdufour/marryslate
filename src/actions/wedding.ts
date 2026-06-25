@@ -134,6 +134,7 @@ export async function updateWedding(
     ...(rest.primaryColor !== undefined && { primary_color: rest.primaryColor }),
     ...(rest.storyMd !== undefined && { story_md: rest.storyMd }),
     ...(rest.isPublished !== undefined && { is_published: rest.isPublished }),
+    ...(rest.rsvpEnabled !== undefined && { rsvp_enabled: rest.rsvpEnabled }),
   }
 
   // L'autorisation coowner est vérifiée via la table wedding_coowners (admin bypasse RLS).
