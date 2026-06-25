@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { getMyWedding } from "@/queries/wedding"
 import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingSettingsForm } from "@/components/dashboard/wedding-settings-form"
+import { VisualForm } from "@/components/dashboard/visual-form"
 import { StoryForm } from "@/components/dashboard/story-form"
 import { PracticalInfoForm } from "@/components/dashboard/practical-info-form"
 import { TimelineEditor } from "@/components/dashboard/timeline-editor"
@@ -23,6 +24,18 @@ export default async function SitePage() {
       </div>
 
       <WeddingSettingsForm wedding={wedding} />
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Apparence</h2>
+          <p className="text-sm text-muted-foreground">
+            Couleur principale et police de titres de votre site mariage.
+          </p>
+        </div>
+        <VisualForm wedding={wedding} />
+      </div>
 
       <Separator />
 

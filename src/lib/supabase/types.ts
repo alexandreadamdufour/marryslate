@@ -71,6 +71,7 @@ export interface Database {
           story_images: Json | null
           is_published: boolean
           rsvp_enabled: boolean
+          font_family: string | null
           practical_info: Json | null
           mangopay_wallet_id: string | null
           stripe_account_id: string | null
@@ -92,6 +93,7 @@ export interface Database {
           story_images?: Json | null
           is_published?: boolean
           rsvp_enabled?: boolean
+          font_family?: string | null
           practical_info?: Json | null
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
@@ -112,6 +114,7 @@ export interface Database {
           story_images?: Json | null
           is_published?: boolean
           rsvp_enabled?: boolean
+          font_family?: string | null
           practical_info?: Json | null
           mangopay_wallet_id?: string | null
           stripe_account_id?: string | null

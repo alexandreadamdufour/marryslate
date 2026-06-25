@@ -4,6 +4,8 @@ import type { Metadata } from "next"
 import { getWeddingPublicData } from "@/queries/wedding"
 import { getGuestbookMessages } from "@/queries/guestbook"
 import { getTimelineSteps } from "@/queries/timeline"
+import { hexToCssHsl, hexGetForeground } from "@/lib/utils"
+import { getWeddingFontCss } from "@/lib/constants"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
@@ -62,6 +64,20 @@ export default async function WeddingPublicPage({ params }: Props) {
   const themeClass =
     wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
 
+  // Inject per-wedding CSS variables to override theme defaults
+  const weddingStyle: React.CSSProperties & Record<string, string> = {}
+  if (wedding.primary_color) {
+    const hsl = hexToCssHsl(wedding.primary_color)
+    if (hsl) {
+      weddingStyle["--primary"] = hsl
+      weddingStyle["--ring"] = hsl
+      weddingStyle["--primary-foreground"] = hexGetForeground(wedding.primary_color)
+    }
+  }
+  if (wedding.font_family) {
+    weddingStyle["--wedding-font"] = getWeddingFontCss(wedding.font_family)
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"
   const pageUrl = `${baseUrl}/m/${slug}`
   const eventName = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
@@ -88,7 +104,7 @@ export default async function WeddingPublicPage({ params }: Props) {
   }
 
   return (
-    <div className={themeClass}>
+    <div className={themeClass} style={weddingStyle}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
