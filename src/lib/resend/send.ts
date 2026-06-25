@@ -1,3 +1,4 @@
+import { env } from "@/lib/env"
 import { resend, FROM_EMAIL } from "./client"
 
 function escapeHtml(s: string): string {
@@ -20,7 +21,10 @@ interface ContributionReceiptParams {
 
 export async function sendContributionReceipt(p: ContributionReceiptParams) {
   const subject = `Merci pour votre contribution au mariage de ${p.weddingPartner1} & ${p.weddingPartner2}`
-  const giftLine = p.giftTitle ? `pour <strong>${p.giftTitle}</strong>` : "comme contribution libre"
+  const safeName = escapeHtml(p.guestName)
+  const giftLine = p.giftTitle
+    ? `pour <strong>${escapeHtml(p.giftTitle)}</strong>`
+    : "comme contribution libre"
 
   await resend.emails.send({
     from: FROM_EMAIL,
@@ -28,7 +32,7 @@ export async function sendContributionReceipt(p: ContributionReceiptParams) {
     subject,
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-        <h1 style="font-size: 28px; margin-bottom: 8px;">Merci, ${p.guestName} 🎁</h1>
+        <h1 style="font-size: 28px; margin-bottom: 8px;">Merci, ${safeName} 🎁</h1>
         <p style="color: #666; margin-bottom: 24px;">
           Votre contribution de <strong>${(p.grossAmount / 100).toFixed(2).replace(".", ",")} €</strong>
           ${giftLine} au mariage de
@@ -58,7 +62,10 @@ interface CoupleContributionNotifParams {
 }
 
 export async function sendCoupleContributionNotif(p: CoupleContributionNotifParams) {
-  const giftLine = p.giftTitle ? `pour <strong>${p.giftTitle}</strong>` : "comme contribution libre"
+  const safeName = escapeHtml(p.guestName)
+  const giftLine = p.giftTitle
+    ? `pour <strong>${escapeHtml(p.giftTitle)}</strong>`
+    : "comme contribution libre"
 
   await resend.emails.send({
     from: FROM_EMAIL,
@@ -68,7 +75,7 @@ export async function sendCoupleContributionNotif(p: CoupleContributionNotifPara
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Bonne nouvelle ! 🎉</h1>
         <p style="color: #666; margin-bottom: 16px;">
-          <strong>${p.guestName}</strong> vient de contribuer
+          <strong>${safeName}</strong> vient de contribuer
           <strong>${(p.grossAmount / 100).toFixed(2).replace(".", ",")} €</strong>
           ${giftLine}.
         </p>
@@ -77,7 +84,7 @@ export async function sendCoupleContributionNotif(p: CoupleContributionNotifPara
           net (après commission Amora) sur votre compte lors du prochain retrait.
         </p>
         <p style="margin-top: 24px;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/contributions"
+          <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/contributions"
              style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 14px;">
             Voir mes contributions
           </a>
@@ -101,6 +108,7 @@ interface RsvpConfirmationParams {
 
 export async function sendRsvpConfirmationToGuest(p: RsvpConfirmationParams) {
   const couple = `${p.weddingPartner1} &amp; ${p.weddingPartner2}`
+  const safeName = escapeHtml(p.guestName)
   const subject = p.attending
     ? `Votre présence au mariage de ${p.weddingPartner1} & ${p.weddingPartner2} est confirmée`
     : `Votre réponse au mariage de ${p.weddingPartner1} & ${p.weddingPartner2}`
@@ -112,13 +120,13 @@ export async function sendRsvpConfirmationToGuest(p: RsvpConfirmationParams) {
         à célébrer avec ${couple}. On vous attend avec impatience !
       </p>
       <p style="margin-top: 24px;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/m/${p.weddingSlug}"
+        <a href="${env.NEXT_PUBLIC_APP_URL}/m/${p.weddingSlug}"
            style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px;
                   border-radius: 6px; text-decoration: none; font-size: 14px;">
           Voir le site du mariage
         </a>
       </p>`
-    : `<p style="color: #666;">Votre absence a bien été notée. Merci d'avoir répondu.</p>`
+    : `<p style="color: #666;">Votre absence a bien été notée. Merci d&apos;avoir répondu.</p>`
 
   await resend.emails.send({
     from: FROM_EMAIL,
@@ -127,7 +135,7 @@ export async function sendRsvpConfirmationToGuest(p: RsvpConfirmationParams) {
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">
-          ${p.attending ? "À bientôt, " : ""}${p.guestName} ${p.attending ? "🥂" : ""}
+          ${p.attending ? "À bientôt, " : ""}${safeName} ${p.attending ? "🥂" : ""}
         </h1>
         ${body}
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
@@ -150,10 +158,11 @@ interface RsvpCoupleNotifParams {
 }
 
 export async function sendRsvpNotifToCouple(p: RsvpCoupleNotifParams) {
+  const safeName = escapeHtml(p.guestName)
   const statusLine = p.attending
-    ? `<strong>${p.guestName}</strong> sera présent·e —
+    ? `<strong>${safeName}</strong> sera présent·e —
        <strong>${p.guestCount} personne${p.guestCount > 1 ? "s" : ""}</strong>.`
-    : `<strong>${p.guestName}</strong> ne pourra pas être là.`
+    : `<strong>${safeName}</strong> ne pourra pas être là.`
 
   await resend.emails.send({
     from: FROM_EMAIL,
@@ -165,9 +174,9 @@ export async function sendRsvpNotifToCouple(p: RsvpCoupleNotifParams) {
           Nouvelle réponse RSVP ${p.attending ? "✓" : "✗"}
         </h1>
         <p style="color: #666; margin-bottom: 16px;">${statusLine}</p>
-        ${p.dietary ? `<p style="color: #666;">Régime alimentaire : <strong>${p.dietary}</strong></p>` : ""}
+        ${p.dietary ? `<p style="color: #666;">Régime alimentaire : <strong>${escapeHtml(p.dietary)}</strong></p>` : ""}
         <p style="margin-top: 24px;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/invites"
+          <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/invites"
              style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px;
                     border-radius: 6px; text-decoration: none; font-size: 14px;">
             Voir toutes les réponses
@@ -189,6 +198,7 @@ interface GuestbookNotifParams {
 }
 
 export async function sendGuestbookNotifToCouple(p: GuestbookNotifParams) {
+  const safeAuthor = escapeHtml(p.authorName)
   const preview = p.message.length > 300 ? p.message.slice(0, 300) + "…" : p.message
   const htmlMessage = escapeHtml(preview).replace(/\n/g, "<br/>")
 
@@ -200,17 +210,17 @@ export async function sendGuestbookNotifToCouple(p: GuestbookNotifParams) {
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Nouveau message 💌</h1>
         <p style="color: #666; margin-bottom: 20px;">
-          <strong>${p.authorName}</strong> vous a laissé un message dans votre livre d'or.
+          <strong>${safeAuthor}</strong> vous a laissé un message dans votre livre d&apos;or.
         </p>
         <blockquote style="margin: 0 0 24px; padding: 16px 20px; border-left: 3px solid #c4714a;
                            background: #faf8f6; border-radius: 0 6px 6px 0; color: #444; font-style: italic;">
           ${htmlMessage}
         </blockquote>
         <p style="margin-top: 24px;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/livre-d-or"
+          <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/livre-d-or"
              style="display: inline-block; background: #7c3a28; color: white; padding: 12px 24px;
                     border-radius: 6px; text-decoration: none; font-size: 14px;">
-            Voir le livre d'or
+            Voir le livre d&apos;or
           </a>
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />

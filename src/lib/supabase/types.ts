@@ -21,7 +21,6 @@ export interface Database {
           email: string
           display_name: string | null
           role: UserRole
-          mangopay_user_id: string | null
           stripe_account_id: string | null
           kyc_status: KycStatus
           deleted_at: string | null
@@ -34,7 +33,6 @@ export interface Database {
           email: string
           display_name?: string | null
           role?: UserRole
-          mangopay_user_id?: string | null
           stripe_account_id?: string | null
           kyc_status?: KycStatus
           deleted_at?: string | null
@@ -47,7 +45,6 @@ export interface Database {
           email?: string
           display_name?: string | null
           role?: UserRole
-          mangopay_user_id?: string | null
           stripe_account_id?: string | null
           kyc_status?: KycStatus
           deleted_at?: string | null
@@ -77,7 +74,6 @@ export interface Database {
           access_code_enabled: boolean
           notifications_enabled: boolean
           view_count: number
-          mangopay_wallet_id: string | null
           stripe_account_id: string | null
           created_at: string
           updated_at: string
@@ -103,7 +99,6 @@ export interface Database {
           access_code_enabled?: boolean
           notifications_enabled?: boolean
           view_count?: number
-          mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           created_at?: string
           updated_at?: string
@@ -128,7 +123,6 @@ export interface Database {
           access_code_enabled?: boolean
           notifications_enabled?: boolean
           view_count?: number
-          mangopay_wallet_id?: string | null
           stripe_account_id?: string | null
           updated_at?: string
         }
@@ -240,7 +234,6 @@ export interface Database {
           gross_amount: number
           fee_amount: number
           net_amount: number
-          mangopay_payment_id: string | null
           stripe_payment_intent_id: string | null
           payment_status: PaymentStatus
           is_anonymous: boolean
@@ -258,7 +251,6 @@ export interface Database {
           gross_amount: number
           fee_amount: number
           net_amount: number
-          mangopay_payment_id?: string | null
           stripe_payment_intent_id?: string | null
           payment_status?: PaymentStatus
           is_anonymous?: boolean
@@ -274,7 +266,6 @@ export interface Database {
           gross_amount?: number
           fee_amount?: number
           net_amount?: number
-          mangopay_payment_id?: string | null
           stripe_payment_intent_id?: string | null
           payment_status?: PaymentStatus
           is_anonymous?: boolean
@@ -447,7 +438,6 @@ export interface Database {
           wedding_id: string
           amount: number
           iban_last4: string | null
-          mangopay_payout_id: string | null
           stripe_payout_id: string | null
           status: WithdrawalStatus
           requested_at: string
@@ -460,7 +450,6 @@ export interface Database {
           wedding_id: string
           amount: number
           iban_last4?: string | null
-          mangopay_payout_id?: string | null
           stripe_payout_id?: string | null
           status?: WithdrawalStatus
           requested_at?: string
@@ -471,7 +460,6 @@ export interface Database {
         Update: {
           amount?: number
           iban_last4?: string | null
-          mangopay_payout_id?: string | null
           stripe_payout_id?: string | null
           status?: WithdrawalStatus
           processed_at?: string | null
