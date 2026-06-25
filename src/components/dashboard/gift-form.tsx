@@ -13,6 +13,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Form,
   FormControl,
   FormField,
@@ -22,6 +29,7 @@ import {
   FormDescription,
 } from "@/components/ui/form"
 import { createGift, updateGift, uploadGiftImage } from "@/actions/gifts"
+import { GIFT_CATEGORIES } from "@/lib/constants"
 import type { Gift } from "@/queries/gifts"
 
 const formSchema = z.object({
@@ -242,9 +250,20 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Catégorie</FormLabel>
-              <FormControl>
-                <Input placeholder="Voyage, Maison, Expérience…" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choisir une catégorie…" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {GIFT_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

@@ -23,3 +23,14 @@ export const WEDDING_THEMES = [
 ] as const
 
 export type WeddingThemeId = (typeof WEDDING_THEMES)[number]["id"]
+
+export const GIFT_CATEGORIES = [
+  { value: "Cuisine", label: "Cuisine" },
+  { value: "Voyage", label: "Voyage" },
+  { value: "Maison", label: "Maison" },
+  { value: "Expériences", label: "Expériences" },
+  { value: "Loisirs", label: "Loisirs" },
+  { value: "Autre", label: "Autre" },
+] as const
+
+export type GiftCategory = (typeof GIFT_CATEGORIES)[number]["value"]

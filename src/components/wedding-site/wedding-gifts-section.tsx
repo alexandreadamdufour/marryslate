@@ -1,8 +1,12 @@
+"use client"
+
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ExternalLink, Gift } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import type { Gift as GiftType } from "@/queries/gifts"
 
 interface WeddingGiftsSectionProps {
@@ -19,7 +23,6 @@ function GiftCard({ gift, weddingSlug }: { gift: GiftType; weddingSlug: string }
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
-      {/* Image */}
       <div className="relative h-48 bg-muted">
         {gift.image_url ? (
           <Image
@@ -43,7 +46,6 @@ function GiftCard({ gift, weddingSlug }: { gift: GiftType; weddingSlug: string }
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-semibold leading-tight">{gift.title}</h3>
@@ -64,7 +66,6 @@ function GiftCard({ gift, weddingSlug }: { gift: GiftType; weddingSlug: string }
           <p className="line-clamp-2 text-sm text-muted-foreground">{gift.description}</p>
         )}
 
-        {/* Progress */}
         <div className="mt-auto space-y-1.5">
           <Progress value={percent} className="h-1.5" />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -86,20 +87,76 @@ function GiftCard({ gift, weddingSlug }: { gift: GiftType; weddingSlug: string }
 }
 
 export function WeddingGiftsSection({ gifts, weddingSlug }: WeddingGiftsSectionProps) {
+  const usedCategories = Array.from(
+    new Set(gifts.map((g) => g.category).filter((c): c is string => !!c))
+  )
+  const showTabs = usedCategories.length > 0
+
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  const filtered =
+    activeCategory === null ? gifts : gifts.filter((g) => g.category === activeCategory)
+
   if (gifts.length === 0) return null
 
   return (
     <section id="liste-cadeaux" className="py-20">
       <div className="mx-auto max-w-5xl px-6">
         <h2 className="mb-4 text-center text-3xl sm:text-4xl">Liste de cadeaux</h2>
-        <p className="mb-12 text-center text-muted-foreground">
+        <p className="mb-10 text-center text-muted-foreground">
           Participez à notre bonheur en offrant ce qui nous tient à cœur.
         </p>
+
+        {showTabs && (
+          <div
+            role="tablist"
+            aria-label="Filtrer par catégorie"
+            className="mb-8 flex flex-wrap justify-center gap-2"
+          >
+            <button
+              role="tab"
+              aria-selected={activeCategory === null}
+              onClick={() => setActiveCategory(null)}
+              className={cn(
+                "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+                activeCategory === null
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
+              )}
+            >
+              Tous
+            </button>
+            {usedCategories.map((cat) => (
+              <button
+                key={cat}
+                role="tab"
+                aria-selected={activeCategory === cat}
+                onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                className={cn(
+                  "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+                  activeCategory === cat
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {gifts.map((gift) => (
+          {filtered.map((gift) => (
             <GiftCard key={gift.id} gift={gift} weddingSlug={weddingSlug} />
           ))}
         </div>
+
+        {filtered.length === 0 && (
+          <p className="mt-12 text-center text-muted-foreground">
+            Aucun cadeau dans cette catégorie.
+          </p>
+        )}
+
         <div className="mt-12 text-center">
           <Button asChild variant="outline" size="lg">
             <Link href={`/m/${weddingSlug}/contribuer`}>Faire une contribution libre</Link>
