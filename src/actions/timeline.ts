@@ -2,8 +2,10 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
-import { createAdminClient } from "@/lib/supabase/admin"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
+import type { Database } from "@/lib/supabase/types"
 import {
   createTimelineStepSchema,
   updateTimelineStepSchema,
@@ -15,13 +17,8 @@ import {
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
-async function getWeddingSlug(weddingId: string): Promise<string | null> {
-  const supabase = createAdminClient()
-  const { data } = await supabase
-    .from("weddings")
-    .select("slug")
-    .eq("id", weddingId)
-    .maybeSingle()
+async function getWeddingSlug(supabase: SupabaseClient<Database>, weddingId: string): Promise<string | null> {
+  const { data } = await supabase.from("weddings").select("slug").eq("id", weddingId).maybeSingle()
   return data?.slug ?? null
 }
 
@@ -33,17 +30,16 @@ function revalidateTimeline(weddingId: string, slug: string) {
 export async function createTimelineStep(
   input: CreateTimelineStepInput
 ): Promise<ActionResult<{ id: string }>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = createTimelineStepSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const { weddingId, time, title, description, emoji } = parsed.data
 
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
-
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
   const { data: last } = await supabase
     .from("wedding_timeline")
@@ -63,7 +59,7 @@ export async function createTimelineStep(
 
   if (error ?? !data) return { error: "DB_ERROR" }
 
-  const slug = await getWeddingSlug(weddingId)
+  const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
 
   return { data: { id: data.id } }
@@ -72,17 +68,17 @@ export async function createTimelineStep(
 export async function updateTimelineStep(
   input: UpdateTimelineStepInput
 ): Promise<ActionResult<void>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = updateTimelineStepSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const { stepId, weddingId, time, title, description, emoji } = parsed.data
 
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
   const { error } = await supabase
     .from("wedding_timeline")
     .update({ time, title, description: description ?? null, emoji: emoji ?? null })
@@ -91,17 +87,17 @@ export async function updateTimelineStep(
 
   if (error) return { error: "DB_ERROR" }
 
-  const slug = await getWeddingSlug(weddingId)
+  const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
 
   return { data: undefined }
 }
 
 export async function deleteTimelineStep(stepId: string): Promise<ActionResult<void>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
 
   const { data: step } = await supabase
     .from("wedding_timeline")
@@ -110,12 +106,12 @@ export async function deleteTimelineStep(stepId: string): Promise<ActionResult<v
     .maybeSingle()
 
   if (!step) return { error: "NOT_FOUND" }
-  if (!(await assertWeddingCoowner(clerkUserId, step.wedding_id))) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(supabase, step.wedding_id))) return { error: "FORBIDDEN" }
 
   const { error } = await supabase.from("wedding_timeline").delete().eq("id", stepId)
   if (error) return { error: "DB_ERROR" }
 
-  const slug = await getWeddingSlug(step.wedding_id)
+  const slug = await getWeddingSlug(supabase, step.wedding_id)
   if (slug) revalidateTimeline(step.wedding_id, slug)
 
   return { data: undefined }
@@ -124,24 +120,24 @@ export async function deleteTimelineStep(stepId: string): Promise<ActionResult<v
 export async function reorderTimeline(
   input: ReorderTimelineInput
 ): Promise<ActionResult<void>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = reorderTimelineSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const { weddingId, positions } = parsed.data
 
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
   await Promise.all(
     positions.map(({ id, position }) =>
       supabase.from("wedding_timeline").update({ position }).eq("id", id).eq("wedding_id", weddingId)
     )
   )
 
-  const slug = await getWeddingSlug(weddingId)
+  const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
 
   return { data: undefined }

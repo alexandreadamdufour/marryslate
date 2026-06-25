@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { updateStorySchema, type UpdateStoryInput } from "@/lib/validators/story"
@@ -9,16 +10,17 @@ import { updateStorySchema, type UpdateStoryInput } from "@/lib/validators/story
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
 export async function updateStory(input: UpdateStoryInput): Promise<ActionResult<void>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = updateStorySchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const { weddingId, storyTitle, storyText, storyImages } = parsed.data
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
+
   const { error } = await supabase
     .from("weddings")
     .update({
@@ -46,8 +48,8 @@ export async function updateStory(input: UpdateStoryInput): Promise<ActionResult
 export async function uploadStoryImage(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const file = formData.get("file") as File | null
   const weddingId = formData.get("weddingId") as string | null
@@ -57,15 +59,17 @@ export async function uploadStoryImage(
   if (!allowedTypes.includes(file.type)) return { error: "INVALID_FILE_TYPE" }
   if (file.size > 5 * 1024 * 1024) return { error: "FILE_TOO_LARGE" }
 
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
   const ext = file.type.split("/")[1]
   const path = `${weddingId}/story-${Date.now()}.${ext}`
 
-  const supabase = createAdminClient()
+  // Storage: admin client — storage policies sont indépendantes de la DB RLS
+  const adminClient = createAdminClient()
   const arrayBuffer = await file.arrayBuffer()
 
-  const { error } = await supabase.storage
+  const { error } = await adminClient.storage
     .from("gift-images")
     .upload(path, arrayBuffer, { contentType: file.type, upsert: false })
 
@@ -76,7 +80,7 @@ export async function uploadStoryImage(
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from("gift-images").getPublicUrl(path)
+  } = adminClient.storage.from("gift-images").getPublicUrl(path)
 
   return { data: { url: publicUrl } }
 }

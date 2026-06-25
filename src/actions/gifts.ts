@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache"
 import { auth } from "@clerk/nextjs/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
+import type { Database } from "@/lib/supabase/types"
 import {
   createGiftSchema,
   updateGiftSchema,
@@ -17,31 +20,23 @@ type ActionResult<T = void> =
   | { data: T; error?: never }
   | { error: string; details?: unknown; data?: never }
 
-async function getWeddingSlug(weddingId: string): Promise<string | null> {
-  const supabase = createAdminClient()
-  const { data } = await supabase
-    .from("weddings")
-    .select("slug")
-    .eq("id", weddingId)
-    .maybeSingle()
+async function getWeddingSlug(supabase: SupabaseClient<Database>, weddingId: string): Promise<string | null> {
+  const { data } = await supabase.from("weddings").select("slug").eq("id", weddingId).maybeSingle()
   return data?.slug ?? null
 }
 
 export async function createGift(
   input: CreateGiftInput
 ): Promise<ActionResult<{ id: string }>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = createGiftSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
 
-  const isCoowner = await assertWeddingCoowner(clerkUserId, parsed.data.weddingId)
-  if (!isCoowner) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, parsed.data.weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
-
-  // Calculer la prochaine position
   const { data: last } = await supabase
     .from("gifts")
     .select("position")
@@ -72,7 +67,7 @@ export async function createGift(
     return { error: "DB_ERROR" }
   }
 
-  const slug = await getWeddingSlug(parsed.data.weddingId)
+  const slug = await getWeddingSlug(supabase, parsed.data.weddingId)
   revalidatePath("/dashboard/liste")
   if (slug) revalidatePath(`/m/${slug}`)
   return { data: { id: gift.id } }
@@ -81,16 +76,16 @@ export async function createGift(
 export async function updateGift(
   input: UpdateGiftInput
 ): Promise<ActionResult<{ id: string }>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = updateGiftSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
 
   const { giftId, ...rest } = parsed.data
 
-  // Récupérer le gift pour avoir le weddingId
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
+
   const { data: gift } = await supabase
     .from("gifts")
     .select("wedding_id")
@@ -99,8 +94,7 @@ export async function updateGift(
 
   if (!gift) return { error: "NOT_FOUND" }
 
-  const isCoowner = await assertWeddingCoowner(clerkUserId, gift.wedding_id)
-  if (!isCoowner) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(supabase, gift.wedding_id))) return { error: "FORBIDDEN" }
 
   const { data: updated, error } = await supabase
     .from("gifts")
@@ -122,17 +116,18 @@ export async function updateGift(
     return { error: "DB_ERROR" }
   }
 
-  const slug = await getWeddingSlug(gift.wedding_id)
+  const slug = await getWeddingSlug(supabase, gift.wedding_id)
   revalidatePath("/dashboard/liste")
   if (slug) revalidatePath(`/m/${slug}`)
   return { data: { id: updated.id } }
 }
 
 export async function deleteGift(giftId: string): Promise<ActionResult> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
+
   const { data: gift } = await supabase
     .from("gifts")
     .select("wedding_id, current_amount")
@@ -141,8 +136,7 @@ export async function deleteGift(giftId: string): Promise<ActionResult> {
 
   if (!gift) return { error: "NOT_FOUND" }
 
-  const isCoowner = await assertWeddingCoowner(clerkUserId, gift.wedding_id)
-  if (!isCoowner) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(supabase, gift.wedding_id))) return { error: "FORBIDDEN" }
 
   if (Number(gift.current_amount) > 0) {
     // Soft-delete si des contributions existent déjà
@@ -151,7 +145,7 @@ export async function deleteGift(giftId: string): Promise<ActionResult> {
     await supabase.from("gifts").delete().eq("id", giftId)
   }
 
-  const slug = await getWeddingSlug(gift.wedding_id)
+  const slug = await getWeddingSlug(supabase, gift.wedding_id)
   revalidatePath("/dashboard/liste")
   if (slug) revalidatePath(`/m/${slug}`)
   return { data: undefined }
@@ -160,18 +154,15 @@ export async function deleteGift(giftId: string): Promise<ActionResult> {
 export async function reorderGifts(
   input: ReorderGiftsInput
 ): Promise<ActionResult> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = reorderGiftsSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
-  const isCoowner = await assertWeddingCoowner(clerkUserId, parsed.data.weddingId)
-  if (!isCoowner) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, parsed.data.weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
-
-  // Batch update des positions
   await Promise.all(
     parsed.data.positions.map(({ id, position }) =>
       supabase
@@ -182,15 +173,15 @@ export async function reorderGifts(
     )
   )
 
-  const slug = await getWeddingSlug(parsed.data.weddingId)
+  const slug = await getWeddingSlug(supabase, parsed.data.weddingId)
   revalidatePath("/dashboard/liste")
   if (slug) revalidatePath(`/m/${slug}`)
   return { data: undefined }
 }
 
 export async function uploadGiftImage(formData: FormData): Promise<ActionResult<{ url: string }>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const file = formData.get("file") as File | null
   const weddingId = formData.get("weddingId") as string | null
@@ -201,16 +192,17 @@ export async function uploadGiftImage(formData: FormData): Promise<ActionResult<
   if (!allowedTypes.includes(file.type)) return { error: "INVALID_FILE_TYPE" }
   if (file.size > 5 * 1024 * 1024) return { error: "FILE_TOO_LARGE" }
 
-  const isCoowner = await assertWeddingCoowner(clerkUserId, weddingId)
-  if (!isCoowner) return { error: "FORBIDDEN" }
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
   const ext = file.type.split("/")[1]
   const path = `${weddingId}/${Date.now()}.${ext}`
 
-  const supabase = createAdminClient()
+  // Storage: admin client — storage policies sont indépendantes de la DB RLS
+  const adminClient = createAdminClient()
   const arrayBuffer = await file.arrayBuffer()
 
-  const { error } = await supabase.storage
+  const { error } = await adminClient.storage
     .from("gift-images")
     .upload(path, arrayBuffer, { contentType: file.type, upsert: false })
 
@@ -219,7 +211,7 @@ export async function uploadGiftImage(formData: FormData): Promise<ActionResult<
     return { error: "UPLOAD_ERROR" }
   }
 
-  const { data: { publicUrl } } = supabase.storage.from("gift-images").getPublicUrl(path)
+  const { data: { publicUrl } } = adminClient.storage.from("gift-images").getPublicUrl(path)
 
   return { data: { url: publicUrl } }
 }

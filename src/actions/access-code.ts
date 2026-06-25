@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
-import { createAdminClient } from "@/lib/supabase/admin"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { updateAccessCodeSchema } from "@/lib/validators/access-code"
 
@@ -11,16 +11,17 @@ type ActionResult<T = void> = { data: T; error?: never } | { error: string; data
 export async function updateWeddingAccessCode(
   input: unknown
 ): Promise<ActionResult<void>> {
-  const { userId: clerkUserId } = await auth()
-  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
 
   const parsed = updateAccessCodeSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const { weddingId, enabled, code } = parsed.data
-  if (!(await assertWeddingCoowner(clerkUserId, weddingId))) return { error: "FORBIDDEN" }
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
+
   const { error } = await supabase
     .from("weddings")
     .update({

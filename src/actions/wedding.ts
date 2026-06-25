@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
+import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import type { Database } from "@/lib/supabase/types"
 import { createWeddingSchema, updateWeddingSchema } from "@/lib/validators/wedding"
 import type { CreateWeddingInput, UpdateWeddingInput } from "@/lib/validators/wedding"
@@ -11,9 +13,7 @@ type ActionResult<T> =
   | { data: T; error?: never }
   | { error: string; details?: unknown; data?: never }
 
-// Helper : récupère ou crée le user interne depuis son clerkUserId.
-// On utilise adminClient car createServerClient() n'envoie pas de JWT Clerk à Supabase,
-// ce qui rend la RLS users_select_own inopérante dans les Server Actions.
+// Admin requis : INSERT sur users est réservé au webhook Clerk (pas de policy user-facing).
 async function getOrCreateUser(clerkUserId: string) {
   const adminClient = createAdminClient()
 
@@ -25,7 +25,6 @@ async function getOrCreateUser(clerkUserId: string) {
 
   if (!user) {
     // Filet de sécurité : webhook user.created manqué (ex: ngrok redémarré).
-    // On crée le user à la volée depuis la session Clerk.
     const clerkUser = await currentUser()
     if (!clerkUser) return null
 
@@ -60,8 +59,8 @@ export async function createWedding(
   const user = await getOrCreateUser(clerkUserId)
   if (!user) return { error: "USER_NOT_FOUND" }
 
+  // Admin requis : slug uniqueness porte sur tous les weddings, pas seulement ceux visibles par le user.
   const adminClient = createAdminClient()
-
   const { data: existing } = await adminClient
     .from("weddings")
     .select("id")
@@ -70,7 +69,9 @@ export async function createWedding(
 
   if (existing) return { error: "SLUG_TAKEN" }
 
-  const { data: wedding, error: weddingError } = await adminClient
+  const supabase = await createClerkSupabaseClient()
+
+  const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
     .insert({
       owner_id: user.id,
@@ -87,7 +88,7 @@ export async function createWedding(
     return { error: "DB_ERROR" }
   }
 
-  await adminClient.from("wedding_coowners").insert({
+  await supabase.from("wedding_coowners").insert({
     wedding_id: wedding.id,
     user_id: user.id,
   })
@@ -107,12 +108,9 @@ export async function updateWedding(
 
   const { weddingId, ...rest } = parsed.data
 
-  const user = await getOrCreateUser(clerkUserId)
-  if (!user) return { error: "USER_NOT_FOUND" }
-
-  const adminClient = createAdminClient()
-
   if (rest.slug) {
+    // Admin requis : slug uniqueness porte sur tous les weddings.
+    const adminClient = createAdminClient()
     const { data: existing } = await adminClient
       .from("weddings")
       .select("id")
@@ -137,17 +135,10 @@ export async function updateWedding(
     ...(rest.rsvpEnabled !== undefined && { rsvp_enabled: rest.rsvpEnabled }),
   }
 
-  // L'autorisation coowner est vérifiée via la table wedding_coowners (admin bypasse RLS).
-  const { data: isCoowner } = await adminClient
-    .from("wedding_coowners")
-    .select("wedding_id")
-    .eq("wedding_id", weddingId)
-    .eq("user_id", user.id)
-    .maybeSingle()
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
-  if (!isCoowner) return { error: "FORBIDDEN" }
-
-  const { data: wedding, error: updateError } = await adminClient
+  const { data: wedding, error: updateError } = await supabase
     .from("weddings")
     .update(updatePayload)
     .eq("id", weddingId)
@@ -166,6 +157,7 @@ export async function updateWedding(
   return { data: { id: wedding.id, slug: wedding.slug } }
 }
 
+// Admin requis : slug uniqueness porte sur tous les weddings (y compris non publiés).
 export async function checkSlugAvailability(
   slug: string,
   excludeWeddingId?: string

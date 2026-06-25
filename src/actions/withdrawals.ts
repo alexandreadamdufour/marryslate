@@ -2,7 +2,7 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
-import { createAdminClient } from "@/lib/supabase/admin"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import {
   createConnectedAccount,
   createOnboardingLink,
@@ -18,7 +18,7 @@ async function getAuthenticatedUserAndWedding() {
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return null
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
 
   const { data: user } = await supabase
     .from("users")
@@ -43,7 +43,7 @@ async function getAuthenticatedUserAndWedding() {
     .eq("id", coowner.wedding_id)
     .maybeSingle()
 
-  return { user, wedding }
+  return { user, wedding, supabase }
 }
 
 export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl: string }>> {
@@ -53,7 +53,7 @@ export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl
   const clerkUser = await currentUser()
   if (!clerkUser) return { error: "UNAUTHORIZED" }
 
-  const supabase = createAdminClient()
+  const supabase = await createClerkSupabaseClient()
 
   const { data: user, error: userDbError } = await supabase
     .from("users")
@@ -120,7 +120,7 @@ export async function requestPayout(amountEuros: number): Promise<ActionResult<{
 
   const ctx = await getAuthenticatedUserAndWedding()
   if (!ctx) return { error: "UNAUTHORIZED" }
-  const { user, wedding } = ctx
+  const { user, wedding, supabase } = ctx
 
   if (!wedding) return { error: "NO_WEDDING" }
 
@@ -128,16 +128,13 @@ export async function requestPayout(amountEuros: number): Promise<ActionResult<{
   if (!stripeAccountId) return { error: "STRIPE_NOT_CONFIGURED" }
 
   const amountCentimes = Math.round(amountEuros * 100)
-  if (amountCentimes < 100) return { error: "AMOUNT_TOO_LOW" } // minimum 1 €
+  if (amountCentimes < 100) return { error: "AMOUNT_TOO_LOW" }
 
-  // Vérifier le solde disponible
   const balanceCentimes = await getAccountBalance(stripeAccountId)
   if (amountCentimes > balanceCentimes) return { error: "INSUFFICIENT_BALANCE" }
 
   const payoutId = await createPayout(stripeAccountId, amountCentimes)
 
-  // Créer l'entrée withdrawal
-  const supabase = createAdminClient()
   await supabase.from("withdrawals").insert({
     wedding_id: wedding.id,
     amount: amountEuros,
