@@ -31,12 +31,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const wedding = await getWeddingPublicData(slug)
   if (!wedding) return { title: "Page introuvable" }
 
-  const title = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
+  const isProtected = wedding.access_code_enabled && !!wedding.access_code
 
+  const title = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
   const description = `Site de mariage de ${wedding.partner1_first_name} et ${wedding.partner2_first_name}. Retrouvez toutes les informations et participez à leur liste de cadeaux.`
+
   return {
     title,
     description,
+    ...(isProtected && { robots: { index: false, follow: false } }),
     openGraph: {
       title,
       description,

@@ -27,6 +27,8 @@ export async function POST(request: Request) {
   }
 
   if (wedding.access_code !== code) {
+    // Slow down brute-force attempts — 1s artificial delay on every wrong code
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     return NextResponse.json({ error: "INVALID_CODE" }, { status: 403 })
   }
 

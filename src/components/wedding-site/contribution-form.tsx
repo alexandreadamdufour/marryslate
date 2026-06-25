@@ -33,7 +33,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toast } from "sonner"
 import type { Gift } from "@/queries/gifts"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+if (!stripeKey) throw new Error("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY manquant — configurer la variable d'environnement")
+const stripePromise = loadStripe(stripeKey)
 
 // Step 1 schema — same as server validator but coerces amount from string input
 const step1Schema = createContributionSchema.omit({ weddingSlug: true })

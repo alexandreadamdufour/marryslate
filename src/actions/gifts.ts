@@ -36,6 +36,16 @@ async function assertWeddingCoowner(clerkUserId: string, weddingId: string): Pro
   return !!data
 }
 
+async function getWeddingSlug(weddingId: string): Promise<string | null> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from("weddings")
+    .select("slug")
+    .eq("id", weddingId)
+    .maybeSingle()
+  return data?.slug ?? null
+}
+
 export async function createGift(
   input: CreateGiftInput
 ): Promise<ActionResult<{ id: string }>> {
@@ -81,8 +91,9 @@ export async function createGift(
     return { error: "DB_ERROR" }
   }
 
+  const slug = await getWeddingSlug(parsed.data.weddingId)
   revalidatePath("/dashboard/liste")
-  revalidatePath(`/m/`)
+  if (slug) revalidatePath(`/m/${slug}`)
   return { data: { id: gift.id } }
 }
 
@@ -130,7 +141,9 @@ export async function updateGift(
     return { error: "DB_ERROR" }
   }
 
+  const slug = await getWeddingSlug(gift.wedding_id)
   revalidatePath("/dashboard/liste")
+  if (slug) revalidatePath(`/m/${slug}`)
   return { data: { id: updated.id } }
 }
 
@@ -157,7 +170,9 @@ export async function deleteGift(giftId: string): Promise<ActionResult> {
     await supabase.from("gifts").delete().eq("id", giftId)
   }
 
+  const slug = await getWeddingSlug(gift.wedding_id)
   revalidatePath("/dashboard/liste")
+  if (slug) revalidatePath(`/m/${slug}`)
   return { data: undefined }
 }
 
@@ -186,7 +201,9 @@ export async function reorderGifts(
     )
   )
 
+  const slug = await getWeddingSlug(parsed.data.weddingId)
   revalidatePath("/dashboard/liste")
+  if (slug) revalidatePath(`/m/${slug}`)
   return { data: undefined }
 }
 
