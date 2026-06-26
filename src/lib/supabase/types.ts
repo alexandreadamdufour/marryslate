@@ -613,6 +613,50 @@ export interface Database {
         Update: Record<string, never>
         Relationships: []
       }
+      budget_items: {
+        Row: {
+          id: string
+          wedding_id: string
+          category: string
+          name: string
+          estimated_amount: number
+          actual_amount: number | null
+          paid_amount: number
+          vendor: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_id: string
+          category: string
+          name: string
+          estimated_amount?: number
+          actual_amount?: number | null
+          paid_amount?: number
+          vendor?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          category?: string
+          name?: string
+          estimated_amount?: number
+          actual_amount?: number | null
+          paid_amount?: number
+          vendor?: string | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

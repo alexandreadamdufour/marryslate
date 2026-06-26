@@ -14,6 +14,7 @@ import {
   Banknote,
   Settings,
   BookOpen,
+  PiggyBank,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/logo"
@@ -28,6 +29,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/liste", label: "Liste de cadeaux", icon: Gift },
+  { href: "/dashboard/budget", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/site", label: "Mon site mariage", icon: Globe },
   { href: "/dashboard/cagnotte", label: "Cagnotte", icon: Heart },
   { href: "/dashboard/contributions", label: "Contributions", icon: Users },
