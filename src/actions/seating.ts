@@ -32,7 +32,9 @@ export async function createSeatingTable(input: CreateSeatingTableInput): Promis
   if (!parsed.success) return { error: "INVALID_INPUT" }
 
   const supabase = await createClerkSupabaseClient()
-  if (!(await assertWeddingCoowner(supabase, parsed.data.weddingId))) return { error: "FORBIDDEN" }
+  const isCoowner = await assertWeddingCoowner(supabase, parsed.data.weddingId)
+  console.log("[createSeatingTable] assertWeddingCoowner:", isCoowner, "weddingId:", parsed.data.weddingId)
+  if (!isCoowner) return { error: "FORBIDDEN" }
 
   const { data, error } = await supabase
     .from("seating_tables")
@@ -47,7 +49,15 @@ export async function createSeatingTable(input: CreateSeatingTableInput): Promis
     .select("id")
     .single()
 
-  if (error ?? !data) { console.error("[createSeatingTable]", error?.message); return { error: "DB_ERROR" } }
+  if (error ?? !data) {
+    console.error("[createSeatingTable]", {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+    })
+    return { error: `DB_ERROR:${error?.code ?? "unknown"}:${error?.message ?? "no data"}` }
+  }
 
   revalidatePath("/dashboard/plan-de-table")
   return { data: { id: data.id } }
