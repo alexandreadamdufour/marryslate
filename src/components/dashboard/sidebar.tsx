@@ -14,6 +14,7 @@ import {
   Settings,
   BookOpen,
   PiggyBank,
+  Table2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/logo"
@@ -27,12 +28,13 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/liste", label: "Liste de cadeaux", icon: Gift },
-  { href: "/dashboard/budget", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/site", label: "Mon site mariage", icon: Globe },
+  { href: "/dashboard/liste", label: "Liste de cadeaux", icon: Gift },
   { href: "/dashboard/cagnotte", label: "Cagnotte", icon: Heart },
   { href: "/dashboard/contributions", label: "Contributions", icon: Users },
   { href: "/dashboard/invites", label: "Invités", icon: Users },
+  { href: "/dashboard/plan-de-table", label: "Plan de table", icon: Table2 },
+  { href: "/dashboard/budget", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/livre-d-or", label: "Livre d'or", icon: BookOpen },
   { href: "/dashboard/retrait", label: "Retrait", icon: Banknote },
   { href: "/dashboard/parametres", label: "Paramètres", icon: Settings },

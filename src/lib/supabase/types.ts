@@ -10,6 +10,7 @@ export type WeddingSide = "partner1" | "partner2" | "both"
 export type PaymentStatus = "pending" | "succeeded" | "failed" | "refunded"
 export type RsvpStatus = "pending" | "accepted" | "declined" | "maybe"
 export type WithdrawalStatus = "pending" | "processing" | "succeeded" | "failed"
+export type SeatingTableShape = "round" | "rectangle"
 
 export interface Database {
   public: {
@@ -633,6 +634,78 @@ export interface Database {
         }
         Update: Record<string, never>
         Relationships: []
+      }
+      seating_tables: {
+        Row: {
+          id: string
+          wedding_id: string
+          name: string
+          capacity: number
+          shape: SeatingTableShape
+          position_x: number
+          position_y: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_id: string
+          name: string
+          capacity?: number
+          shape?: SeatingTableShape
+          position_x?: number
+          position_y?: number
+          created_at?: string
+        }
+        Update: {
+          name?: string
+          capacity?: number
+          shape?: SeatingTableShape
+          position_x?: number
+          position_y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seating_tables_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seating_assignments: {
+        Row: {
+          id: string
+          table_id: string
+          guest_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          table_id: string
+          guest_id: string
+          created_at?: string
+        }
+        Update: {
+          table_id?: string
+          guest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seating_assignments_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "seating_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seating_assignments_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: true
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       budget_items: {
         Row: {
