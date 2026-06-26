@@ -87,6 +87,18 @@ export async function submitRsvp(
     }).catch((e) => console.error("[rsvp] couple notif:", e))
   }
 
+  // Sync rsvp_status sur le guest correspondant (si email connu)
+  if (email) {
+    supabase
+      .from("guests")
+      .update({ rsvp_status: attending ? "accepted" : "declined" })
+      .eq("wedding_id", weddingId)
+      .eq("email", email)
+      .then(({ error: e }) => {
+        if (e) console.error("[submitRsvp] guest sync:", e.message)
+      })
+  }
+
   revalidatePath("/dashboard/invites")
 
   return { data: { id: response.id } }

@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getContributionsByWedding } from "@/queries/contributions"
+import { RSVP_STATUS_LABELS, SIDE_LABELS } from "@/lib/validators/guest"
 
 type ActionResult<T> =
   | { data: T; error?: never }
@@ -143,6 +144,72 @@ export async function exportRsvpCSV(): Promise<ActionResult<{ csv: string; filen
 
   const date = new Date().toISOString().slice(0, 10)
   const filename = `amora-invites-${date}.csv`
+
+  return { data: { csv, filename } }
+}
+
+export async function exportGuestsCSV(): Promise<ActionResult<{ csv: string; filename: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  const supabase = createAdminClient()
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("id")
+    .eq("clerk_user_id", clerkUserId)
+    .maybeSingle()
+  if (!user) return { error: "USER_NOT_FOUND" }
+
+  const { data: coowner } = await supabase
+    .from("wedding_coowners")
+    .select("wedding_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle()
+  if (!coowner) return { error: "NO_WEDDING" }
+
+  const { data } = await supabase
+    .from("guests")
+    .select("*")
+    .eq("wedding_id", coowner.wedding_id)
+    .order("created_at", { ascending: true })
+
+  const guests = data ?? []
+
+  const headers = [
+    "Prénom",
+    "Nom",
+    "Email",
+    "Téléphone",
+    "Côté",
+    "Groupe",
+    "Régime alimentaire",
+    "Plus one",
+    "Prénom plus one",
+    "Invitation envoyée",
+    "Statut RSVP",
+    "Notes",
+  ]
+
+  const rows = guests.map((g) => [
+    escapeCsv(g.first_name),
+    escapeCsv(g.last_name),
+    escapeCsv(g.email),
+    escapeCsv(g.phone),
+    escapeCsv(SIDE_LABELS[g.side as keyof typeof SIDE_LABELS] ?? g.side),
+    escapeCsv(g.group_name),
+    escapeCsv(g.dietary),
+    escapeCsv(g.plus_one ? "Oui" : "Non"),
+    escapeCsv(g.plus_one_name),
+    escapeCsv(g.invitation_sent ? "Oui" : "Non"),
+    escapeCsv(RSVP_STATUS_LABELS[g.rsvp_status as keyof typeof RSVP_STATUS_LABELS] ?? g.rsvp_status),
+    escapeCsv(g.notes),
+  ])
+
+  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
+  const date = new Date().toISOString().slice(0, 10)
+  const filename = `amora-guests-${date}.csv`
 
   return { data: { csv, filename } }
 }

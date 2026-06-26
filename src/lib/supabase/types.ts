@@ -351,8 +351,15 @@ export interface Database {
           first_name: string | null
           last_name: string | null
           email: string | null
+          phone: string | null
           group_name: string | null
           side: WeddingSide
+          dietary: string | null
+          plus_one: boolean
+          plus_one_name: string | null
+          invitation_sent: boolean
+          rsvp_status: RsvpStatus
+          notes: string | null
           rsvp_token: string
           created_at: string
           updated_at: string
@@ -363,8 +370,15 @@ export interface Database {
           first_name?: string | null
           last_name?: string | null
           email?: string | null
+          phone?: string | null
           group_name?: string | null
           side?: WeddingSide
+          dietary?: string | null
+          plus_one?: boolean
+          plus_one_name?: string | null
+          invitation_sent?: boolean
+          rsvp_status?: RsvpStatus
+          notes?: string | null
           rsvp_token?: string
           created_at?: string
           updated_at?: string
@@ -373,8 +387,15 @@ export interface Database {
           first_name?: string | null
           last_name?: string | null
           email?: string | null
+          phone?: string | null
           group_name?: string | null
           side?: WeddingSide
+          dietary?: string | null
+          plus_one?: boolean
+          plus_one_name?: string | null
+          invitation_sent?: boolean
+          rsvp_status?: RsvpStatus
+          notes?: string | null
           updated_at?: string
         }
         Relationships: [
