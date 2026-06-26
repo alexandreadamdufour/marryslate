@@ -11,6 +11,7 @@ export type PaymentStatus = "pending" | "succeeded" | "failed" | "refunded"
 export type RsvpStatus = "pending" | "accepted" | "declined" | "maybe"
 export type WithdrawalStatus = "pending" | "processing" | "succeeded" | "failed"
 export type SeatingTableShape = "round" | "rectangle"
+export type ChecklistPriority = "high" | "medium" | "low"
 
 export interface Database {
   public: {
@@ -707,6 +708,47 @@ export interface Database {
           },
         ]
       }
+      checklist_items: {
+        Row: {
+          id: string
+          wedding_id: string
+          category: string
+          title: string
+          description: string | null
+          due_date: string | null
+          is_completed: boolean
+          priority: ChecklistPriority
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_id: string
+          category: string
+          title: string
+          description?: string | null
+          due_date?: string | null
+          is_completed?: boolean
+          priority?: ChecklistPriority
+          created_at?: string
+        }
+        Update: {
+          category?: string
+          title?: string
+          description?: string | null
+          due_date?: string | null
+          is_completed?: boolean
+          priority?: ChecklistPriority
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_items: {
         Row: {
           id: string
@@ -780,6 +822,7 @@ export interface Database {
       payment_status: PaymentStatus
       rsvp_status: RsvpStatus
       withdrawal_status: WithdrawalStatus
+      checklist_priority: ChecklistPriority
     }
     CompositeTypes: {
       [_ in never]: never
