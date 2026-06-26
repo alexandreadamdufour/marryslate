@@ -57,7 +57,7 @@ export function SeatingAddTableDialog({ weddingId, defaultPosition, onCreated }:
       positionY: defaultPosition.y,
     })
 
-    if (result.error) { toast.error(`Erreur: ${result.error}`); return }
+    if (result.error) { toast.error("Erreur lors de la création."); return }
 
     toast.success("Table créée")
     form.reset()
