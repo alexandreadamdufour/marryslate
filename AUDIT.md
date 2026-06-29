@@ -95,30 +95,19 @@ Effort : ~30 min (refactor propre) ou 2 lignes (tiebreaker stable).
 
 ---
 
-### E3 — `requestPayout` : aucun Zod, NaN bypass, exception Stripe non catchée
+### E3 — `requestPayout` : aucun Zod, NaN bypass, exception Stripe non catchée ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/withdrawals.ts:117–143`
+**Commit :** `cc160a8`  
+**Fichiers modifiés :** `src/actions/withdrawals.ts` · `src/lib/stripe/connect.ts` · `src/components/dashboard/payout-setup.tsx`
 
-**Risque :** Aucun `safeParse` Zod. Avec `amountEuros = NaN` :
-- `Math.round(NaN * 100)` = `NaN`
-- `NaN < 100` = `false` → passe le guard minimum
-- `NaN > balanceCentimes` = `false` → passe le check balance
-- `createPayout(stripeAccountId, NaN)` throw une exception non catchée → 500 Next.js
-- Le `withdrawal` row créé avant le throw reste en `"processing"` sans `stripe_payout_id`
+**3 défenses appliquées :**
+1. **Zod** `z.number().finite().positive().min(1).max(50000)` + `idempotencyToken: z.string().uuid()` — bloque NaN et tout input hors-norme avant toute logique.
+2. **Défense 1 (DB)** — check `withdrawals.status = "processing"` avant l'appel Stripe → `PAYOUT_ALREADY_PENDING`.
+3. **Défense 2 (Stripe idempotency key)** — token UUID généré côté client, stable sur retry, reset sur changement de montant ou après succès. Transmis à Stripe comme `retrait-<uuid>` ; confirmé compatible avec `stripeAccount` dans le même objet d'options (SDK v22.2.3, `utils.js:159-163`).
+4. **try/catch** autour de `createPayout` → `STRIPE_API_ERROR` propre, plus de 500 Next.js.
+5. **Retry loop (3 tentatives)** sur l'insert DB post-payout Stripe ; `23505` (contrainte UNIQUE `stripe_payout_id`) traité comme succès ; `PAYOUT_UNRECORDED` retourné si échec persistant (log détaillé avec `payoutId` pour réconciliation manuelle).
 
-**Fix proposé :**
-```typescript
-const schema = z.object({ amountEuros: z.number().finite().positive().min(1).max(10000) })
-const parsed = schema.safeParse({ amountEuros })
-if (!parsed.success) return { error: "INVALID_INPUT" }
-// ...
-try { payoutId = await createPayout(stripeAccountId, amountCentimes) }
-catch (err) {
-  console.error("[requestPayout] Stripe:", err)
-  return { error: "STRIPE_API_ERROR" }
-}
-```
-Effort : ~15 min.
+**4 nouveaux codes d'erreur** gérés dans l'UI avec messages explicites : `PAYOUT_ALREADY_PENDING` · `STRIPE_API_ERROR` · `INVALID_INPUT` · `PAYOUT_UNRECORDED` (ce dernier dirige vers le support tout en confirmant que l'argent partira bien).
 
 ---
 
@@ -393,7 +382,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | Sévérité | # | Points |
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
-| 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · E2 export cross-tenant · E3 requestPayout NaN · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
+| 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · E2 export cross-tenant · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
 | 🟡 MOYEN | 8 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
