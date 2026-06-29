@@ -370,14 +370,11 @@ const weddingId = (row.seating_tables as { wedding_id: string } | null)?.wedding
 
 ---
 
-### F5 — Queries sans `.limit()` sur des tables potentiellement volumineuses
+### F5 — Queries sans `.limit()` sur des tables potentiellement volumineuses ✅ NON APPLICABLE 2026-06-29
 
 **Fichiers :** `src/queries/guests.ts` · `src/queries/contributions.ts` · `src/queries/planner.ts`
 
-Ces queries sélectionnent tous les enregistrements d'un mariage sans pagination ni `.limit()`.
-Acceptable à 100 invités, problématique à 1 000+.
-
-**Fix proposé :** Ajouter pagination ou `.limit(500)` + warning côté UI au-delà d'un seuil.
+**Verdict :** Faux positif contextuel. Les 4 queries (`getGuestsByWedding`, `getContributionsByWedding`, `getWeddingTotals`, `getChecklistItems`) sont toutes filtrées par `.eq("wedding_id", weddingId)` — bornées au volume d'un seul mariage (50–500 lignes max). Pas de table globale balayée sans filtre. Un `.limit()` n'aurait de sens que sur une query cross-mariage ou de reporting, ce qui n'existe pas ici. **Aucun fix nécessaire.**
 
 ---
 
@@ -388,7 +385,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
 | 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · ~~M8 zéro tests~~ ⚠️ partiel (60 tests unitaires — RLS/intégration = dette scale) · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
-| ⚪ FAIBLE | 5 | ~~F1 migration doc-only~~ n/a · ~~F2 race condition user~~ ✅ · ~~F3 chaîne migrations cassée db reset~~ ✅ · ~~F4 cast unsafe seating~~ cosmétique assumé · F5 queries sans limit |
+| ⚪ FAIBLE | 5 | ~~F1 migration doc-only~~ n/a · ~~F2 race condition user~~ ✅ · ~~F3 chaîne migrations cassée db reset~~ ✅ · ~~F4 cast unsafe seating~~ cosmétique assumé · ~~F5 queries sans limit~~ n/a |
 
 **Ordre de traitement suggéré avant beta :**
 1. Vérifier C2 (pg_policies sur budget_items/checklist_items) — 2 min
