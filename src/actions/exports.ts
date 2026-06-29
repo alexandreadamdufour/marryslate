@@ -28,7 +28,7 @@ function formatDate(dateStr: string): string {
   })
 }
 
-export async function exportContributionsCSV(): Promise<ActionResult<{ csv: string; filename: string }>> {
+export async function exportContributionsCSV(weddingId: string): Promise<ActionResult<{ csv: string; filename: string }>> {
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
@@ -42,16 +42,16 @@ export async function exportContributionsCSV(): Promise<ActionResult<{ csv: stri
 
   if (!user) return { error: "USER_NOT_FOUND" }
 
-  const { data: coowner } = await supabase
+  const { data: ownership } = await supabase
     .from("wedding_coowners")
     .select("wedding_id")
     .eq("user_id", user.id)
-    .limit(1)
+    .eq("wedding_id", weddingId)
     .maybeSingle()
 
-  if (!coowner) return { error: "NO_WEDDING" }
+  if (!ownership) return { error: "FORBIDDEN" }
 
-  const contributions = await getContributionsByWedding(coowner.wedding_id)
+  const contributions = await getContributionsByWedding(weddingId)
 
   const headers = [
     "Date",
@@ -87,7 +87,7 @@ export async function exportContributionsCSV(): Promise<ActionResult<{ csv: stri
   return { data: { csv, filename } }
 }
 
-export async function exportRsvpCSV(): Promise<ActionResult<{ csv: string; filename: string }>> {
+export async function exportRsvpCSV(weddingId: string): Promise<ActionResult<{ csv: string; filename: string }>> {
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
@@ -101,19 +101,19 @@ export async function exportRsvpCSV(): Promise<ActionResult<{ csv: string; filen
 
   if (!user) return { error: "USER_NOT_FOUND" }
 
-  const { data: coowner } = await supabase
+  const { data: ownership } = await supabase
     .from("wedding_coowners")
     .select("wedding_id")
     .eq("user_id", user.id)
-    .limit(1)
+    .eq("wedding_id", weddingId)
     .maybeSingle()
 
-  if (!coowner) return { error: "NO_WEDDING" }
+  if (!ownership) return { error: "FORBIDDEN" }
 
   const { data } = await supabase
     .from("rsvp_responses")
     .select("*")
-    .eq("wedding_id", coowner.wedding_id)
+    .eq("wedding_id", weddingId)
     .order("created_at", { ascending: false })
 
   const responses = data ?? []
@@ -148,7 +148,7 @@ export async function exportRsvpCSV(): Promise<ActionResult<{ csv: string; filen
   return { data: { csv, filename } }
 }
 
-export async function exportGuestsCSV(): Promise<ActionResult<{ csv: string; filename: string }>> {
+export async function exportGuestsCSV(weddingId: string): Promise<ActionResult<{ csv: string; filename: string }>> {
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
@@ -161,18 +161,18 @@ export async function exportGuestsCSV(): Promise<ActionResult<{ csv: string; fil
     .maybeSingle()
   if (!user) return { error: "USER_NOT_FOUND" }
 
-  const { data: coowner } = await supabase
+  const { data: ownership } = await supabase
     .from("wedding_coowners")
     .select("wedding_id")
     .eq("user_id", user.id)
-    .limit(1)
+    .eq("wedding_id", weddingId)
     .maybeSingle()
-  if (!coowner) return { error: "NO_WEDDING" }
+  if (!ownership) return { error: "FORBIDDEN" }
 
   const { data } = await supabase
     .from("guests")
     .select("*")
-    .eq("wedding_id", coowner.wedding_id)
+    .eq("wedding_id", weddingId)
     .order("created_at", { ascending: true })
 
   const guests = data ?? []

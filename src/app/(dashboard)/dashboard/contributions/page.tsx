@@ -48,7 +48,7 @@ export default async function ContributionsPage() {
             {totals.count} contribution{totals.count !== 1 ? "s" : ""} reçue{totals.count !== 1 ? "s" : ""}
           </p>
         </div>
-        {contributions.length > 0 && <ExportCsvButton />}
+        {contributions.length > 0 && <ExportCsvButton weddingId={wedding.id} />}
       </div>
 
       {/* Totaux */}

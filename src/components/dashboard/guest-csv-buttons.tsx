@@ -40,7 +40,7 @@ export function GuestCsvButtons({ weddingId }: Props) {
 
   async function handleExport() {
     setExporting(true)
-    const result = await exportGuestsCSV()
+    const result = await exportGuestsCSV(weddingId)
     setExporting(false)
     if (result.error ?? !result.data) { toast.error("Erreur export"); return }
     const blob = new Blob(["﻿" + result.data.csv], { type: "text/csv;charset=utf-8;" })

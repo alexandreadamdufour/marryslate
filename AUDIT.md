@@ -69,29 +69,14 @@ Effort : 2 lignes.
 
 ---
 
-### E2 — `exports.ts` : mauvais mariage exporté (fuite de données cross-tenant)
+### E2 — `exports.ts` : mauvais mariage exporté (fuite de données cross-tenant) ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/exports.ts:38` (pattern répété dans les 3 fonctions d'export)
+**Commit :** à venir (même push que M9)  
+**Fichiers modifiés :** `src/actions/exports.ts` · `src/components/dashboard/export-csv-button.tsx` · `src/components/dashboard/export-rsvp-csv-button.tsx` · `src/components/dashboard/guest-csv-buttons.tsx` · `src/app/(dashboard)/dashboard/contributions/page.tsx`
 
-**Risque :** Un user co-owner de 2 mariages déclenche un export CSV. Sans `ORDER BY`,
-PostgreSQL retourne n'importe lequel des deux mariage. Il peut silencieusement exporter
-la liste d'invités, les contributions ou les retraits du **mauvais** mariage. Fuite de
-données personnelles RGPD.
+**Fix appliqué :** `weddingId` passé explicitement aux 3 fonctions d'export (`exportContributionsCSV`, `exportRsvpCSV`, `exportGuestsCSV`). Suppression du `LIMIT 1` non-déterministe. Ownership validé directement sur `wedding_coowners` avec `user_id + wedding_id` (double eq), retourne `FORBIDDEN` si non-coowner. Build TypeScript OK — aucun appelant resté sur l'ancienne signature sans argument.
 
-**Code fautif :**
-```typescript
-const { data: coowner } = await supabase
-  .from("wedding_coowners")
-  .select("wedding_id")
-  .eq("user_id", user.id)
-  .limit(1)          // ← ORDER BY absent → non-déterministe
-  .maybeSingle()
-```
-
-**Fix proposé :** Passer `weddingId` explicitement aux 3 fonctions d'export et valider
-avec `assertWeddingCoowner`. Alternative rapide : ajouter `.order("created_at", { ascending: true })`.
-
-Effort : ~30 min (refactor propre) ou 2 lignes (tiebreaker stable).
+**Note :** bug **latent** aujourd'hui (aucun user ne peut avoir 2+ mariages en prod — voir M9). Fix appliqué préventivement avant tout flow multi-mariage. La racine du problème (helpers `getMyWedding` / `getAuthenticatedUserAndWedding`) est tracée en M9.
 
 ---
 
@@ -290,6 +275,20 @@ passent par service_role — à vérifier et documenter explicitement.
 
 ---
 
+### M9 — `getMyWedding()` et `getAuthenticatedUserAndWedding()` : LIMIT 1 sans ORDER BY (bug latent)
+
+**Fichiers :** `src/queries/wedding.ts:34` · `src/actions/withdrawals.ts:36` · `src/actions/withdrawals.ts:98`
+
+**Risque :** Ces helpers résolvent le mariage d'un user via `.limit(1).maybeSingle()` sans `ORDER BY` sur `wedding_coowners`. Si un user avait 2+ lignes `wedding_coowners` (mariages distincts), PostgreSQL retournerait n'importe lequel. Toutes les pages dashboard et le flow de retrait utiliseraient alors potentiellement le mauvais mariage.
+
+**Bug LATENT — inoffensif aujourd'hui** car aucun flow applicatif ne crée de 2e ligne `wedding_coowners` pour un même `user_id`. Garde-fou involontaire supplémentaire : le layout dashboard utilise `.maybeSingle()` sans `.limit(1)` — 2+ lignes déclencheraient une erreur PGRST116 et casheraient le dashboard avant toute fuite de données.
+
+**À CORRIGER IMPÉRATIVEMENT avant tout flow multi-mariage** : invitation de coowner cross-mariage, compte gérant plusieurs mariages, interface wedding planner.
+
+**Fix :** Passer `weddingId` explicitement à ces helpers (même pattern que les exports E2 corrigés). Recommandation forte : ajouter une contrainte `UNIQUE (user_id)` sur `wedding_coowners`, ou une colonne `active_wedding_id` sur `users` pour gérer la sélection du mariage actif.
+
+---
+
 ### M8 — Absence totale de tests
 
 Aucun test unitaire, d'intégration ou e2e dans le repo. Les deux bugs critiques corrigés
@@ -382,8 +381,8 @@ Acceptable à 100 invités, problématique à 1 000+.
 | Sévérité | # | Points |
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
-| 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · E2 export cross-tenant · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
-| 🟡 MOYEN | 8 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests |
+| 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
+| 🟡 MOYEN | 9 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**

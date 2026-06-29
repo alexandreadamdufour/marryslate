@@ -5,12 +5,14 @@ import { Download } from "lucide-react"
 import { exportRsvpCSV } from "@/actions/exports"
 import { Button } from "@/components/ui/button"
 
-export function ExportRsvpCsvButton() {
+interface Props { weddingId: string }
+
+export function ExportRsvpCsvButton({ weddingId }: Props) {
   const [loading, setLoading] = useState(false)
 
   async function handleExport() {
     setLoading(true)
-    const result = await exportRsvpCSV()
+    const result = await exportRsvpCSV(weddingId)
     setLoading(false)
 
     if ("error" in result) return
