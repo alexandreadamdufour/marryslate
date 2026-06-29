@@ -36,36 +36,14 @@ Vérif post-apply OK (`pg_policies` + test navigateur).
 
 ---
 
-### E1 — Utilisateurs soft-deleted accèdent toujours au dashboard
+### E1 — Utilisateurs soft-deleted accèdent toujours au dashboard ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/app/(dashboard)/layout.tsx:14`
+**Commit :** `c74ea46`  
+**Fichiers modifiés :** `src/app/(dashboard)/layout.tsx` · `src/actions/withdrawals.ts` · `src/actions/exports.ts` · `src/app/(dashboard)/dashboard/retrait/page.tsx`
 
-**Risque :** Le webhook Clerk `user.deleted` pose `deleted_at = NOW()` en DB. Les JWTs
-Clerk existants restent valides 7 jours. Le layout dashboard ne filtre pas `deleted_at IS NULL`
-→ l'utilisateur supprimé trouve sa row, accède au dashboard, et toutes ses Server Actions
-fonctionnent via son JWT encore valide pendant toute la fenêtre de validité.
+**Fix appliqué :** `.is("deleted_at", null)` ajouté à tous les lookups `users` par `clerk_user_id` dans le layout, les actions financières (withdrawals) et les exports. Le layout passe de `if (user) { ... check coowner }` à `if (!user) redirect("/connexion")` inconditionnel (couvre deleted + no-record). Idem pour `getAuthenticatedUserAndWedding()` et `setupStripeConnect()`.
 
-**Code fautif :**
-```typescript
-const { data: user } = await supabase
-  .from("users")
-  .select("id")
-  .eq("clerk_user_id", userId)    // ← pas de .is("deleted_at", null)
-  .maybeSingle()
-```
-
-**Fix proposé :**
-```typescript
-const { data: user } = await supabase
-  .from("users")
-  .select("id")
-  .eq("clerk_user_id", userId)
-  .is("deleted_at", null)         // ← add
-  .maybeSingle()
-
-if (!user) redirect("/connexion") // ← couvre deleted + no-record
-```
-Effort : 2 lignes.
+**Trou résiduel documenté :** les Server Actions qui utilisent uniquement `assertWeddingCoowner` sans lookup `users` (gifts, guests, seating, timeline, budget, planner…) restent appelables via API directe avec un JWT encore valide. Fix complet = révocation de session Clerk dans le webhook `user.deleted`, ou ajout de `deleted_at IS NULL` dans `is_wedding_coowner()` (migration SQL). Acceptable pour beta — nécessite un appel API intentionnel, non exploitable via UI.
 
 ---
 
@@ -381,7 +359,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | Sévérité | # | Points |
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
-| 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
+| 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
 | 🟡 MOYEN | 9 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
