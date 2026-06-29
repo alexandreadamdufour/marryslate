@@ -5,7 +5,6 @@ const isProd = process.env.NODE_ENV === "production"
 
 // unsafe-inline : Next.js RSC hydration inline scripts + GTM init inline
 // unsafe-eval  : requis par Crisp (leur doc CSP officielle)
-// TODO: passer en Content-Security-Policy bloquant après validation prod (violations console)
 const CSP = [
   "default-src 'self'",
   [
@@ -60,8 +59,7 @@ const securityHeaders = [
   { key: "X-Frame-Options",        value: "DENY" },
   { key: "Referrer-Policy",        value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy",     value: "camera=(), microphone=(), geolocation=()" },
-  // Report-Only : log les violations sans rien bloquer — à valider en prod avant passage bloquant
-  { key: "Content-Security-Policy-Report-Only", value: CSP },
+  { key: "Content-Security-Policy", value: CSP },
   ...(isProd
     ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }]
     : []),
