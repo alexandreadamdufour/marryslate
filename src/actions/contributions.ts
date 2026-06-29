@@ -1,9 +1,11 @@
 "use server"
 
+import { headers } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { stripe } from "@/lib/stripe/client"
 import { createContributionSchema, type CreateContributionInput } from "@/lib/validators/contributions"
 import { COMMISSION_RATE, COMMISSION_FIXED } from "@/lib/constants"
+import { getClientIp, checkPaymentIntentRateLimit, checkPhotoUploadRateLimit } from "@/lib/rate-limit"
 
 type ActionResult<T> =
   | { data: T; error?: never }
@@ -15,6 +17,11 @@ export async function uploadContributorPhoto(
   const file = formData.get("file") as File | null
   const weddingSlug = formData.get("weddingSlug") as string | null
   if (!file || !weddingSlug) return { error: "INVALID_INPUT" }
+
+  const ip = getClientIp(await headers())
+  if (!(await checkPhotoUploadRateLimit(ip, weddingSlug))) {
+    return { error: "RATE_LIMITED" }
+  }
 
   const allowedTypes = ["image/jpeg", "image/png", "image/webp"]
   if (!allowedTypes.includes(file.type)) return { error: "INVALID_FILE_TYPE" }
@@ -60,6 +67,11 @@ export async function createPaymentIntent(
 ): Promise<ActionResult<{ clientSecret: string; contributionId: string }>> {
   const parsed = createContributionSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT", details: parsed.error.flatten() }
+
+  const ip = getClientIp(await headers())
+  if (!(await checkPaymentIntentRateLimit(ip, parsed.data.weddingSlug))) {
+    return { error: "RATE_LIMITED", details: undefined }
+  }
 
   const { weddingSlug, giftId, guestName, guestEmail, guestMessage, contributorPhotoUrl, grossAmountEuros, isAnonymous } =
     parsed.data

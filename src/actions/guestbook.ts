@@ -1,9 +1,11 @@
 "use server"
 
+import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { submitGuestbookSchema, type SubmitGuestbookInput } from "@/lib/validators/guestbook"
 import { sendGuestbookNotifToCouple } from "@/lib/resend/send"
+import { getClientIp, checkGuestbookRateLimit } from "@/lib/rate-limit"
 
 type ActionResult<T> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -12,6 +14,11 @@ export async function submitGuestbookEntry(
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = submitGuestbookSchema.safeParse(input)
   if (!parsed.success) return { error: "INVALID_INPUT" }
+
+  const ip = getClientIp(await headers())
+  if (!(await checkGuestbookRateLimit(ip, parsed.data.weddingId))) {
+    return { error: "RATE_LIMITED" }
+  }
 
   const { weddingId, authorName, message } = parsed.data
   const supabase = createAdminClient()

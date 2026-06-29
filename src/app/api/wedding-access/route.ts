@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getWeddingBySlug } from "@/queries/wedding"
 import { validateAccessCodeSchema } from "@/lib/validators/access-code"
+import { getClientIp, checkAccessCodeRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   let body: unknown
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
   }
 
   const { slug, code } = parsed.data
+
+  const ip = getClientIp(request.headers)
+  if (!(await checkAccessCodeRateLimit(ip, slug))) {
+    return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 })
+  }
 
   const wedding = await getWeddingBySlug(slug)
   if (!wedding) {
