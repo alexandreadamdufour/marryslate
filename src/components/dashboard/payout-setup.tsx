@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -30,6 +30,8 @@ interface PayoutSetupProps {
 export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: PayoutSetupProps) {
   const [onboardingLoading, setOnboardingLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  // Token stable pour une intention de retrait donnée. Réinitialisé si montant changé ou après succès.
+  const idempotencyTokenRef = useRef<string | null>(null)
 
   const form = useForm<z.infer<typeof payoutSchema>>({
     resolver: zodResolver(payoutSchema),
@@ -59,17 +61,25 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: Payo
 
   async function onSubmitPayout(values: z.infer<typeof payoutSchema>) {
     setMessage(null)
-    const result = await requestPayout(values.amountEuros)
+    if (!idempotencyTokenRef.current) {
+      idempotencyTokenRef.current = crypto.randomUUID()
+    }
+    const result = await requestPayout(values.amountEuros, idempotencyTokenRef.current)
     if ("error" in result) {
       const messages: Record<string, string> = {
         INSUFFICIENT_BALANCE: "Solde insuffisant.",
         AMOUNT_TOO_LOW: "Montant minimum : 1 €.",
         STRIPE_NOT_CONFIGURED: "Compte bancaire non configuré.",
         UNAUTHORIZED: "Non autorisé.",
+        PAYOUT_ALREADY_PENDING: "Un retrait est déjà en cours de traitement. Attendez qu'il soit finalisé avant d'en initier un nouveau.",
+        STRIPE_API_ERROR: "Erreur Stripe lors du retrait. Réessayez dans quelques instants.",
+        INVALID_INPUT: "Montant invalide.",
+        PAYOUT_UNRECORDED: "Votre retrait a été effectué par Stripe mais n'a pas pu être enregistré dans notre système. Contactez le support en précisant l'heure et le montant — le retrait arrivera bien sur votre compte bancaire.",
       }
       setMessage({ type: "error", text: messages[result.error as string] ?? "Erreur lors du retrait." })
       return
     }
+    idempotencyTokenRef.current = null
     setMessage({ type: "success", text: `Retrait de ${values.amountEuros} € initié. Il apparaîtra sous 1 à 3 jours ouvrés.` })
     form.reset({ amountEuros: 0 })
   }
@@ -146,7 +156,10 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: Payo
                         max={availableEuros}
                         step={1}
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        onChange={(e) => {
+                          idempotencyTokenRef.current = null
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }}
                         className="pr-8"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">

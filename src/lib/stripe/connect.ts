@@ -68,11 +68,15 @@ export async function getAccountBalance(stripeAccountId: string): Promise<number
 
 export async function createPayout(
   stripeAccountId: string,
-  amountCentimes: number
+  amountCentimes: number,
+  idempotencyKey?: string
 ): Promise<string> {
   const payout = await stripe.payouts.create(
     { amount: amountCentimes, currency: "eur" },
-    { stripeAccount: stripeAccountId }
+    {
+      stripeAccount: stripeAccountId,
+      ...(idempotencyKey && { idempotencyKey }),
+    }
   )
   return payout.id
 }

@@ -1,5 +1,6 @@
 "use server"
 
+import { z } from "zod"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
@@ -114,7 +115,17 @@ export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl
   }
 }
 
-export async function requestPayout(amountEuros: number): Promise<ActionResult<{ payoutId: string }>> {
+export async function requestPayout(
+  amountEuros: number,
+  idempotencyToken: string
+): Promise<ActionResult<{ payoutId: string }>> {
+  const schema = z.object({
+    amountEuros: z.number().finite().positive().min(1).max(50000),
+    idempotencyToken: z.string().uuid(),
+  })
+  const parsed = schema.safeParse({ amountEuros, idempotencyToken })
+  if (!parsed.success) return { error: "INVALID_INPUT" }
+
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
@@ -127,20 +138,60 @@ export async function requestPayout(amountEuros: number): Promise<ActionResult<{
   const stripeAccountId = user.stripe_account_id ?? wedding.stripe_account_id
   if (!stripeAccountId) return { error: "STRIPE_NOT_CONFIGURED" }
 
-  const amountCentimes = Math.round(amountEuros * 100)
+  const amountCentimes = Math.round(parsed.data.amountEuros * 100)
   if (amountCentimes < 100) return { error: "AMOUNT_TOO_LOW" }
 
   const balanceCentimes = await getAccountBalance(stripeAccountId)
   if (amountCentimes > balanceCentimes) return { error: "INSUFFICIENT_BALANCE" }
 
-  const payoutId = await createPayout(stripeAccountId, amountCentimes)
+  // Défense 1 — blocage si un retrait est déjà en cours pour ce mariage
+  const { data: pending } = await supabase
+    .from("withdrawals")
+    .select("id")
+    .eq("wedding_id", wedding.id)
+    .eq("status", "processing")
+    .maybeSingle()
+  if (pending) return { error: "PAYOUT_ALREADY_PENDING" }
 
-  await supabase.from("withdrawals").insert({
-    wedding_id: wedding.id,
-    amount: amountEuros,
-    stripe_payout_id: payoutId,
-    status: "processing",
-  })
+  // Défense 2 — idempotency key stable pour cette intention de retrait
+  let payoutId: string
+  try {
+    payoutId = await createPayout(
+      stripeAccountId,
+      amountCentimes,
+      `retrait-${parsed.data.idempotencyToken}`
+    )
+  } catch (err) {
+    console.error("[requestPayout] Stripe:", err)
+    return { error: "STRIPE_API_ERROR" }
+  }
+
+  // Payout Stripe réussi — on doit absolument tracer le row. 3 tentatives.
+  let lastInsertError = null
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const { error } = await supabase.from("withdrawals").insert({
+      wedding_id: wedding.id,
+      amount: parsed.data.amountEuros,
+      stripe_payout_id: payoutId,
+      status: "processing",
+    })
+    if (!error) { lastInsertError = null; break }
+    // 23505 = stripe_payout_id déjà en base (race ou retry sur row existante) — succès
+    if (error.code === "23505") { lastInsertError = null; break }
+    lastInsertError = error
+    if (attempt < 3) await new Promise(r => setTimeout(r, 200 * attempt))
+  }
+
+  if (lastInsertError) {
+    console.error("[requestPayout] DB insert failed after 3 attempts — payout exists in Stripe", {
+      payoutId,
+      weddingId: wedding.id,
+      amountEuros: parsed.data.amountEuros,
+      code: lastInsertError.code,
+      message: lastInsertError.message,
+    })
+    return { error: "PAYOUT_UNRECORDED" }
+  }
 
   revalidatePath("/dashboard/retrait")
   return { data: { payoutId } }
