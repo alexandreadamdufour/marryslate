@@ -160,7 +160,19 @@ export async function createPaymentIntent(
     }
   } catch (err) {
     // Rollback la contribution pending si Stripe échoue
-    await supabase.from("contributions").delete().eq("id", contribution.id)
+    const { error: rollbackError } = await supabase
+      .from("contributions")
+      .delete()
+      .eq("id", contribution.id)
+    if (rollbackError) {
+      console.error("[createPaymentIntent_rollback] ORPHAN contribution pending — nettoyage manuel requis", {
+        contributionId: contribution.id,
+        weddingId: wedding.id,
+        giftId: giftId ?? null,
+        rollbackCode: rollbackError.code,
+        rollbackMessage: rollbackError.message,
+      })
+    }
     console.error("[createPaymentIntent] Stripe:", err)
     return { error: "STRIPE_ERROR" }
   }

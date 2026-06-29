@@ -143,25 +143,21 @@ En dev local : silencieux comme avant.
 
 ---
 
-### M3 — `createPaymentIntent` : rollback contribution silencieusement raté
+### M3 — `createPaymentIntent` : rollback contribution silencieusement raté ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/contributions.ts:133`
+**Commit :** à venir  
+**Fichier modifié :** `src/actions/contributions.ts`
 
-```typescript
-} catch (err) {
-  await supabase.from("contributions").delete().eq("id", contribution.id)
-  // ← erreur du delete non vérifiée
-  return { error: "STRIPE_ERROR" }
-}
-```
+**Fix appliqué :** `const { error: rollbackError }` capture le résultat du delete de rollback.
+Si le delete échoue, `console.error("[createPaymentIntent_rollback]")` loggue un objet structuré
+avec `contributionId`, `weddingId`, `giftId`, `rollbackCode`, `rollbackMessage` — tout ce qu'il
+faut pour retrouver et nettoyer l'orphelin manuellement dans Supabase en beta.
+`logDbError` non utilisé ici : le contexte critique (`contributionId`) est absent de l'erreur
+Postgres seule ; `console.error` structuré est plus adapté.
 
-Si Stripe échoue ET que le delete échoue (FK, timeout), la contribution reste `pending`
-indéfiniment → fausse les compteurs `current_amount` sur le gift. Accumulation silencieuse
-de rows orphelines.
-
-**Fix proposé :** Logguer l'erreur du delete. Ajouter un job de nettoyage (cron Supabase
-ou Vercel) qui purge les contributions `pending` + `stripe_payment_intent_id IS NULL`
-de plus de 1h.
+**Dette documentée :** fix = log actionnable de l'orphelin (`contributionId`) pour nettoyage
+manuel en beta ; cron de purge automatique (contributions `pending` + `stripe_payment_intent_id IS NULL`
+de plus de 1h) = dette à construire avant le scale.
 
 ---
 
@@ -343,7 +339,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
