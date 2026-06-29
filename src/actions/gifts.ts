@@ -164,7 +164,7 @@ export async function reorderGifts(
   const supabase = await createClerkSupabaseClient()
   if (!(await assertWeddingCoowner(supabase, parsed.data.weddingId))) return { error: "FORBIDDEN" }
 
-  await Promise.all(
+  const results = await Promise.all(
     parsed.data.positions.map(({ id, position }) =>
       supabase
         .from("gifts")
@@ -173,6 +173,12 @@ export async function reorderGifts(
         .eq("wedding_id", parsed.data.weddingId)
     )
   )
+
+  const failed = results.filter((r) => r.error)
+  if (failed.length > 0) {
+    failed.forEach((r) => logDbError("reorderGifts", r.error))
+    return { error: "DB_ERROR" }
+  }
 
   const slug = await getWeddingSlug(supabase, parsed.data.weddingId)
   revalidatePath("/dashboard/liste")

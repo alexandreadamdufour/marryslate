@@ -141,11 +141,17 @@ export async function reorderTimeline(
   const supabase = await createClerkSupabaseClient()
   if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
-  await Promise.all(
+  const results = await Promise.all(
     positions.map(({ id, position }) =>
       supabase.from("wedding_timeline").update({ position }).eq("id", id).eq("wedding_id", weddingId)
     )
   )
+
+  const failed = results.filter((r) => r.error)
+  if (failed.length > 0) {
+    failed.forEach((r) => logDbError("reorderTimeline", r.error))
+    return { error: "DB_ERROR" }
+  }
 
   const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
