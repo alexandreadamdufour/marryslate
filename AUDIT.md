@@ -246,18 +246,40 @@ Non exploitable via UI (le layout bloque). Nécessite un appel API intentionnel 
 
 ---
 
-### M8 — Absence totale de tests
+### M8 — Absence totale de tests ⚠️ PARTIEL — 2026-06-29
 
-Aucun test unitaire, d'intégration ou e2e dans le repo. Les deux bugs critiques corrigés
-lors de cette session (ENUM→text et seating policies auth.uid()) auraient été détectés
-avant production avec des tests d'intégration.
+**Commit :** à venir  
+**Fichiers créés :**
+- `vitest.config.ts` — setupFiles, include tests/unit/, testTimeout
+- `tests/unit/setup.ts` — mocks globaux next/headers + next/cache
+- `tests/unit/helpers/mock-supabase.ts` — factory chainable mock (call-ordered, captures updates/inserts)
+- `tests/unit/actions/withdrawals.test.ts` — 14 tests
+- `tests/unit/api/stripe-webhook.test.ts` — 9 tests
+- `tests/unit/actions/contributions.test.ts` — 8 tests
+- `tests/unit/actions/rsvp.test.ts` — 7 tests
+- `tests/unit/actions/seating.test.ts` — 10 tests
 
-**Flows critiques à couvrir en priorité :**
-1. `createPaymentIntent` → webhook `payment_intent.succeeded` → `current_amount` mis à jour sur le gift
-2. Ownership cross-wedding : coowner A ne peut pas muter le mariage B
-3. RSVP : soumission valide, rate limit atteint, token absent
-4. `requestPayout` : balance insuffisante, montant NaN, montant valide
-5. Non-régression 22P02 sur guests/seating (les bugs de cette session)
+**60 tests unitaires sur les 5 flows critiques. Ce que la suite couvre :**
+- Validation Zod (NaN, UUID, champs manquants, bornes min/max)
+- Guards JS auth/ownership (UNAUTHORIZED, FORBIDDEN, NOT_FOUND)
+- Idempotence webhook (contribution déjà succeeded → current_amount non compté 2×)
+- Recalcul `current_amount` (somme des contributions succeeded)
+- Rollback M3 (Stripe throw + delete KO → log orphelin avec `contributionId`)
+- Fix M6 (delete sans capture → DB_ERROR au lieu de faux succès)
+- userId Clerk au format text (non-UUID) non rejeté par le code JS
+
+**Ce que la suite NE couvre PAS — dette test d'intégration avant scale :**
+- **Policies RLS** (C1/C2 et 22P02) — testables uniquement contre une vraie base Supabase (`supabase start`)
+- **Contraintes FK/unique réelles** — même raison
+- **Vérification crypto signature Stripe/Svix** — nécessite le SDK réel ou un sandbox
+
+**Plan tests d'intégration (prochaine session, avant scale) :**
+```
+Prérequis : supabase start + replay migrations en CI (GitHub Actions)
+1. RLS cross-tenant : user A ne lit/écrit pas les données de wedding B
+2. RLS seating policies : is_wedding_coowner avec JWT Clerk text ID (régression 22P02)
+3. Webhook Stripe E2E : stripe-cli listen --forward-to localhost + paiement sandbox
+```
 
 ---
 
@@ -339,7 +361,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · ~~M8 zéro tests~~ ⚠️ partiel (60 tests unitaires — RLS/intégration = dette scale) · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
