@@ -10,62 +10,25 @@ actions, migrations/RLS, Stripe/paiements, secrets/config, queries/perf, RSVP/ro
 
 ---
 
-### C1 — `wedding_timeline` : toutes les écritures échouent silencieusement
+### C1 — `wedding_timeline` : toutes les écritures échouent silencieusement ✅ RÉSOLU 2026-06-29
 
-**Fichiers :** `src/actions/timeline.ts` (toutes les fonctions) · `supabase/migrations/20260625020000_wedding_timeline.sql:34`
+**Migration :** `supabase/migrations/20260629010000_fix_budget_checklist_timeline_policies.sql`
 
-**Risque :** La migration crée deux policies `FOR SELECT` uniquement et laisse le commentaire
-*"Mutations réservées aux coowners — gérées par service_role"*. En réalité `timeline.ts`
-utilise `createClerkSupabaseClient()` pour tous les DML. RLS activé + zéro policy write =
-default DENY. `createTimelineStep`, `updateTimelineStep`, `deleteTimelineStep`,
-`reorderTimeline` retournent tous `{ error: "DB_ERROR" }` en prod. Le couple pense
-enregistrer ses étapes — rien ne persiste jamais.
-
-**Fix proposé :**
-```sql
-BEGIN;
-CREATE POLICY "timeline_coowner_all"
-  ON public.wedding_timeline FOR ALL
-  USING  (public.is_wedding_coowner(wedding_id))
-  WITH CHECK (public.is_wedding_coowner(wedding_id));
-COMMIT;
-```
-Effort : ~10 min (1 migration SQL + versionnement fichier).
+**Cause confirmée :** Aucune policy DML coowner en base (seule une policy SELECT publique existait).
+RLS activé + zéro policy write = default DENY sur toutes les mutations. Corrigé en ajoutant
+`CREATE POLICY "Coowners can manage timeline" FOR ALL USING/WITH CHECK is_wedding_coowner(wedding_id)`.
+Vérif post-apply OK (`pg_policies` + test navigateur).
 
 ---
 
-### C2 — `budget_items` + `checklist_items` : probablement le même bug policies que seating
+### C2 — `budget_items` + `checklist_items` : même bug policies que seating ✅ RÉSOLU 2026-06-29
 
-**Fichiers :** `supabase/migrations/20260626010000_budget_items.sql` · `supabase/migrations/20260626040000_checklist_items.sql`
+**Migration :** `supabase/migrations/20260629010000_fix_budget_checklist_timeline_policies.sql`
 
-**Risque :** Les policies seating_tables avaient `auth.uid()` en base alors que le fichier
-migration indiquait `is_wedding_coowner` — tables créées via Supabase Dashboard le
-2026-06-26. `budget_items` et `checklist_items` suivent le même pattern, même date. Si
-leurs policies réelles en base contiennent `auth.uid()`, toutes les mutations budget et
-checklist produisent une erreur 22P02 avec le client Clerk → features silencieusement cassées.
-
-**Vérification avant fix :**
-```sql
-SELECT tablename, policyname, qual
-FROM pg_policies
-WHERE tablename IN ('budget_items', 'checklist_items');
-```
-Si `qual` contient `auth.uid()` → même migration DROP/CREATE que `20260629000000_fix_seating_policies.sql`.
-
-**Fix proposé (si confirmé) :**
-```sql
-BEGIN;
-DROP POLICY "..." ON public.budget_items;
-DROP POLICY "..." ON public.checklist_items;
-CREATE POLICY "budget_coowner_all" ON public.budget_items FOR ALL
-  USING (public.is_wedding_coowner(wedding_id))
-  WITH CHECK (public.is_wedding_coowner(wedding_id));
-CREATE POLICY "checklist_coowner_all" ON public.checklist_items FOR ALL
-  USING (public.is_wedding_coowner(wedding_id))
-  WITH CHECK (public.is_wedding_coowner(wedding_id));
-COMMIT;
-```
-Effort : ~10 min après vérification.
+**Cause confirmée :** Les deux tables avaient une policy `FOR ALL` avec `auth.uid()` en base
+(cast uuid → 22P02 avec les ids Clerk text), malgré les migrations originales qui indiquaient
+`is_wedding_coowner`. Corrigé via DROP puis CREATE avec `is_wedding_coowner(wedding_id)`.
+Vérif post-apply OK (`pg_policies` + test navigateur).
 
 ---
 
@@ -429,7 +392,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 
 | Sévérité | # | Points |
 |---|---|---|
-| 🔴 CRITIQUE | 2 | C1 timeline cassé · C2 budget/checklist à vérifier |
+| 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | E1 soft-delete bypass · E2 export cross-tenant · E3 requestPayout NaN · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
 | 🟡 MOYEN | 8 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
