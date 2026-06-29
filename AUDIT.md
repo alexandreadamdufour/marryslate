@@ -71,7 +71,7 @@ Effort : 2 lignes.
 
 ### E2 — `exports.ts` : mauvais mariage exporté (fuite de données cross-tenant) ✅ RÉSOLU 2026-06-29
 
-**Commit :** à venir (même push que M9)  
+**Commit :** `52ba013`  
 **Fichiers modifiés :** `src/actions/exports.ts` · `src/components/dashboard/export-csv-button.tsx` · `src/components/dashboard/export-rsvp-csv-button.tsx` · `src/components/dashboard/guest-csv-buttons.tsx` · `src/app/(dashboard)/dashboard/contributions/page.tsx`
 
 **Fix appliqué :** `weddingId` passé explicitement aux 3 fonctions d'export (`exportContributionsCSV`, `exportRsvpCSV`, `exportGuestsCSV`). Suppression du `LIMIT 1` non-déterministe. Ownership validé directement sur `wedding_coowners` avec `user_id + wedding_id` (double eq), retourne `FORBIDDEN` si non-coowner. Build TypeScript OK — aucun appelant resté sur l'ancienne signature sans argument.
