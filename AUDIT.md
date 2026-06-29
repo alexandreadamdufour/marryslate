@@ -287,20 +287,32 @@ Prérequis : supabase start + replay migrations en CI (GitHub Actions)
 
 ---
 
-### F1 — `fix_auth_uid_clerk.sql` non marqué documentation-only
+### F1 — `fix_auth_uid_clerk.sql` non marqué documentation-only — ✅ NON APPLICABLE 2026-06-29
 
 **Fichier :** `supabase/migrations/20260626050000_fix_auth_uid_clerk.sql`
 
-Cette migration est inapplicable (bloquée par Supabase, permission denied sur le schéma
-`auth`). Sans commentaire explicite, un futur développeur peut tenter de l'appliquer et
-déboguer une erreur confuse.
+**Verdict :** Le fichier contient du SQL commenté (`CREATE OR REPLACE FUNCTION auth.uid()`)
+représentant une approche abandonnée (permission denied sur le schéma `auth`). Il ne sera
+jamais appliqué automatiquement : le projet n'utilise pas le workflow CLI Supabase
+(`supabase_migrations.schema_migrations` n'existe pas en prod — tout le SQL est appliqué
+manuellement via le SQL Editor). Aucun outil n'exécute la chaîne `migrations/` automatiquement.
 
-**Fix proposé :** Ajouter en première ligne :
-```sql
--- DOCUMENTATION ONLY — DO NOT APPLY.
--- Blocked by Supabase permission model (cannot redefine auth.uid()).
--- The fix was ENUM→text (see 20260626060000_enum_to_text.sql).
-```
+**Aucun fix nécessaire.** Le fichier reste documentaire, le risque d'application accidentelle
+est nul dans l'état actuel du workflow.
+
+---
+
+**⚠️ Dette avant scale — Formalisation du workflow migrations**
+
+Les fichiers `supabase/migrations/` sont une convention d'organisation Git, pas une chaîne
+exécutée par l'outil. SQL appliqué manuellement, sans tracking dans `schema_migrations`.
+Conséquence : un `db reset` / un environnement de staging neuf ne rejouerait pas la chaîne
+automatiquement — l'état DB ne serait pas reproductible sans intervenir à la main.
+
+À traiter avant d'avoir un environnement de staging reproductible :
+1. `supabase link --project-ref <ref>` pour lier le projet CLI à la prod
+2. Marquer les migrations déjà appliquées comme "applied" (`supabase migration repair`)
+3. Adopter `supabase db push` comme workflow standard pour les futures migrations
 
 ---
 
@@ -366,7 +378,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
 | 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · ~~M8 zéro tests~~ ⚠️ partiel (60 tests unitaires — RLS/intégration = dette scale) · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
-| ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · ~~F3 chaîne migrations cassée db reset~~ ✅ · F4 cast unsafe seating · F5 queries sans limit |
+| ⚪ FAIBLE | 5 | ~~F1 migration doc-only~~ n/a · F2 race condition user · ~~F3 chaîne migrations cassée db reset~~ ✅ · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
 1. Vérifier C2 (pg_policies sur budget_items/checklist_items) — 2 min
