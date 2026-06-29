@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@clerk/nextjs/server"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
+import { logDbError } from "@/lib/supabase/log-db-error"
 import {
   createSeatingTableSchema,
   updateSeatingTableSchema,
@@ -119,7 +120,11 @@ export async function deleteSeatingTable(tableId: string): Promise<AR> {
   if (!existing) return { error: "NOT_FOUND" }
   if (!(await assertWeddingCoowner(supabase, existing.wedding_id))) return { error: "FORBIDDEN" }
 
-  await supabase.from("seating_tables").delete().eq("id", tableId)
+  const { error: deleteError } = await supabase.from("seating_tables").delete().eq("id", tableId)
+  if (deleteError) {
+    logDbError("deleteSeatingTable", deleteError)
+    return { error: "DB_ERROR" }
+  }
   revalidatePath("/dashboard/plan-de-table")
   return { data: undefined }
 }
@@ -176,7 +181,11 @@ export async function unassignGuest(assignmentId: string): Promise<AR> {
 
   if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
 
-  await supabase.from("seating_assignments").delete().eq("id", assignmentId)
+  const { error: deleteError } = await supabase.from("seating_assignments").delete().eq("id", assignmentId)
+  if (deleteError) {
+    logDbError("unassignGuest", deleteError)
+    return { error: "DB_ERROR" }
+  }
   revalidatePath("/dashboard/plan-de-table")
   return { data: undefined }
 }

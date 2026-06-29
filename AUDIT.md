@@ -199,26 +199,14 @@ tout-ou-rien est une **RPC Postgres transactionnelle** (`BEGIN … UPDATE … UP
 
 ---
 
-### M6 — `deleteSeatingTable` + `unassignGuest` : erreur delete swallowed
+### M6 — `deleteSeatingTable` + `unassignGuest` : erreur delete swallowed ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/seating.ts:122` · `:179`
+**Commit :** à venir  
+**Fichier modifié :** `src/actions/seating.ts`
 
-```typescript
-await supabase.from("seating_tables").delete().eq("id", tableId)
-// ← résultat ignoré, retourne toujours { data: undefined }
-```
-
-Si la suppression échoue (RLS, contrainte FK), le client reçoit un succès silencieux.
-La table ou l'assignation reste en base et l'UI est désynchronisée.
-
-**Fix proposé :**
-```typescript
-const { error } = await supabase.from("seating_tables").delete().eq("id", tableId)
-if (error) {
-  console.error("[deleteSeatingTable]", { code: error.code, message: error.message })
-  return { error: error.message ?? "DB_ERROR" }
-}
-```
+**Fix appliqué :** `const { error: deleteError }` capture le résultat du delete sur les deux fonctions.
+`logDbError` loggue le code/message PostgreSQL si erreur. `return { error: "DB_ERROR" }` renvoyé au client.
+`revalidatePath` déplacé après le guard — pas de revalidation si le delete a échoué.
 
 ---
 
@@ -355,7 +343,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
