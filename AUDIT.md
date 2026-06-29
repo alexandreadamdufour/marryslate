@@ -74,61 +74,38 @@ Vérif post-apply OK (`pg_policies` + test navigateur).
 
 ---
 
-### E4 — Guestbook sans rate limiting : flood email + spam illimité
+### E4 — Guestbook sans rate limiting : flood email + spam illimité ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/guestbook.ts:10`
+**Commit :** `d9166d4`  
+**Fichiers modifiés :** `src/lib/rate-limit.ts` · `src/actions/guestbook.ts`
 
-**Risque :** Endpoint public anonyme, aucune limite. Chaque entrée avec
-`notifications_enabled = true` déclenche un email Resend au couple. Plan Resend gratuit :
-100 emails/jour — épuisable en quelques secondes via boucle. Le couple ne reçoit plus
-ses vraies notifications (RSVP, contributions). La table `guestbook_messages` peut être
-floodée sur tout mariage `is_published = true`.
-
-**Fix proposé :** Réutiliser le pattern `checkRsvpRateLimit` de `src/lib/rate-limit.ts` :
-```typescript
-const ip = headers().get("x-forwarded-for") ?? "unknown"
-const allowed = await checkGuestbookRateLimit(ip, input.weddingId)  // 5/IP/wedding/heure
-if (!allowed) return { error: "RATE_LIMITED" }
-```
-Effort : ~20 min (ajout fonction dans `rate-limit.ts` + appel dans `guestbook.ts`).
+**Fix appliqué :** `checkGuestbookRateLimit(ip, weddingId)` — 5 messages/IP/wedding/heure.
+IP résolue via `getClientIp()` : `x-real-ip` (Vercel edge, non spoofable) prioritaire,
+dernier segment de `x-forwarded-for` en fallback. IP null → fail-open sans bucket partagé.
 
 ---
 
-### E5 — `wedding-access/route.ts` : brute-force parallèle bypass le délai 1s
+### E5 — `wedding-access/route.ts` : brute-force parallèle bypass le délai 1s ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/app/api/wedding-access/route.ts:30`
+**Commit :** `d9166d4`  
+**Fichiers modifiés :** `src/lib/rate-limit.ts` · `src/app/api/wedding-access/route.ts`
 
-**Risque :** Le `setTimeout(1000)` est **par requête individuelle**. Avec 100 connexions
-simultanées côté attaquant, 100 codes sont testés en ~1 seconde. Code PIN 4 chiffres
-(10 000 combos) → cassé en < 2 minutes. Aucun lockout, aucune limite IP.
-
-**Fix proposé :**
-```typescript
-import { checkAccessCodeRateLimit } from "@/lib/rate-limit"
-
-export async function POST(request: Request) {
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown"
-  const allowed = await checkAccessCodeRateLimit(ip, slug)  // 10 tentatives/15 min
-  if (!allowed) return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 })
-  // ... suite (conserver le setTimeout 1s en complément)
-```
-Effort : ~20 min.
+**Fix appliqué :** `checkAccessCodeRateLimit(ip, slug)` — 10 tentatives/IP/slug/15 min.
+10 000 combos / 10 tentatives = 1 000 IPs distinctes requises pour forcer l'espace complet.
+`setTimeout(1000)` conservé en couche complémentaire sur mauvais code. IP via `getClientIp(request.headers)`.
+HTTP 429 retourné si limite atteinte.
 
 ---
 
-### E6 — `createPaymentIntent` + `uploadContributorPhoto` sans rate limiting
+### E6 — `createPaymentIntent` + `uploadContributorPhoto` sans rate limiting ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/contributions.ts:14` (createPaymentIntent) · `:59` (uploadContributorPhoto)
+**Commit :** `d9166d4`  
+**Fichiers modifiés :** `src/lib/rate-limit.ts` · `src/actions/contributions.ts`
 
-**Risque :** Deux endpoints publics (sans auth Clerk) sur tout mariage publié :
-- `createPaymentIntent` : crée une row DB + un Stripe PaymentIntent par appel → flood =
-  pollution table contributions + risque suspension compte Stripe sur détection d'anomalies.
-- `uploadContributorPhoto` : 5 MB/upload sans limite de volume → saturation bucket
-  Supabase Storage + coûts egress.
-
-**Fix proposé :** Même pattern Upstash — 5 PaymentIntents/IP/wedding/heure, 10 photos/IP/wedding/heure.
-L'IP est disponible via `headers().get("x-forwarded-for")` sur Vercel.
-Effort : ~20 min (fonctions génériques dans `rate-limit.ts` + 2 appels).
+**Fix appliqué :**
+- `checkPaymentIntentRateLimit(ip, weddingSlug)` — 5 PaymentIntents/IP/wedding/heure. Protège Stripe contre la détection d'anomalies et la table `contributions` contre la pollution.
+- `checkPhotoUploadRateLimit(ip, weddingSlug)` — 10 uploads/IP/wedding/heure. Protège le bucket Supabase Storage contre la saturation (5 MB/upload × illimité = coûts egress non bornés).
+Les deux checks se font après Zod parse, avant le premier appel DB/Stripe.
 
 ---
 
@@ -136,16 +113,15 @@ Effort : ~20 min (fonctions génériques dans `rate-limit.ts` + 2 appels).
 
 ---
 
-### M1 — Rate limit RSVP fail-open si Upstash absent
+### M1 — Rate limit RSVP fail-open si Upstash absent ✅ RÉSOLU 2026-06-29 (au passage de E4/E5/E6)
 
-**Fichier :** `src/lib/rate-limit.ts:12`
+**Commit :** `d9166d4`  
+**Fichier modifié :** `src/lib/rate-limit.ts`
 
-**Risque :** `if (!process.env.UPSTASH_REDIS_REST_URL) return true` — si les vars Vercel
-manquent (rotation, oubli de configuration), tout le rate limiting est désactivé sans
-aucune alerte. Comportement attendu en dev local, silencieusement dangereux en prod.
-
-**Fix proposé :** En `NODE_ENV === "production"`, logguer `console.error` ou retourner
-`false` si Redis n'est pas configuré. Documenter dans le README de déploiement.
+**Fix appliqué :** `getRedis()` émet `console.error` explicite si `UPSTASH_REDIS_REST_URL/TOKEN`
+manquent en `NODE_ENV === "production"`. Fail-open conservé (invités légitimes non bloqués
+si Redis a un hoquet) mais désormais LOUD : l'absence de Redis est visible dans les logs Vercel.
+En dev local : silencieux comme avant.
 
 ---
 
@@ -373,8 +349,8 @@ Acceptable à 100 invités, problématique à 1 000+.
 | Sévérité | # | Points |
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
-| 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
-| 🟡 MOYEN | 10 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
