@@ -54,8 +54,8 @@ export async function createGuest(
     .single()
 
   if (error ?? !guest) {
-    console.error("[createGuest]", error?.message)
-    return { error: "DB_ERROR" }
+    console.error("[createGuest]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
+    return { error: error?.message ?? "DB_ERROR", details: { code: error?.code, hint: error?.hint } }
   }
 
   revalidatePath("/dashboard/invites")
@@ -91,8 +91,8 @@ export async function updateGuest(
     .single()
 
   if (error ?? !updated) {
-    console.error("[updateGuest]", error?.message)
-    return { error: "DB_ERROR" }
+    console.error("[updateGuest]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
+    return { error: error?.message ?? "DB_ERROR", details: { code: error?.code, hint: error?.hint } }
   }
 
   revalidatePath("/dashboard/invites")
@@ -116,8 +116,8 @@ export async function deleteGuest(guestId: string): Promise<ActionResult> {
 
   const { error } = await supabase.from("guests").delete().eq("id", guestId)
   if (error) {
-    console.error("[deleteGuest]", error.message)
-    return { error: "DB_ERROR" }
+    console.error("[deleteGuest]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
+    return { error: error?.message ?? "DB_ERROR", details: { code: error?.code, hint: error?.hint } }
   }
 
   revalidatePath("/dashboard/invites")
@@ -143,8 +143,8 @@ export async function importGuests(
 
   const { error } = await supabase.from("guests").insert(rows)
   if (error) {
-    console.error("[importGuests]", error.message)
-    return { error: "DB_ERROR" }
+    console.error("[importGuests]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
+    return { error: error?.message ?? "DB_ERROR", details: { code: error?.code, hint: error?.hint } }
   }
 
   revalidatePath("/dashboard/invites")

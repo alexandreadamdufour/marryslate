@@ -95,7 +95,7 @@ export function GuestForm(props: Props) {
       result = await createGuest(parsed.data)
     }
 
-    if (result.error) { toast.error("Erreur lors de la sauvegarde."); return }
+    if (result.error) { toast.error(result.error); return }
 
     toast.success(isEdit ? "Invité mis à jour" : "Invité ajouté")
     router.refresh()

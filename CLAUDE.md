@@ -500,9 +500,3 @@ Si un point du SPEC.md ou de ce CLAUDE.md est ambigu pour la tâche en cours : *
 Si une convention de ce fichier est mal adaptée à un cas réel rencontré : **proposer une modification de ce fichier en PR**, ne pas la contourner.
 
 ---
-
-## 18. DETTE TECHNIQUE OUVERTE
-
-| Priorité | Composant | Description | Condition de résolution |
-|----------|-----------|-------------|------------------------|
-| **Avant beta payante** | `actions/seating.ts` | DML seating sur `service_role` (admin client), RLS bypassé. Contournement du cast `auth.uid()::uuid` incompatible avec les ids Clerk text. À corriger : fixer `auth.uid()`/policies pour comparer en text, puis repasser les DML seating sur le client RLS standard. | Supabase Third-Party Auth configuré pour Clerk (JWKS) → `auth.uid()` ne caste plus en uuid pour les ids non-UUID |
