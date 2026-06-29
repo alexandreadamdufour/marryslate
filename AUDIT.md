@@ -316,16 +316,24 @@ automatiquement — l'état DB ne serait pas reproductible sans intervenir à la
 
 ---
 
-### F2 — `getOrCreateUser` : race condition possible (webhook + action simultanés)
+### F2 — `getOrCreateUser` : race condition possible (webhook + action simultanés) ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/wedding.ts:16`
+**Commits :** `wedding.ts` fix · `tests/unit/actions/wedding.test.ts` ajouté  
+**Fichier modifié :** `src/actions/wedding.ts:41`
 
-Double chemin de création d'un user (webhook Clerk + action directe en fallback). Si les
-deux arrivent dans la même fenêtre, l'INSERT sans `ON CONFLICT (clerk_user_id) DO NOTHING`
-peut provoquer un 23505 (unique violation). Probabilité faible, impact faible.
+**Fix appliqué :** Sur `error.code === "23505"` (INSERT concurrent par le webhook Clerk),
+`getOrCreateUser` fait désormais un re-SELECT pour récupérer le user que le webhook vient
+de créer, au lieu de `return null` → `{ error: "USER_NOT_FOUND" }` côté UI.
+La contrainte `UNIQUE (clerk_user_id)` sur `users` garantit l'intégrité — le fix rend
+seulement l'UX gracieuse (pas d'erreur visible pour l'utilisateur).
 
-**Fix proposé :** Ajouter `.onConflict("clerk_user_id").ignore()` ou un
-`ON CONFLICT (clerk_user_id) DO NOTHING` dans l'INSERT.
+**Pourquoi pas `.upsert({ ignoreDuplicates: true })` :** avec le SDK Supabase v2, le conflit
+ignoré retourne `null` → `.single()` errorerait avec PGRST116 ; la gestion explicite du
+23505 est plus lisible et sans effet de bord.
+
+**Test de non-régression :** `tests/unit/actions/wedding.test.ts` — 3 cas :
+nominal (INSERT réussi), race 23505 (re-SELECT → mariage créé, PAS `USER_NOT_FOUND`),
+erreur DB non-23505 (→ `USER_NOT_FOUND` attendu).
 
 ---
 
@@ -378,7 +386,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
 | 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · ~~M8 zéro tests~~ ⚠️ partiel (60 tests unitaires — RLS/intégration = dette scale) · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
-| ⚪ FAIBLE | 5 | ~~F1 migration doc-only~~ n/a · F2 race condition user · ~~F3 chaîne migrations cassée db reset~~ ✅ · F4 cast unsafe seating · F5 queries sans limit |
+| ⚪ FAIBLE | 5 | ~~F1 migration doc-only~~ n/a · ~~F2 race condition user~~ ✅ · ~~F3 chaîne migrations cassée db reset~~ ✅ · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
 1. Vérifier C2 (pg_policies sur budget_items/checklist_items) — 2 min

@@ -39,10 +39,21 @@ async function getOrCreateUser(clerkUserId: string) {
       .single()
 
     if (error) {
-      logDbError("getOrCreateUser", error)
-      return null
+      if (error.code === "23505") {
+        // webhook a gagné la course — le user existe déjà, on le relit
+        const { data: existing } = await adminClient
+          .from("users")
+          .select("id")
+          .eq("clerk_user_id", clerkUserId)
+          .maybeSingle()
+        user = existing
+      } else {
+        logDbError("getOrCreateUser", error)
+        return null
+      }
+    } else {
+      user = newUser
     }
-    user = newUser
   }
 
   return user
