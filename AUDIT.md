@@ -125,9 +125,9 @@ En dev local : silencieux comme avant.
 
 ---
 
-### M2 — Aucun header de sécurité HTTP ⚠️ PARTIELLEMENT RÉSOLU 2026-06-29
+### M2 — Aucun header de sécurité HTTP ✅ RÉSOLU 2026-06-29
 
-**Commit :** `1ca34f4`  
+**Commits :** `1ca34f4` (headers + CSP Report-Only) · `df91843` (CSP bloquant)  
 **Fichier modifié :** `next.config.ts`
 
 **Headers bloquants actifs :**
@@ -136,15 +136,10 @@ En dev local : silencieux comme avant.
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (prod uniquement)
-
-**CSP en `Content-Security-Policy-Report-Only` (pas bloquant) :** whitelist Stripe, Clerk
-(`*.clerk.accounts.dev`), Crisp, GA4/GTM, Supabase URL + wss depuis env. `unsafe-inline`
-(RSC hydration + GTM), `unsafe-eval` (Crisp). URL Supabase dynamique depuis
-`NEXT_PUBLIC_SUPABASE_URL` pour ne pas hardcoder le projet ID.
-
-**Action requise avant passage en bloquant :** tester en prod (paiement Stripe, auth Clerk,
-chat Crisp, GA4, Realtime Supabase) et vérifier violations dans la console browser.
-Renommer le header en `Content-Security-Policy` une fois validé.
+- `Content-Security-Policy` bloquant — whitelist Stripe, Clerk (`*.clerk.accounts.dev`),
+  Crisp, GA4/GTM, Supabase (URL + wss depuis `NEXT_PUBLIC_SUPABASE_URL`). `unsafe-inline`
+  (RSC hydration + GTM), `unsafe-eval` (Crisp). Validée en prod sur tous les flux
+  (Stripe, Clerk, Crisp, GA4, Supabase) — zéro violation Report-Only avant activation.
 
 ---
 
@@ -360,7 +355,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers ⚠️ (headers actifs, CSP Report-Only) · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
