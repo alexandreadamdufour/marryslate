@@ -317,16 +317,20 @@ peut provoquer un 23505 (unique violation). Probabilité faible, impact faible.
 
 ---
 
-### F3 — Migration file / DB divergence sur `seating_tables`
+### F3 — Chaîne de migrations cassée sur `db reset` (nommage incohérent des policies seating) ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `supabase/migrations/20260626030000_seating.sql`
+**Fichier :** `supabase/migrations/20260629000000_fix_seating_policies.sql`
 
-Ce fichier contient encore les anciennes policies avec `auth.uid()`. La DB réelle a été
-corrigée par `20260629000000_fix_seating_policies.sql`. Un `db reset` / replay des
-migrations depuis zéro recréerait les mauvaises policies.
+**Vraie nature du bug (description initiale incorrecte) :** `20260626030000_seating.sql` utilisait
+déjà `is_wedding_coowner()` — pas `auth.uid()`. Le vrai problème était une incohérence de nommage :
+la migration de création crée `"Coowners can manage seating_tables"` (underscore), tandis que la
+migration de fix faisait `DROP POLICY "Coowners can manage seating tables"` (espace, sans underscore).
+Sur un `db reset` ou tout environnement neuf, ce DROP échouait avec "policy does not exist" →
+rollback → chaîne de migrations cassée.
 
-**Fix proposé :** Mettre à jour `20260626030000_seating.sql` pour refléter les policies
-correctes, ou ajouter un commentaire explicite renvoyant vers `20260629000000`.
+**Fix appliqué :** Les 2 DROP remplacés par 4 `DROP POLICY IF EXISTS` couvrant les deux variantes
+de nommage (espace et underscore). Les CREATEs inchangés. Safe en prod (migration déjà appliquée,
+ne sera pas re-jouée) ; corrige les futurs `db reset` / nouveaux environnements.
 
 ---
 
@@ -362,7 +366,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
 | 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · ~~M2 security headers~~ ✅ · ~~M3 rollback contrib~~ ✅ · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · ~~M6 delete sans check~~ ✅ · M7 ENUM users latent · ~~M8 zéro tests~~ ⚠️ partiel (60 tests unitaires — RLS/intégration = dette scale) · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
-| ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
+| ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · ~~F3 chaîne migrations cassée db reset~~ ✅ · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
 1. Vérifier C2 (pg_policies sur budget_items/checklist_items) — 2 min
