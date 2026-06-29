@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { updatePracticalInfoSchema, type UpdatePracticalInfoInput } from "@/lib/validators/practical-info"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -27,7 +28,10 @@ export async function updatePracticalInfo(
     .update({ practical_info: practicalInfo, updated_at: new Date().toISOString() })
     .eq("id", weddingId)
 
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("updatePracticalInfo", error)
+    return { error: "DB_ERROR" }
+  }
 
   const { data: wedding } = await supabase
     .from("weddings")

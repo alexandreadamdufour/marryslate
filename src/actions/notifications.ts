@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -32,7 +33,10 @@ export async function updateWeddingNotifications(
     .update({ notifications_enabled: enabled, updated_at: new Date().toISOString() })
     .eq("id", weddingId)
 
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("updateWeddingNotifications", error)
+    return { error: "DB_ERROR" }
+  }
 
   revalidatePath("/dashboard/parametres")
   return { data: undefined }

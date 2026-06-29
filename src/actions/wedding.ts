@@ -8,6 +8,7 @@ import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import type { Database } from "@/lib/supabase/types"
 import { createWeddingSchema, updateWeddingSchema } from "@/lib/validators/wedding"
 import type { CreateWeddingInput, UpdateWeddingInput } from "@/lib/validators/wedding"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T> =
   | { data: T; error?: never }
@@ -38,7 +39,7 @@ async function getOrCreateUser(clerkUserId: string) {
       .single()
 
     if (error) {
-      console.error("[getOrCreateUser]", error.message)
+      logDbError("getOrCreateUser", error)
       return null
     }
     user = newUser
@@ -84,7 +85,7 @@ export async function createWedding(
     .single()
 
   if (weddingError ?? !wedding) {
-    console.error("[createWedding]", weddingError?.message)
+    logDbError("createWedding", weddingError)
     return { error: "DB_ERROR" }
   }
 
@@ -146,7 +147,7 @@ export async function updateWedding(
     .single()
 
   if (updateError ?? !wedding) {
-    console.error("[updateWedding]", updateError?.message)
+    logDbError("updateWedding", updateError)
     return { error: "DB_ERROR" }
   }
 

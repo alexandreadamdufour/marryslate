@@ -6,6 +6,7 @@ import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { updateStorySchema, type UpdateStoryInput } from "@/lib/validators/story"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -31,7 +32,10 @@ export async function updateStory(input: UpdateStoryInput): Promise<ActionResult
     })
     .eq("id", weddingId)
 
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("updateStory", error)
+    return { error: "DB_ERROR" }
+  }
 
   const { data: wedding } = await supabase
     .from("weddings")

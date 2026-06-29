@@ -14,6 +14,7 @@ import {
   type UpdateTimelineStepInput,
   type ReorderTimelineInput,
 } from "@/lib/validators/timeline"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -57,7 +58,10 @@ export async function createTimelineStep(
     .select("id")
     .single()
 
-  if (error ?? !data) return { error: "DB_ERROR" }
+  if (error ?? !data) {
+    logDbError("createTimelineStep", error)
+    return { error: "DB_ERROR" }
+  }
 
   const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
@@ -85,7 +89,10 @@ export async function updateTimelineStep(
     .eq("id", stepId)
     .eq("wedding_id", weddingId)
 
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("updateTimelineStep", error)
+    return { error: "DB_ERROR" }
+  }
 
   const slug = await getWeddingSlug(supabase, weddingId)
   if (slug) revalidateTimeline(weddingId, slug)
@@ -109,7 +116,10 @@ export async function deleteTimelineStep(stepId: string): Promise<ActionResult<v
   if (!(await assertWeddingCoowner(supabase, step.wedding_id))) return { error: "FORBIDDEN" }
 
   const { error } = await supabase.from("wedding_timeline").delete().eq("id", stepId)
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("deleteTimelineStep", error)
+    return { error: "DB_ERROR" }
+  }
 
   const slug = await getWeddingSlug(supabase, step.wedding_id)
   if (slug) revalidateTimeline(step.wedding_id, slug)

@@ -10,6 +10,7 @@ import {
   type CreateBudgetItemInput,
   type UpdateBudgetItemInput,
 } from "@/lib/validators/budget"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> =
   | { data: T; error?: never }
@@ -43,7 +44,7 @@ export async function createBudgetItem(
     .single()
 
   if (error ?? !item) {
-    console.error("[createBudgetItem]", error?.message)
+    logDbError("createBudgetItem", error)
     return { error: "DB_ERROR" }
   }
 
@@ -88,7 +89,7 @@ export async function updateBudgetItem(
     .single()
 
   if (error ?? !updated) {
-    console.error("[updateBudgetItem]", error?.message)
+    logDbError("updateBudgetItem", error)
     return { error: "DB_ERROR" }
   }
 
@@ -114,7 +115,7 @@ export async function deleteBudgetItem(itemId: string): Promise<ActionResult> {
   const { error } = await supabase.from("budget_items").delete().eq("id", itemId)
 
   if (error) {
-    console.error("[deleteBudgetItem]", error.message)
+    logDbError("deleteBudgetItem", error)
     return { error: "DB_ERROR" }
   }
 

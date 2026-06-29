@@ -10,6 +10,7 @@ import {
   type CreateChecklistItemInput,
   type UpdateChecklistItemInput,
 } from "@/lib/validators/planner"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> =
   | { data: T; error?: never }
@@ -41,7 +42,7 @@ export async function createChecklistItem(
     .single()
 
   if (error ?? !item) {
-    console.error("[createChecklistItem]", error?.message)
+    logDbError("createChecklistItem", error)
     return { error: "DB_ERROR" }
   }
 
@@ -84,7 +85,7 @@ export async function updateChecklistItem(
     .single()
 
   if (error ?? !updated) {
-    console.error("[updateChecklistItem]", error?.message)
+    logDbError("updateChecklistItem", error)
     return { error: "DB_ERROR" }
   }
 
@@ -116,7 +117,7 @@ export async function toggleChecklistItem(
     .eq("id", itemId)
 
   if (error) {
-    console.error("[toggleChecklistItem]", error.message)
+    logDbError("toggleChecklistItem", error)
     return { error: "DB_ERROR" }
   }
 
@@ -141,7 +142,7 @@ export async function deleteChecklistItem(itemId: string): Promise<ActionResult>
   const { error } = await supabase.from("checklist_items").delete().eq("id", itemId)
 
   if (error) {
-    console.error("[deleteChecklistItem]", error.message)
+    logDbError("deleteChecklistItem", error)
     return { error: "DB_ERROR" }
   }
 

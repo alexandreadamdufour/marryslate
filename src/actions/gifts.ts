@@ -15,6 +15,7 @@ import {
   type UpdateGiftInput,
   type ReorderGiftsInput,
 } from "@/lib/validators/gifts"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> =
   | { data: T; error?: never }
@@ -63,7 +64,7 @@ export async function createGift(
     .single()
 
   if (error ?? !gift) {
-    console.error("[createGift]", error?.message)
+    logDbError("createGift", error)
     return { error: "DB_ERROR" }
   }
 
@@ -112,7 +113,7 @@ export async function updateGift(
     .single()
 
   if (error ?? !updated) {
-    console.error("[updateGift]", error?.message)
+    logDbError("updateGift", error)
     return { error: "DB_ERROR" }
   }
 

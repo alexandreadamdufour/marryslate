@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { updateAccessCodeSchema } from "@/lib/validators/access-code"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T = void> = { data: T; error?: never } | { error: string; data?: never }
 
@@ -33,7 +34,10 @@ export async function updateWeddingAccessCode(
     })
     .eq("id", weddingId)
 
-  if (error) return { error: "DB_ERROR" }
+  if (error) {
+    logDbError("updateWeddingAccessCode", error)
+    return { error: "DB_ERROR" }
+  }
 
   revalidatePath("/dashboard/site")
   return { data: undefined }
