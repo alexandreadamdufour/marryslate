@@ -187,20 +187,20 @@ Retour client `{ error: "DB_ERROR" }` inchangé. Logs visibles dans **Vercel Das
 
 ---
 
-### M5 — `reorderTimeline` : partial update silencieux
+### M5 — `reorderTimeline` : partial update silencieux ✅ RÉSOLU 2026-06-29
 
-**Fichier :** `src/actions/timeline.ts:134`
+**Commit :** `4d2fa8b`  
+**Fichiers modifiés :** `src/actions/timeline.ts` · `src/actions/gifts.ts` (même bug sur `reorderGifts`)
 
-`Promise.all(positions.map(...update...))` sans vérifier les erreurs individuelles.
-Un reorder partiellement échoué (timeout, RLS) → positions partiellement mises à jour,
-UI désynchronisée, aucune erreur remontée au couple. Actif dès que C1 est corrigé.
+**Fix appliqué :** Résultats individuels capturés, filtrés, loggés via `logDbError`. Retour
+`DB_ERROR` si ≥ 1 update échoue. Pas de `revalidatePath` en cas d'échec — évite d'afficher
+un ordre partiellement cassé dans l'UI.
 
-**Fix proposé :**
-```typescript
-const results = await Promise.all(positions.map(...))
-const failed = results.filter(r => r.error)
-if (failed.length) return { error: "DB_ERROR" }
-```
+**Dette d'atomicité documentée :** Le fix détecte et signale l'échec partiel mais ne le répare
+pas — la base reste incohérente jusqu'au prochain reorder réussi. Acceptable beta : chaque appel
+réécrit toutes les positions, un 2e essai de l'utilisateur corrige l'état. La vraie solution
+tout-ou-rien est une **RPC Postgres transactionnelle** (`BEGIN … UPDATE … UPDATE … COMMIT`) —
+à traiter avant le scale si l'échec partiel pendant un reorder concurrent devient un vrai risque.
 
 ---
 
@@ -360,7 +360,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers ⚠️ (headers actifs, CSP Report-Only) · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers ⚠️ (headers actifs, CSP Report-Only) · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · ~~M5 reorderTimeline partial~~ ✅ · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
