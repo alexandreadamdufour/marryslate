@@ -253,6 +253,20 @@ passent par service_role — à vérifier et documenter explicitement.
 
 ---
 
+### M10 — Révocation de session manquante au soft-delete
+
+**Fichiers :** `src/app/api/webhooks/clerk/route.ts` · `src/lib/auth/assert-coowner.ts`
+
+**Risque :** Le fix E1 (`deleted_at IS NULL`) couvre les lookups `users` par `clerk_user_id` (layout, withdrawals, exports). Mais les Server Actions qui passent directement par `assertWeddingCoowner` sans toucher la table `users` (gifts, guests, seating, timeline, budget, planner, story, visual, notifications, access-code…) restent appelables via API directe avec un JWT Clerk encore valide pendant toute la fenêtre de 7 jours post-suppression.
+
+**Fix complet (deux alternatives) :**
+1. **Révocation de session Clerk** dans le webhook `user.deleted` — appel `clerkClient().users.deleteUser(userId)` ou `clerkClient().sessions.revokeSession(sessionId)` au moment du soft-delete. Invalide le JWT immédiatement, couvre 100% des surfaces sans toucher à la DB.
+2. **`deleted_at IS NULL` dans `is_wedding_coowner()`** — une migration SQL qui joint `users` dans la fonction RPC. Couvre toutes les actions RLS en un point unique.
+
+Non exploitable via UI (le layout bloque). Nécessite un appel API intentionnel avec JWT valide — risque acceptable pour beta.
+
+---
+
 ### M9 — `getMyWedding()` et `getAuthenticatedUserAndWedding()` : LIMIT 1 sans ORDER BY (bug latent)
 
 **Fichiers :** `src/queries/wedding.ts:34` · `src/actions/withdrawals.ts:36` · `src/actions/withdrawals.ts:98`
@@ -360,7 +374,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · E4 guestbook spam · E5 brute-force access code · E6 rate limiting manquant |
-| 🟡 MOYEN | 9 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent |
+| 🟡 MOYEN | 10 | M1 rate limit fail-open · M2 security headers · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
