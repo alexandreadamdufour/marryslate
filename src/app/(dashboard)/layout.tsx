@@ -14,17 +14,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .from("users")
     .select("id")
     .eq("clerk_user_id", userId)
+    .is("deleted_at", null)
     .maybeSingle()
 
-  if (user) {
-    const { data: coowner } = await supabase
-      .from("wedding_coowners")
-      .select("wedding_id")
-      .eq("user_id", user.id)
-      .maybeSingle()
+  if (!user) redirect("/connexion")
 
-    if (!coowner) redirect("/onboarding/etape-1")
-  }
+  const { data: coowner } = await supabase
+    .from("wedding_coowners")
+    .select("wedding_id")
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (!coowner) redirect("/onboarding/etape-1")
 
   return (
     <div className="flex h-screen overflow-hidden">

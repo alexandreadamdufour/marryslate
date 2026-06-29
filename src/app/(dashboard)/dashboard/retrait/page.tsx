@@ -27,6 +27,7 @@ export default async function RetraitPage() {
     .from("users")
     .select("id, stripe_account_id, kyc_status")
     .eq("clerk_user_id", clerkUserId)
+    .is("deleted_at", null)
     .maybeSingle()
 
   const wedding = await getMyWedding()

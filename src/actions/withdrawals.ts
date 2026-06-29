@@ -25,6 +25,7 @@ async function getAuthenticatedUserAndWedding() {
     .from("users")
     .select("id, email, stripe_account_id, kyc_status")
     .eq("clerk_user_id", clerkUserId)
+    .is("deleted_at", null)
     .maybeSingle()
 
   if (!user) return null
@@ -60,6 +61,7 @@ export async function setupStripeConnect(): Promise<ActionResult<{ onboardingUrl
     .from("users")
     .select("id, email, stripe_account_id")
     .eq("clerk_user_id", clerkUserId)
+    .is("deleted_at", null)
     .maybeSingle()
 
   if (userDbError) {

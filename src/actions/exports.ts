@@ -38,6 +38,7 @@ export async function exportContributionsCSV(weddingId: string): Promise<ActionR
     .from("users")
     .select("id")
     .eq("clerk_user_id", clerkUserId)
+    .is("deleted_at", null)
     .maybeSingle()
 
   if (!user) return { error: "USER_NOT_FOUND" }
@@ -97,6 +98,7 @@ export async function exportRsvpCSV(weddingId: string): Promise<ActionResult<{ c
     .from("users")
     .select("id")
     .eq("clerk_user_id", clerkUserId)
+    .is("deleted_at", null)
     .maybeSingle()
 
   if (!user) return { error: "USER_NOT_FOUND" }
