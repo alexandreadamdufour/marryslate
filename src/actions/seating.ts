@@ -39,8 +39,8 @@ export async function createSeatingTable(input: CreateSeatingTableInput): Promis
     .single()
 
   if (error ?? !data) {
-    console.error("[createSeatingTable]", error?.message)
-    return { error: "DB_ERROR" }
+    console.error("[createSeatingTable]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
+    return { error: error?.message ?? "DB_ERROR" }
   }
 
   revalidatePath("/dashboard/plan-de-table")
