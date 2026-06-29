@@ -170,20 +170,20 @@ de plus de 1h.
 
 ---
 
-### M4 — Erreurs DB avalées sans code dans ~15 actions
+### M4 — Erreurs DB avalées sans code dans ~15 actions ✅ RÉSOLU 2026-06-29
 
-**Fichiers :** `src/actions/timeline.ts:60,88,112,134` · `src/actions/seating.ts:82,105,122,179`
-· probablement aussi `story.ts`, `visual.ts`, `practical-info.ts`, `planner.ts`, `notifications.ts`
+**Commit :** `bd9a983`  
+**Fichiers modifiés :** 10 actions + nouveau `src/lib/supabase/log-db-error.ts`
 
-Ces fonctions retournent `{ error: "DB_ERROR" }` sans `console.error`. Un `error.code = "42501"`
-ou `"23503"` est totalement perdu dans les logs Vercel. On a passé plusieurs heures à
-diagnostiquer les bugs seating/guests exactement à cause de ça.
+**Fix appliqué :** Helper `logDbError(context, error)` créé — logue `{ code, message, details, hint }`
+(métadonnées PostgreSQL, RGPD-safe, pas de valeurs utilisateur). 21 call sites corrigés :
 
-**Fix proposé :** Aligner sur le pattern déjà en place dans `guests.ts` et `createSeatingTable` :
-```typescript
-console.error("[fn]", { code: error?.code, message: error?.message, details: error?.details, hint: error?.hint })
-return { error: error?.message ?? "DB_ERROR" }
-```
+- **Silencieux → log complet :** `timeline.ts` (3), `story.ts`, `visual.ts`, `access-code.ts`,
+  `notifications.ts`, `practical-info.ts`
+- **Message seul → log complet :** `gifts.ts` (2), `budget.ts` (3), `planner.ts` (4), `wedding.ts` (3)
+
+Retour client `{ error: "DB_ERROR" }` inchangé. Logs visibles dans **Vercel Dashboard → Logs
+→ filtre "error"** (ou `vercel logs --level=error`). Rétention : 1j Hobby, 7j Pro.
 
 ---
 
@@ -360,7 +360,7 @@ Acceptable à 100 invités, problématique à 1 000+.
 |---|---|---|
 | 🔴 CRITIQUE | 2 | ~~C1 timeline cassé~~ ✅ · ~~C2 budget/checklist à vérifier~~ ✅ |
 | 🟠 ÉLEVÉ | 6 | ~~E1 soft-delete bypass~~ ✅ · ~~E2 export cross-tenant~~ ✅ · ~~E3 requestPayout NaN~~ ✅ · ~~E4 guestbook spam~~ ✅ · ~~E5 brute-force access code~~ ✅ · ~~E6 rate limiting manquant~~ ✅ |
-| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers ⚠️ (headers actifs, CSP Report-Only) · M3 rollback contrib · M4 erreurs DB silencieuses · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
+| 🟡 MOYEN | 10 | ~~M1 rate limit fail-open~~ ✅ · M2 security headers ⚠️ (headers actifs, CSP Report-Only) · M3 rollback contrib · ~~M4 erreurs DB silencieuses~~ ✅ · M5 reorderTimeline partial · M6 delete sans check · M7 ENUM users latent · M8 zéro tests · M9 LIMIT 1 helpers latent · M10 révocation session manquante |
 | ⚪ FAIBLE | 5 | F1 migration doc-only · F2 race condition user · F3 divergence fichier/DB seating · F4 cast unsafe seating · F5 queries sans limit |
 
 **Ordre de traitement suggéré avant beta :**
