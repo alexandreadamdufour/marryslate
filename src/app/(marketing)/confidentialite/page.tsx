@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité — Amora",
+  title: "Politique de confidentialité — Marryslate",
   robots: { index: false },
 }
 
@@ -36,7 +36,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">2. Données collectées</h2>
           <p className="mb-4 text-muted-foreground">
-            Amora collecte uniquement les données nécessaires à la fourniture du service.
+            Marryslate collecte uniquement les données nécessaires à la fourniture du service.
           </p>
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full border-collapse text-muted-foreground">
@@ -90,7 +90,7 @@ export default function ConfidentialitePage() {
             </table>
           </div>
           <p className="mt-3 text-muted-foreground">
-            <strong className="text-foreground">Note importante :</strong> Amora ne stocke jamais
+            <strong className="text-foreground">Note importante :</strong> Marryslate ne stocke jamais
             les données de carte bancaire. Celles-ci sont saisies et conservées exclusivement par
             notre prestataire de paiement Stripe, certifié PCI-DSS niveau 1. De même, les
             coordonnées bancaires pour les virements (IBAN) sont traitées directement par Stripe
@@ -101,7 +101,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">3. Cookies</h2>
           <p className="mb-2 text-muted-foreground">
-            Amora utilise deux catégories de cookies :
+            Marryslate utilise deux catégories de cookies :
           </p>
           <ul className="space-y-2 text-muted-foreground">
             <li>
@@ -123,7 +123,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">4. Sous-traitants et destinataires</h2>
           <p className="mb-3 text-muted-foreground">
-            Amora ne vend ni ne loue vos données. Elles sont partagées uniquement avec les
+            Marryslate ne vend ni ne loue vos données. Elles sont partagées uniquement avec les
             prestataires techniques suivants, liés par des accords de traitement conformes au RGPD :
           </p>
           <div className="overflow-x-auto rounded-lg border border-border">
@@ -264,7 +264,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">7. Sécurité</h2>
           <p className="text-muted-foreground">
-            Amora met en œuvre des mesures techniques et organisationnelles appropriées pour
+            Marryslate met en œuvre des mesures techniques et organisationnelles appropriées pour
             protéger vos données contre tout accès non autorisé, perte ou divulgation : chiffrement
             des communications (HTTPS/TLS), accès à la base de données restreint par des règles de
             sécurité au niveau des lignes (Row Level Security), authentification à deux facteurs
@@ -275,7 +275,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">8. Modifications</h2>
           <p className="text-muted-foreground">
-            Amora se réserve le droit de modifier la présente politique à tout moment. Toute
+            Marryslate se réserve le droit de modifier la présente politique à tout moment. Toute
             modification substantielle vous sera notifiée par email et la date de mise à jour sera
             actualisée en en-tête de ce document.
           </p>

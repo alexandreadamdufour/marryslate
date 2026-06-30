@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Conditions générales de vente — Amora",
+  title: "Conditions générales de vente — Marryslate",
   robots: { index: false },
 }
 
@@ -19,7 +19,7 @@ export default function CgvPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">1. Vendeur</h2>
           <p className="text-muted-foreground">
-            Le service Amora est fourni par :
+            Le service Marryslate est fourni par :
           </p>
           <address className="mt-3 not-italic text-muted-foreground">
             <strong className="text-foreground">Alexandre Dufour — ADAM AGENCY</strong>
@@ -40,12 +40,12 @@ export default function CgvPage() {
           <h2 className="mb-3 text-lg font-semibold">2. Objet</h2>
           <p className="text-muted-foreground">
             Les présentes Conditions Générales de Vente (« CGV ») définissent les conditions
-            financières dans lesquelles Amora fournit son service aux couples (les « clients »).
+            financières dans lesquelles Marryslate fournit son service aux couples (les « clients »).
             Elles complètent les{" "}
             <a href="/cgu" className="underline underline-offset-4 hover:text-foreground">
               Conditions Générales d&apos;Utilisation
             </a>
-            . En utilisant les fonctionnalités de collecte de fonds d&apos;Amora, le client accepte
+            . En utilisant les fonctionnalités de collecte de fonds de Marryslate, le client accepte
             les présentes CGV sans réserve.
           </p>
         </section>
@@ -53,12 +53,12 @@ export default function CgvPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">3. Tarification — pas d&apos;abonnement</h2>
           <p className="text-muted-foreground">
-            Amora ne pratique <strong className="text-foreground">aucun abonnement mensuel ou annuel</strong>.
+            Marryslate ne pratique <strong className="text-foreground">aucun abonnement mensuel ou annuel</strong>.
             La création d&apos;un compte, la personnalisation du site de mariage et la gestion de la
             liste de cadeaux sont entièrement gratuites.
           </p>
           <p className="mt-2 text-muted-foreground">
-            Amora ne perçoit une rémunération qu&apos;à l&apos;occasion de chaque contribution
+            Marryslate ne perçoit une rémunération qu&apos;à l&apos;occasion de chaque contribution
             financière reçue par un couple (modèle « pay-as-you-go »). Aucun frais n&apos;est
             prélevé si aucune contribution n&apos;est encaissée.
           </p>
@@ -84,7 +84,7 @@ export default function CgvPage() {
                     Contribution brute
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground">
-                    Frais Amora
+                    Frais Marryslate
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground">
                     Montant net reversé
@@ -154,9 +154,9 @@ export default function CgvPage() {
             <li>
               <strong className="text-foreground">Contributions des invités</strong> — une
               contribution est définitive une fois le paiement validé. Les invités ne peuvent pas
-              demander de remboursement directement à Amora. Tout différend entre un invité et un
+              demander de remboursement directement à Marryslate. Tout différend entre un invité et un
               couple doit être réglé entre les parties. En cas de litige avéré (fraude,
-              impersonation), Amora peut initier un remboursement via Stripe sur présentation de
+              impersonation), Marryslate peut initier un remboursement via Stripe sur présentation de
               justificatifs.
             </li>
             <li>
@@ -168,7 +168,7 @@ export default function CgvPage() {
             <li>
               <strong className="text-foreground">Erreur technique</strong> — si une contribution a
               été débitée sans que les fonds soient crédités au couple en raison d&apos;une erreur
-              technique d&apos;Amora, un remboursement intégral sera effectué dans les meilleurs
+              technique de Marryslate, un remboursement intégral sera effectué dans les meilleurs
               délais.
             </li>
           </ul>
@@ -193,7 +193,7 @@ export default function CgvPage() {
             de rétractation, dès lors que l&apos;utilisateur a expressément renoncé à ce droit.
           </p>
           <p className="mt-2 text-muted-foreground">
-            En initiant une transaction sur Amora, l&apos;invité reconnaît expressément que le
+            En initiant une transaction sur Marryslate, l&apos;invité reconnaît expressément que le
             service de paiement est immédiatement exécuté et renonce à son droit de rétractation.
           </p>
         </section>
@@ -201,9 +201,9 @@ export default function CgvPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">8. Fiscalité</h2>
           <p className="text-muted-foreground">
-            Les sommes collectées via Amora constituent, pour les bénéficiaires (les couples), des
+            Les sommes collectées via Marryslate constituent, pour les bénéficiaires (les couples), des
             dons de particuliers. En France, les dons entre particuliers peuvent être soumis à des
-            droits de donation au-delà de certains seuils légaux. Amora n&apos;est pas responsable
+            droits de donation au-delà de certains seuils légaux. Marryslate n&apos;est pas responsable
             des obligations fiscales de ses utilisateurs et recommande de se rapprocher d&apos;un
             conseiller fiscal pour toute question à ce sujet.
           </p>
