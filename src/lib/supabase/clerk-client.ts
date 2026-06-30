@@ -14,11 +14,17 @@ import type { Database } from "./types"
 
 export async function createClerkSupabaseClient() {
   const { getToken } = await auth()
+  const token = await getToken({ template: "supabase" })
+  if (!token) {
+    console.error("[createClerkSupabaseClient] token NULL — getToken({ template: 'supabase' }) a retourné null", {
+      hint: "template absent dans Clerk, session expirée, ou appel hors contexte auth",
+    })
+  }
   return createClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
-      accessToken: () => getToken({ template: "supabase" }),
+      accessToken: () => Promise.resolve(token),
       auth: { persistSession: false, autoRefreshToken: false },
     }
   )
