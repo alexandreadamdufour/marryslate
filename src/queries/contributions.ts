@@ -38,3 +38,37 @@ export async function getWeddingTotals(weddingId: string) {
     count: rows.length,
   }
 }
+
+export async function getFreeContributionsByWedding(
+  weddingId: string
+): Promise<Contribution[]> {
+  const supabase = createAdminClient()
+
+  const { data } = await supabase
+    .from("contributions")
+    .select("*")
+    .eq("wedding_id", weddingId)
+    .is("gift_id", null)
+    .order("created_at", { ascending: false })
+
+  return data ?? []
+}
+
+export async function getFreeContributionTotals(weddingId: string) {
+  const supabase = createAdminClient()
+
+  const { data } = await supabase
+    .from("contributions")
+    .select("gross_amount, net_amount, fee_amount")
+    .eq("wedding_id", weddingId)
+    .is("gift_id", null)
+    .eq("payment_status", "succeeded")
+
+  const rows = data ?? []
+  return {
+    totalGross: rows.reduce((s, r) => s + Number(r.gross_amount), 0),
+    totalNet: rows.reduce((s, r) => s + Number(r.net_amount), 0),
+    totalFees: rows.reduce((s, r) => s + Number(r.fee_amount), 0),
+    count: rows.length,
+  }
+}
