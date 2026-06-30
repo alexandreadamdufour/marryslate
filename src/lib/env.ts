@@ -19,11 +19,6 @@ const envSchema = z.object({
   // Upstash Redis — rate limiting (optionnel en local, requis en production)
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
-  // Mangopay — optionnel, conservé pour rétrocompat si des clés sont déjà en .env.local
-  MANGOPAY_CLIENT_ID: z.string().optional(),
-  MANGOPAY_API_KEY: z.string().optional(),
-  MANGOPAY_BASE_URL: z.string().url().optional(),
-  MANGOPAY_WEBHOOK_SECRET: z.string().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

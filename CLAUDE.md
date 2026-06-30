@@ -10,7 +10,7 @@
 ```
 node           : >= 20.11 (LTS)
 pnpm           : >= 9.0 (gestionnaire imposé, pas npm, pas yarn)
-next           : ^15.0.0 (App Router uniquement, jamais Pages Router)
+next           : ^16.2.9 (App Router uniquement, jamais Pages Router)
 react          : ^19.0.0
 typescript     : ^5.5 (strict: true, noUncheckedIndexedAccess: true)
 tailwindcss    : ^3.4 (pas v4 tant que shadcn/ui n'est pas migré)
@@ -56,7 +56,7 @@ date-fns       : ^3.6
 │   │   ├── admin/                    # Back-office
 │   │   ├── api/                      # Routes API (webhooks UNIQUEMENT)
 │   │   │   └── webhooks/
-│   │   │       ├── mangopay/route.ts
+│   │   │       ├── stripe/route.ts
 │   │   │       └── clerk/route.ts
 │   │   ├── layout.tsx                # Root layout
 │   │   └── globals.css
@@ -73,13 +73,6 @@ date-fns       : ^3.6
 │   │   │   ├── middleware.ts         # session refresh
 │   │   │   └── types.ts              # Types générés par `supabase gen types`
 │   │   ├── clerk/
-│   │   ├── mangopay/
-│   │   │   ├── client.ts             # SDK Mangopay côté serveur
-│   │   │   ├── users.ts              # Wrappers métier
-│   │   │   ├── payins.ts
-│   │   │   ├── payouts.ts
-│   │   │   ├── kyc.ts
-│   │   │   └── webhooks.ts           # Vérif signature + dispatcher
 │   │   ├── resend/
 │   │   │   ├── client.ts
 │   │   │   └── templates/            # Templates React Email
@@ -125,7 +118,7 @@ date-fns       : ^3.6
 
 ## 3. SERVER COMPONENTS PAR DÉFAUT
 
-**Règle d'or Next.js 15** : un composant est **Server Component par défaut**. On n'ajoute `"use client"` que quand c'est strictement nécessaire (interactivité, hooks React, browser API).
+**Règle d'or Next.js 16** : un composant est **Server Component par défaut**. On n'ajoute `"use client"` que quand c'est strictement nécessaire (interactivité, hooks React, browser API).
 
 ### Quand `"use client"` est obligatoire
 - Hooks React (`useState`, `useEffect`, `useReducer`, `useContext`, custom hooks)
@@ -168,7 +161,7 @@ export function GiftListEditor({ initialGifts }: Props) {
 
 **Toutes les mutations passent par des Server Actions**, jamais par `fetch('/api/...')` interne.
 
-API Routes (`app/api/`) **uniquement** pour : webhooks externes (Mangopay, Clerk), endpoints consommés par des tiers, cas où on a besoin d'un endpoint REST stable.
+API Routes (`app/api/`) **uniquement** pour : webhooks externes (Stripe, Clerk), endpoints consommés par des tiers, cas où on a besoin d'un endpoint REST stable.
 
 ### Structure d'une Server Action
 
@@ -406,10 +399,8 @@ const envSchema = z.object({
   // Private
   CLERK_SECRET_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  MANGOPAY_CLIENT_ID: z.string().min(1),
-  MANGOPAY_API_KEY: z.string().min(1),
-  MANGOPAY_BASE_URL: z.string().url(),
-  MANGOPAY_WEBHOOK_SECRET: z.string().min(1),
+  STRIPE_SECRET_KEY: z.string().min(1),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
   // ...
 })
