@@ -5,20 +5,25 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { sendContributionReceipt, sendCoupleContributionNotif, sendPayoutNotif } from "@/lib/resend/send"
 
 export async function POST(req: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET
-  if (!secret) return new Response("Configuration manquante", { status: 500 })
+  const platformSecret = process.env.STRIPE_WEBHOOK_SECRET
+  const connectSecret  = process.env.STRIPE_WEBHOOK_SECRET_CONNECT
 
   const body = await req.text()
   const headerPayload = await headers()
   const sig = headerPayload.get("stripe-signature")
   if (!sig) return new Response("Signature manquante", { status: 400 })
 
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, secret)
-  } catch {
-    return new Response("Signature invalide", { status: 400 })
+  let event: Stripe.Event | null = null
+  for (const secret of [platformSecret, connectSecret]) {
+    if (!secret) continue
+    try {
+      event = stripe.webhooks.constructEvent(body, sig, secret)
+      break
+    } catch {
+      // signature ne correspond pas à ce secret, on essaie le suivant
+    }
   }
+  if (!event) return new Response("Signature invalide", { status: 400 })
 
   const supabase = createAdminClient()
 
