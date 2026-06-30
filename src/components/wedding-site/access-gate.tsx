@@ -108,8 +108,8 @@ export function AccessGate({ weddingSlug, partner1, partner2 }: Props) {
         <p className="text-xs text-muted-foreground">
           Créé avec{" "}
           <Link href="/" className="underline underline-offset-4 hover:text-foreground">
-            Amora
-          </Link>
+            Marryslate
+</Link>
         </p>
       </div>
     </div>

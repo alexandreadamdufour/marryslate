@@ -75,7 +75,7 @@ export default async function ContributionsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Commission Amora</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Commission Marryslate</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold text-muted-foreground">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Mentions légales — Amora",
+  title: "Mentions légales — Marryslate",
   robots: { index: false },
 }
 
@@ -14,7 +14,7 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">Éditeur du site</h2>
           <p className="text-muted-foreground">
-            Le site <strong className="text-foreground">Amora</strong> (amora.fr) est édité par :
+            Le site <strong className="text-foreground">Marryslate</strong> (marryslate.com) est édité par :
           </p>
           <address className="mt-3 not-italic text-muted-foreground">
             <strong className="text-foreground">Alexandre Dufour</strong>
@@ -89,7 +89,7 @@ export default function MentionsLegalesPage() {
             <strong className="text-foreground">Stripe Payments Europe Limited</strong>, 1 Grand
             Canal Street Lower, Grand Canal Dock, Dublin D02 H210, Irlande. Stripe est agréé par
             la Banque Centrale d&apos;Irlande en tant qu&apos;établissement de monnaie électronique
-            (numéro C187865). Amora ne stocke à aucun moment les données de carte bancaire de ses
+            (numéro C187865). Marryslate ne stocke à aucun moment les données de carte bancaire de ses
             utilisateurs.
           </p>
         </section>
@@ -97,7 +97,7 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">Propriété intellectuelle</h2>
           <p className="text-muted-foreground">
-            L&apos;ensemble des éléments constituant le site Amora (textes, graphismes, logotypes,
+            L&apos;ensemble des éléments constituant le site Marryslate (textes, graphismes, logotypes,
             icônes, interface) sont protégés par le Code de la propriété intellectuelle. Toute
             reproduction, représentation, modification ou diffusion, totale ou partielle, sans
             autorisation écrite préalable d&apos;ADAM AGENCY est strictement interdite et

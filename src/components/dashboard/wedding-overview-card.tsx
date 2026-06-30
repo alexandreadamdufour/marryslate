@@ -70,7 +70,7 @@ export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
           <span>URL du site</span>
         </div>
         <p className="text-sm font-mono text-foreground break-all">
-          amora.fr/m/{wedding.slug}
+          marryslate.com/m/{wedding.slug}
         </p>
         <Button
           variant="outline"

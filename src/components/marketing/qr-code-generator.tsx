@@ -57,7 +57,7 @@ export function QrCodeGenerator() {
         <Input
           id="qr-url-input"
           type="url"
-          placeholder="amora.fr/m/emma-et-leo"
+          placeholder="marryslate.com/m/emma-et-leo"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className="h-12 text-base"
@@ -65,7 +65,7 @@ export function QrCodeGenerator() {
           spellCheck={false}
         />
         <p className="text-xs text-muted-foreground">
-          Collez l&apos;URL de votre site Amora ou n&apos;importe quelle autre adresse web.
+          Collez l&apos;URL de votre site Marryslate ou n&apos;importe quelle autre adresse web.
         </p>
       </div>
 

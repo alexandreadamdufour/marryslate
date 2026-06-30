@@ -72,7 +72,7 @@ export default async function ContribuerPage({ params, searchParams }: Props) {
           </div>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            Paiement sécurisé par Stripe. Amora ne stocke aucune donnée bancaire.
+            Paiement sécurisé par Stripe. Marryslate ne stocke aucune donnée bancaire.
           </p>
         </div>
       </div>

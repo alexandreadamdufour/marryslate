@@ -15,9 +15,9 @@ import {
 } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Comment ça marche — Amora",
+  title: "Comment ça marche — Marryslate",
   description:
-    "Créez votre site de mariage et liste de cadeaux en 2 minutes. RSVP, livre d'or, QR code inclus. Découvrez comment Amora fonctionne étape par étape.",
+    "Créez votre site de mariage et liste de cadeaux en 2 minutes. RSVP, livre d'or, QR code inclus. Découvrez comment Marryslate fonctionne étape par étape.",
 }
 
 const STEPS = [
@@ -28,7 +28,7 @@ const STEPS = [
       "Inscription sans carte bancaire. En quelques clics, votre site est en ligne avec votre URL personnalisée.",
     details: [
       { icon: UserCheck, label: "Inscription avec votre email — aucune carte requise" },
-      { icon: ArrowRight, label: "Choisissez votre slug : amora.fr/m/sofia-et-thomas" },
+      { icon: ArrowRight, label: "Choisissez votre slug : marryslate.com/m/sofia-et-thomas" },
       { icon: Palette, label: "Couleur principale, police de titres, thème Classique ou Contemporain" },
       { icon: QrCode, label: "QR code généré automatiquement, prêt pour vos faire-part" },
     ],
@@ -195,7 +195,7 @@ export default function CommentCaMarchePage() {
         <div className="container mx-auto max-w-2xl px-4 text-center sm:px-6">
           <h2 className="mb-4 text-3xl sm:text-4xl">Et le prix ?</h2>
           <p className="text-lg text-muted-foreground">
-            Créer votre site est <strong className="text-foreground">100 % gratuit</strong>. Amora
+            Créer votre site est <strong className="text-foreground">100 % gratuit</strong>. Marryslate
             prend <strong className="text-foreground">2,9 % + 0,30 €</strong> de commission sur
             chaque contribution reçue — seulement quand vous collectez.
           </p>

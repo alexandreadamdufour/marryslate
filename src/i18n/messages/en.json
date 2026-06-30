@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Amora",
+    "appName": "Marryslate",
     "save": "Save",
     "cancel": "Cancel",
     "next": "Next",
@@ -32,7 +32,7 @@
     "step3": {
       "title": "Choose your site address",
       "slug": "Custom address",
-      "hint": "amora.fr/m/",
+      "hint": "marryslate.com/m/",
       "checking": "Checking…",
       "available": "Available!",
       "taken": "This address is already taken"

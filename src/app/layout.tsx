@@ -29,22 +29,22 @@ const DEFAULT_DESCRIPTION =
 
 export const metadata: Metadata = {
   title: {
-    default: "Amora — Liste de mariage & cagnotte en ligne",
-    template: "%s | Amora",
+    default: "Marryslate — Liste de mariage & cagnotte en ligne",
+    template: "%s | Marryslate",
   },
   description: DEFAULT_DESCRIPTION,
   metadataBase: new URL(APP_URL),
   openGraph: {
     type: "website",
-    siteName: "Amora",
+    siteName: "Marryslate",
     locale: "fr_FR",
-    title: "Amora — Liste de mariage & cagnotte en ligne",
+    title: "Marryslate — Liste de mariage & cagnotte en ligne",
     description: DEFAULT_DESCRIPTION,
     url: APP_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Amora — Liste de mariage & cagnotte en ligne",
+    title: "Marryslate — Liste de mariage & cagnotte en ligne",
     description: DEFAULT_DESCRIPTION,
   },
   alternates: {

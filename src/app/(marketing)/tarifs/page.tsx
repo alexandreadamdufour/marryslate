@@ -6,7 +6,7 @@ import { Check, X, Minus } from "lucide-react"
 export const metadata: Metadata = {
   title: "Tarifs",
   description:
-    "Amora est 100 % gratuit à créer. Seulement 2,9 % + 0,30 € par contribution reçue. Zéro abonnement, zéro frais caché. Vos invités contribuent en 2 clics.",
+    "Marryslate est 100 % gratuit à créer. Seulement 2,9 % + 0,30 € par contribution reçue. Zéro abonnement, zéro frais caché. Vos invités contribuent en 2 clics.",
 }
 
 const INCLUDED = [
@@ -91,7 +91,7 @@ const FAQ = [
   },
   {
     q: "Les paiements de mes invités sont-ils sécurisés ?",
-    a: "Les paiements sont traités par Stripe, certifié PCI-DSS niveau 1. Amora ne stocke jamais les coordonnées bancaires de vos invités ni les vôtres.",
+    a: "Les paiements sont traités par Stripe, certifié PCI-DSS niveau 1. Marryslate ne stocke jamais les coordonnées bancaires de vos invités ni les vôtres.",
   },
 ]
 
@@ -198,7 +198,7 @@ export default function TarifsPage() {
         <div className="container mx-auto max-w-4xl px-4 sm:px-6">
           <h2 className="mb-3 text-center text-3xl">Comparatif</h2>
           <p className="mb-10 text-center text-muted-foreground">
-            Amora face aux autres plateformes françaises
+            Marryslate face aux autres plateformes françaises
           </p>
 
           <div className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
@@ -209,7 +209,7 @@ export default function TarifsPage() {
                     Critère
                   </th>
                   <th className="px-6 py-4 text-center">
-                    <span className="font-semibold text-primary">Amora</span>
+                    <span className="font-semibold text-primary">Marryslate</span>
                   </th>
                   <th className="px-6 py-4 text-center font-medium text-muted-foreground">
                     MilleMercis

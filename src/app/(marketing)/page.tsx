@@ -3,11 +3,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: { absolute: "Amora — Liste de mariage & cagnotte en ligne" },
+  title: { absolute: "Marryslate — Liste de mariage & cagnotte en ligne" },
   description:
     "Créez votre liste de mariage et votre site personnalisé en 2 minutes. Vos invités participent en ligne, vous retirez les fonds quand vous voulez.",
   openGraph: {
-    title: "Amora — Liste de mariage & cagnotte en ligne",
+    title: "Marryslate — Liste de mariage & cagnotte en ligne",
     description:
       "Créez votre liste de mariage et votre site personnalisé en 2 minutes.",
     type: "website",
@@ -19,17 +19,17 @@ const schemaOrg = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"}/#website`,
-      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr",
-      name: "Amora",
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"}/#website`,
+      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com",
+      name: "Marryslate",
       description: "Liste de mariage & cagnotte en ligne",
       inLanguage: "fr-FR",
     },
     {
       "@type": "Organization",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"}/#organization`,
-      name: "Amora",
-      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr",
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"}/#organization`,
+      name: "Marryslate",
+      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com",
       description: "Plateforme française de liste de mariage et site de mariage en ligne.",
     },
   ],
@@ -131,7 +131,7 @@ const FEATURES = [
   {
     emoji: "📱",
     title: "Mobile-first",
-    description: "60 % de vos invités sont sur mobile. Amora est pensé mobile avant tout.",
+    description: "60 % de vos invités sont sur mobile. Marryslate est pensé mobile avant tout.",
   },
   {
     emoji: "💸",

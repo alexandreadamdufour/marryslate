@@ -135,7 +135,7 @@ export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
               <FormControl>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    amora.fr/m/
+                    marryslate.com/m/
                   </span>
                   <Input
                     className="pl-[7.5rem]"
@@ -185,7 +185,7 @@ export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
               <div>
                 <FormLabel className="text-base">Publier le site</FormLabel>
                 <FormDescription>
-                  Rend votre site accessible à vos invités via l&apos;URL amora.fr/m/{form.watch("slug")}
+                  Rend votre site accessible à vos invités via l&apos;URL marryslate.com/m/{form.watch("slug")}
                 </FormDescription>
               </div>
             </FormItem>

@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/accordion"
 
 export const metadata: Metadata = {
-  title: "FAQ — Questions fréquentes | Amora",
+  title: "FAQ — Questions fréquentes | Marryslate",
   description:
-    "Toutes les réponses à vos questions sur Amora : créer un site de mariage, gérer votre liste de cadeaux, collecter les contributions et être payé directement.",
+    "Toutes les réponses à vos questions sur Marryslate : créer un site de mariage, gérer votre liste de cadeaux, collecter les contributions et être payé directement.",
 }
 
 const SECTIONS = [
@@ -20,7 +20,7 @@ const SECTIONS = [
     title: "Créer son site mariage",
     items: [
       {
-        q: "Comment créer mon site mariage avec Amora ?",
+        q: "Comment créer mon site mariage avec Marryslate ?",
         a: "Inscrivez-vous gratuitement, renseignez les prénoms des mariés et la date, et votre site est accessible en quelques minutes. Vous personnalisez ensuite les textes, photos, thème et liste de cadeaux depuis votre tableau de bord.",
       },
       {
@@ -33,7 +33,7 @@ const SECTIONS = [
       },
       {
         q: "Est-il possible d'avoir un nom de domaine personnalisé ?",
-        a: "Votre site est accessible par défaut à amora.fr/m/votre-prénom. Un nom de domaine personnalisé (ex : sophie-et-thomas.fr) n'est pas encore disponible mais est prévu dans une prochaine version.",
+        a: "Votre site est accessible par défaut à marryslate.com/m/votre-prénom. Un nom de domaine personnalisé (ex : sophie-et-thomas.fr) n'est pas encore disponible mais est prévu dans une prochaine version.",
       },
       {
         q: "Y a-t-il plusieurs thèmes graphiques disponibles ?",
@@ -55,7 +55,7 @@ const SECTIONS = [
       },
       {
         q: "Quelle est la commission prélevée sur les contributions ?",
-        a: "La commission Amora est de 2,9 % + 0,30 € par transaction. Elle couvre les frais de paiement Stripe et le service Amora. Il n'y a aucun abonnement mensuel ni frais cachés.",
+        a: "La commission Marryslate est de 2,9 % + 0,30 € par transaction. Elle couvre les frais de paiement Stripe et le service Marryslate. Il n'y a aucun abonnement mensuel ni frais cachés.",
       },
       {
         q: "Que se passe-t-il si nous annulons notre mariage ?",
@@ -73,11 +73,11 @@ const SECTIONS = [
     items: [
       {
         q: "Comment les invités participent-ils à la liste de cadeaux ?",
-        a: "Les invités accèdent à votre site via le lien que vous leur partagez (ex : amora.fr/m/sophie-thomas), choisissent un cadeau ou font une contribution libre, puis paient par carte bancaire. Aucun compte Amora n'est nécessaire.",
+        a: "Les invités accèdent à votre site via le lien que vous leur partagez (ex : marryslate.com/m/sophie-thomas), choisissent un cadeau ou font une contribution libre, puis paient par carte bancaire. Aucun compte Marryslate n'est nécessaire.",
       },
       {
         q: "Le paiement est-il sécurisé ?",
-        a: "Oui. Tous les paiements sont traités par Stripe, certifié PCI-DSS niveau 1 — le plus haut niveau de sécurité pour les paiements en ligne. Amora ne stocke jamais les données bancaires de vos invités.",
+        a: "Oui. Tous les paiements sont traités par Stripe, certifié PCI-DSS niveau 1 — le plus haut niveau de sécurité pour les paiements en ligne. Marryslate ne stocke jamais les données bancaires de vos invités.",
       },
       {
         q: "Comment fonctionne le RSVP ?",

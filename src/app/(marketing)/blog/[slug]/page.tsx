@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getPostBySlug(slug)
   if (!post) return {}
   return {
-    title: `${post.title} | Amora`,
+    title: `${post.title} | Marryslate`,
     description: post.description,
   }
 }

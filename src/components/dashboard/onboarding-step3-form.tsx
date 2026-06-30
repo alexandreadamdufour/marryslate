@@ -82,7 +82,7 @@ export function OnboardingStep3Form() {
               <FormControl>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    amora.fr/m/
+                    marryslate.com/m/
                   </span>
                   <Input
                     className="pl-[7.5rem]"

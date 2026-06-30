@@ -1,4 +1,4 @@
-# Audit pré-beta Amora — 2026-06-29
+# Audit pré-beta Marryslate — 2026-06-29
 
 Rapport hiérarchisé issu d'un scan complet du repo (6 agents parallèles couvrant
 actions, migrations/RLS, Stripe/paiements, secrets/config, queries/perf, RSVP/routes).

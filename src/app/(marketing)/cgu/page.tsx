@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Conditions générales d'utilisation — Amora",
+  title: "Conditions générales d'utilisation — Marryslate",
   robots: { index: false },
 }
 
@@ -20,8 +20,8 @@ export default function CguPage() {
           <h2 className="mb-3 text-lg font-semibold">1. Objet et champ d&apos;application</h2>
           <p className="text-muted-foreground">
             Les présentes Conditions Générales d&apos;Utilisation (« CGU ») régissent l&apos;accès
-            et l&apos;utilisation de la plateforme <strong className="text-foreground">Amora</strong>,
-            éditée par ADAM AGENCY (Alexandre Dufour), accessible à l&apos;adresse amora.fr. Amora
+            et l&apos;utilisation de la plateforme <strong className="text-foreground">Marryslate</strong>,
+            éditée par ADAM AGENCY (Alexandre Dufour), accessible à l&apos;adresse marryslate.com. Marryslate
             est un service permettant aux couples de créer un site de mariage personnalisé, de gérer
             une liste de cadeaux en ligne et de collecter des contributions financières de leurs
             invités.
@@ -52,7 +52,7 @@ export default function CguPage() {
             service.
           </p>
           <p className="mt-2 text-muted-foreground">
-            Amora se réserve le droit de modifier les présentes CGU. Les utilisateurs sont informés
+            Marryslate se réserve le droit de modifier les présentes CGU. Les utilisateurs sont informés
             de toute modification substantielle par email. La poursuite de l&apos;utilisation du
             service après notification vaut acceptation des nouvelles conditions.
           </p>
@@ -69,7 +69,7 @@ export default function CguPage() {
             <li>— fournir des informations exactes, complètes et à les maintenir à jour ;</li>
             <li>— garder ses identifiants de connexion confidentiels ;</li>
             <li>
-              — notifier immédiatement Amora de tout accès non autorisé à son compte à l&apos;adresse{" "}
+              — notifier immédiatement Marryslate de tout accès non autorisé à son compte à l&apos;adresse{" "}
               <a
                 href="mailto:alexandre.a.dufour@gmail.com"
                 className="underline underline-offset-4 hover:text-foreground"
@@ -89,12 +89,12 @@ export default function CguPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">4. Description du service</h2>
           <p className="mb-2 text-muted-foreground">
-            Amora met à disposition des couples les fonctionnalités suivantes :
+            Marryslate met à disposition des couples les fonctionnalités suivantes :
           </p>
           <ul className="space-y-1.5 text-muted-foreground">
             <li>
               <strong className="text-foreground">Site de mariage personnalisé</strong> — création
-              d&apos;une page publique accessible via une URL unique (amora.fr/m/votre-slug),
+              d&apos;une page publique accessible via une URL unique (marryslate.com/m/votre-slug),
               présentant les informations du mariage, le programme, les détails pratiques.
             </li>
             <li>
@@ -124,7 +124,7 @@ export default function CguPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">5. Obligations et responsabilités des utilisateurs</h2>
           <p className="mb-2 text-muted-foreground">
-            En utilisant Amora, vous vous engagez à ne pas :
+            En utilisant Marryslate, vous vous engagez à ne pas :
           </p>
           <ul className="space-y-1.5 text-muted-foreground">
             <li>— utiliser le service à des fins illicites ou contraires à l&apos;ordre public ;</li>
@@ -146,7 +146,7 @@ export default function CguPage() {
           </ul>
           <p className="mt-3 text-muted-foreground">
             Vous êtes seul responsable des contenus que vous publiez (textes, photos) et vous
-            garantissez disposer de tous les droits nécessaires sur ces contenus. Amora ne peut
+            garantissez disposer de tous les droits nécessaires sur ces contenus. Marryslate ne peut
             être tenu responsable des contenus publiés par ses utilisateurs.
           </p>
         </section>
@@ -154,14 +154,14 @@ export default function CguPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">6. Propriété intellectuelle</h2>
           <p className="text-muted-foreground">
-            Amora et ses composants (marque, interface, code source, design) sont la propriété
+            Marryslate et ses composants (marque, interface, code source, design) sont la propriété
             exclusive d&apos;ADAM AGENCY et protégés par le droit de la propriété intellectuelle.
             Aucun droit d&apos;usage autre que celui strictement nécessaire à l&apos;utilisation du
             service n&apos;est accordé.
           </p>
           <p className="mt-2 text-muted-foreground">
             Les contenus que vous publiez sur votre site (photos de mariage, textes) restent votre
-            propriété. En les publiant, vous accordez à Amora une licence non-exclusive, gratuite,
+            propriété. En les publiant, vous accordez à Marryslate une licence non-exclusive, gratuite,
             mondiale, pour les héberger, afficher et reproduire dans le seul cadre de la fourniture
             du service. Cette licence prend fin à la suppression du contenu ou du compte.
           </p>
@@ -170,9 +170,9 @@ export default function CguPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">7. Disponibilité du service</h2>
           <p className="text-muted-foreground">
-            Amora s&apos;efforce de maintenir le service accessible 24h/24 et 7j/7. Toutefois, des
+            Marryslate s&apos;efforce de maintenir le service accessible 24h/24 et 7j/7. Toutefois, des
             interruptions peuvent survenir pour des opérations de maintenance ou pour des causes
-            indépendantes de notre volonté (pannes des hébergeurs, force majeure). Amora ne
+            indépendantes de notre volonté (pannes des hébergeurs, force majeure). Marryslate ne
             garantit pas une disponibilité ininterrompue du service et ne saurait être tenu
             responsable de pertes ou dommages résultant d&apos;une indisponibilité temporaire.
           </p>
@@ -184,14 +184,14 @@ export default function CguPage() {
         <section>
           <h2 className="mb-3 text-lg font-semibold">8. Limitation de responsabilité</h2>
           <p className="text-muted-foreground">
-            Amora agit en tant qu&apos;intermédiaire technique entre les couples et leurs invités.
-            Amora ne garantit pas le montant des contributions qui seront reçues et n&apos;est pas
+            Marryslate agit en tant qu&apos;intermédiaire technique entre les couples et leurs invités.
+            Marryslate ne garantit pas le montant des contributions qui seront reçues et n&apos;est pas
             responsable des comportements des invités utilisant la plateforme.
           </p>
           <p className="mt-2 text-muted-foreground">
-            En cas de litige entre un couple et un invité au sujet d&apos;une contribution, Amora
+            En cas de litige entre un couple et un invité au sujet d&apos;une contribution, Marryslate
             pourra faciliter la communication mais n&apos;est pas partie au litige. La
-            responsabilité d&apos;Amora est limitée, dans tous les cas, au montant des frais de
+            responsabilité de Marryslate est limitée, dans tous les cas, au montant des frais de
             service versés par l&apos;utilisateur au cours des 12 mois précédant le litige.
           </p>
         </section>
@@ -215,9 +215,9 @@ export default function CguPage() {
             retirer les fonds disponibles avant de clôturer votre compte.
           </p>
           <p className="mt-2 text-muted-foreground">
-            Amora se réserve le droit de suspendre ou résilier un compte sans préavis en cas de
+            Marryslate se réserve le droit de suspendre ou résilier un compte sans préavis en cas de
             violation grave des présentes CGU (fraude, contenus illicites, tentative
-            d&apos;intrusion). En cas de résiliation par Amora pour motif légitime, les fonds
+            d&apos;intrusion). En cas de résiliation par Marryslate pour motif légitime, les fonds
             disponibles sont restitués au couple dans les meilleurs délais.
           </p>
         </section>

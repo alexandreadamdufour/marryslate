@@ -10,8 +10,8 @@ interface LogoProps {
 export function Logo({ className, linkClassName, hideLink }: LogoProps) {
   const text = (
     <span className={cn("font-serif text-2xl tracking-tight text-foreground", className)}>
-      Amora
-    </span>
+      Marryslate
+</span>
   )
 
   if (hideLink) return text

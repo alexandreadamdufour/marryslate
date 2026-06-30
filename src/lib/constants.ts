@@ -1,4 +1,4 @@
-export const APP_NAME = "Amora"
+export const APP_NAME = "Marryslate"
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 
 export const MAX_GIFT_AMOUNT = 50_000

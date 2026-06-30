@@ -109,7 +109,7 @@ export default async function WeddingPublicPage({ params }: Props) {
     weddingStyle["--wedding-font"] = getWeddingFontCss(wedding.font_family)
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"
   const pageUrl = `${baseUrl}/m/${slug}`
   const eventName = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
 
@@ -194,8 +194,8 @@ export default async function WeddingPublicPage({ params }: Props) {
         <p>
           Créé avec{" "}
           <Link href="/" className="underline underline-offset-4 hover:text-foreground">
-            Amora
-          </Link>
+            Marryslate
+</Link>
         </p>
       </footer>
 

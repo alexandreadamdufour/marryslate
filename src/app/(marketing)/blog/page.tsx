@@ -5,7 +5,7 @@ import { fr } from "date-fns/locale"
 import { Clock } from "lucide-react"
 
 export const metadata = {
-  title: "Blog — Conseils mariage | Amora",
+  title: "Blog — Conseils mariage | Marryslate",
   description:
     "Guides pratiques pour votre mariage : liste de cadeaux en ligne, cagnotte, site personnalisé. Tous les conseils pour préparer le plus beau jour de votre vie.",
 }
