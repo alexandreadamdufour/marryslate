@@ -83,7 +83,7 @@ export async function createWedding(
 
   const supabase = await createClerkSupabaseClient()
 
-  const { data: authDebug, error: authDebugError } = await supabase.rpc("debug_auth")
+  const { data: authDebug, error: authDebugError } = await (supabase as any).rpc("debug_auth")
   console.error("[createWedding] debug_auth", {
     data: authDebug,
     rpcError: authDebugError?.message,
