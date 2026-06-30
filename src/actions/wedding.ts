@@ -96,7 +96,13 @@ export async function createWedding(
     .single()
 
   if (weddingError ?? !wedding) {
-    logDbError("createWedding", weddingError)
+    console.error("[createWedding] DB insert failed", {
+      error: weddingError
+        ? { code: weddingError.code, message: weddingError.message, details: weddingError.details, hint: weddingError.hint }
+        : "null (RLS silent block? wedding=null sans erreur Supabase)",
+      owner_id: user.id,
+      slug: parsed.data.slug,
+    })
     return { error: "DB_ERROR" }
   }
 
