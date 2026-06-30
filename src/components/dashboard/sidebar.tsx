@@ -16,6 +16,7 @@ import {
   PiggyBank,
   Table2,
   CheckSquare,
+  CalendarDays,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/logo"
@@ -30,6 +31,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/site", label: "Mon site mariage", icon: Globe },
+  { href: "/dashboard/programme", label: "Programme", icon: CalendarDays },
   { href: "/dashboard/planner", label: "Planner", icon: CheckSquare },
   { href: "/dashboard/liste", label: "Liste de cadeaux", icon: Gift },
   { href: "/dashboard/cagnotte", label: "Cagnotte", icon: Heart },

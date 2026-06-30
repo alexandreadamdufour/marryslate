@@ -12,13 +12,15 @@ function formatEventDate(start: string | null, end: string | null): string {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   })
   const startTime = new Date(start).toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
   })
   const endTime = end
-    ? new Date(end).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+    ? new Date(end).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })
     : null
 
   return `${date} · ${startTime}${endTime ? ` – ${endTime}` : ""}`
@@ -47,15 +49,17 @@ export function WeddingEventsSection({ events }: WeddingEventsSectionProps) {
                         {new Date(event.start_at).toLocaleDateString("fr-FR", {
                           day: "numeric",
                           month: "long",
+                          timeZone: "UTC",
                         })}
                       </p>
                       <p className="font-medium">
                         {new Date(event.start_at).toLocaleTimeString("fr-FR", {
                           hour: "2-digit",
                           minute: "2-digit",
+                          timeZone: "UTC",
                         })}
                         {event.end_at &&
-                          ` – ${new Date(event.end_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`}
+                          ` – ${new Date(event.end_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}`}
                       </p>
                     </div>
                   </>
