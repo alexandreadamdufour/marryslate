@@ -55,9 +55,7 @@ export async function submitRsvp(
     return { error: "RSVP_NOT_AVAILABLE" }
   }
 
-  const match = email
-    ? await matchGuestForRsvp(supabase, weddingId, email)
-    : { guestId: null, status: "pending_validation" as const }
+  const match = await matchGuestForRsvp(supabase, weddingId, email)
 
   const { data: response, error: dbError } = await supabase
     .from("rsvp_responses")
@@ -83,17 +81,15 @@ export async function submitRsvp(
 
   const guestName = `${firstName} ${lastName}`
 
-  if (email) {
-    sendRsvpConfirmationToGuest({
-      guestEmail: email,
-      guestName,
-      attending,
-      guestCount: attending ? guestCount : 0,
-      weddingPartner1: wedding.partner1_first_name,
-      weddingPartner2: wedding.partner2_first_name,
-      weddingSlug: wedding.slug,
-    }).catch((e) => console.error("[rsvp] guest email:", e))
-  }
+  sendRsvpConfirmationToGuest({
+    guestEmail: email,
+    guestName,
+    attending,
+    guestCount: attending ? guestCount : 0,
+    weddingPartner1: wedding.partner1_first_name,
+    weddingPartner2: wedding.partner2_first_name,
+    weddingSlug: wedding.slug,
+  }).catch((e) => console.error("[rsvp] guest email:", e))
 
   const { data: owner } = await supabase
     .from("users")

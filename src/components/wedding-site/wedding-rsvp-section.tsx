@@ -204,7 +204,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                 {/* Email */}
                 <div className="space-y-1.5">
                   <Label htmlFor="rsvp-email">
-                    Email{" "}
+                    Email *{" "}
                     <span className="text-muted-foreground text-xs">(pour recevoir la confirmation)</span>
                   </Label>
                   <Input
