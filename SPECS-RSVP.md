@@ -8,14 +8,14 @@ Le couple saisit sa liste dans `guests`. Chaque invité reçoit un lien et confi
 
 Raison : `guests` = qui le couple invite (intention, contrôlée par le couple). `rsvp_responses` = ce qu'un invité déclare (événement horodaté, externe). Garder les deux préserve la traçabilité, les changements d'avis, les doublons.
 
-- **`guests`** : liste maître + colonne `rsvp_status` (`pending` / `confirmed` / `declined`, défaut `pending`)
+- **`guests`** : liste maître + colonne `rsvp_status` (`pending` / `accepted` / `declined` / `maybe`, défaut `pending`)
 - **`rsvp_responses`** : journal des réponses + colonne `guest_id uuid NULL REFERENCES guests(id)` + colonne `status` (`matched` / `pending_validation` / `conflict`)
 
 ## Matching : par email
 
 À la soumission du formulaire public, chercher dans `guests` un invité du même mariage avec le même email.
 
-- **Match trouvé** → lier la réponse (`guest_id` renseigné, `status = matched`), mettre à jour `guests.rsvp_status` (`confirmed` / `declined`). Sauf si conflit.
+- **Match trouvé** → lier la réponse (`guest_id` renseigné, `status = matched`), mettre à jour `guests.rsvp_status` (`accepted` / `declined`). Sauf si conflit.
 - **Pas de match** → `guest_id = NULL`, `status = pending_validation`, tombe dans la file à valider.
 
 ## Cas "pas de match" : file de validation
