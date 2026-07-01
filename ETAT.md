@@ -47,3 +47,12 @@
 | **Erreurs RouteImpl liens marketing** | Erreurs typecheck préexistantes sur les liens marketing (probablement liées à `typedRoutes: false`). À nettoyer. Non bloquant. |
 | **Résolution conflit multi-réponses (3+)** | Si un email a 3+ réponses divergentes, resolveRsvpConflict traite chaque réponse indépendamment (last-write-wins sur guests.rsvp_status). Cas rare, non prioritaire, à réévaluer avec les 5 beta. |
 | **Race condition detectConflict (TOCTOU)** | detectConflict fait SELECT puis INSERT sans transaction/verrou. Deux réponses concurrentes au même email peuvent s'insérer sans se flaguer mutuellement. Mitigation propre = pg_advisory_xact_lock ou RPC SECURITY DEFINER. Probabilité très faible, à durcir si cas réel remonte. |
+| **RESEND_API_KEY placeholder résiduel (leçon)** | La clé Resend en prod était `re_aBcDe...` (placeholder de doc jamais remplacé) depuis le 24 juin. Aucun email n'était envoyé — les `.catch()` silencieux dans les Server Actions masquaient l'erreur 401. Résolu le 1er juillet en cours de session. Discipline à retenir : auditer les placeholders documentaires (`re_aBcDe`, `sk_live_xxx`, etc.) au setup initial de chaque service, ne jamais commit avec la valeur d'exemple. |
+| **Return_url Stripe Connect à revérifier** | Le fix `env.NEXT_PUBLIC_APP_URL` + variable Vercel Production corrigés le 1er juillet devrait avoir résolu le bug `amora.vercel.app` sur Connect aussi (`setupStripeConnect` utilise déjà `env.NEXT_PUBLIC_APP_URL` correctement). À revalider empiriquement lors du prochain onboarding Stripe Connect (couple beta) : si l'onboarding se termine bien sur `marryslate.com/dashboard/retrait?onboarding=complete` = OK. Sinon, redébugger. |
+
+## 🛋️ Confort UX (post-beta)
+
+- **Empty states** : première visite de chaque page dashboard rend un placeholder générique. À travailler pour meilleure UX onboarding.
+- **Toasts unifiés** : notifications de succès/erreur sont bricolées par composant (sonner, alert, state local). Uniformiser via sonner.
+- **Responsive mobile audit** : jamais testé systématiquement sur mobile. 50% des couples beta ouvriront sur téléphone.
+- **Onboarding première connexion** : rugueux, un nouveau couple ne comprend pas immédiatement comment activer chaque feature (cagnotte cachée si pas de cadeau, RSVP toggle à activer, etc.).

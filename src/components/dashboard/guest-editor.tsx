@@ -89,7 +89,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-4">
         <SummaryCard label="Total invités" value={total} />
-        <SummaryCard label="Confirmés" value={confirmed} accent />
+        <SummaryCard label="Acceptés" value={confirmed} accent />
         <SummaryCard label="Déclinés" value={declined} />
         <SummaryCard label="En attente" value={pending} />
       </div>

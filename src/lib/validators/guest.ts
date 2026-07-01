@@ -5,7 +5,7 @@ export const RSVP_STATUSES = ["pending", "accepted", "declined", "maybe"] as con
 
 export const RSVP_STATUS_LABELS: Record<(typeof RSVP_STATUSES)[number], string> = {
   pending: "En attente",
-  accepted: "Confirmé",
+  accepted: "Accepté",
   declined: "Décliné",
   maybe: "Peut-être",
 }
