@@ -68,7 +68,7 @@ export async function exportContributionsCSV(weddingId: string): Promise<ActionR
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
 
   const date = new Date().toISOString().slice(0, 10)
-  const filename = `amora-contributions-${date}.csv`
+  const filename = `marryslate-contributions-${date}.csv`
 
   return { data: { csv, filename } }
 }
@@ -115,7 +115,7 @@ export async function exportRsvpCSV(weddingId: string): Promise<ActionResult<{ c
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
 
   const date = new Date().toISOString().slice(0, 10)
-  const filename = `amora-invites-${date}.csv`
+  const filename = `marryslate-invites-${date}.csv`
 
   return { data: { csv, filename } }
 }
@@ -169,7 +169,7 @@ export async function exportGuestsCSV(weddingId: string): Promise<ActionResult<{
 
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
   const date = new Date().toISOString().slice(0, 10)
-  const filename = `amora-guests-${date}.csv`
+  const filename = `marryslate-guests-${date}.csv`
 
   return { data: { csv, filename } }
 }

@@ -71,7 +71,7 @@ export function buildIcsFile(events: CalendarEventParams[], calName: string): st
   const parts = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Amora//Wedding Calendar//FR",
+    "PRODID:-//Marryslate//Wedding Calendar//FR",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeIcs(calName)}`,

@@ -43,7 +43,7 @@ export async function sendContributionReceipt(p: ContributionReceiptParams) {
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
         <p style="font-size: 12px; color: #999;">
-          Amora — Liste de mariage &amp; cagnotte en ligne.<br/>
+          Marryslate — Site de mariage, cagnotte et gestion des invités.<br/>
           Ce reçu ne vaut pas facture. Paiement sécurisé par Stripe.
         </p>
       </div>
@@ -81,7 +81,7 @@ export async function sendCoupleContributionNotif(p: CoupleContributionNotifPara
         </p>
         <p style="color: #666;">
           Vous recevrez <strong>${(p.netAmount / 100).toFixed(2).replace(".", ",")} €</strong>
-          net (après commission Amora) sur votre compte lors du prochain retrait.
+          net (après commission Marryslate) sur votre compte lors du prochain retrait.
         </p>
         <p style="margin-top: 24px;">
           <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/contributions"
@@ -90,7 +90,7 @@ export async function sendCoupleContributionNotif(p: CoupleContributionNotifPara
           </a>
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
-        <p style="font-size: 12px; color: #999;">Amora — Liste de mariage &amp; cagnotte en ligne.</p>
+        <p style="font-size: 12px; color: #999;">Marryslate — Site de mariage, cagnotte et gestion des invités.</p>
       </div>
     `,
   })
@@ -140,7 +140,7 @@ export async function sendRsvpConfirmationToGuest(p: RsvpConfirmationParams) {
         ${body}
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
         <p style="font-size: 12px; color: #999;">
-          Amora — Confirmation RSVP pour le mariage de ${couple}.
+          Marryslate — Confirmation RSVP pour le mariage de ${couple}.
         </p>
       </div>
     `,
@@ -183,7 +183,7 @@ export async function sendRsvpNotifToCouple(p: RsvpCoupleNotifParams) {
           </a>
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
-        <p style="font-size: 12px; color: #999;">Amora — Liste de mariage &amp; cagnotte en ligne.</p>
+        <p style="font-size: 12px; color: #999;">Marryslate — Site de mariage, cagnotte et gestion des invités.</p>
       </div>
     `,
   })
@@ -224,7 +224,7 @@ export async function sendGuestbookNotifToCouple(p: GuestbookNotifParams) {
           </a>
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
-        <p style="font-size: 12px; color: #999;">Amora — Liste de mariage &amp; cagnotte en ligne.</p>
+        <p style="font-size: 12px; color: #999;">Marryslate — Site de mariage, cagnotte et gestion des invités.</p>
       </div>
     `,
   })
@@ -251,7 +251,7 @@ export async function sendPayoutNotif(p: PayoutNotifParams) {
           Il apparaîtra sous 1 à 3 jours ouvrés.
         </p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 32px 0;" />
-        <p style="font-size: 12px; color: #999;">Amora — Liste de mariage &amp; cagnotte en ligne.</p>
+        <p style="font-size: 12px; color: #999;">Marryslate — Site de mariage, cagnotte et gestion des invités.</p>
       </div>
     `,
   })
