@@ -335,3 +335,73 @@ export async function rejectRsvpResponse(
   revalidatePath("/dashboard/invites")
   return { data: { id: responseId } }
 }
+
+const resolutionSchema = z.enum(["keep_couple_version", "apply_response"])
+type RsvpConflictResolution = z.infer<typeof resolutionSchema>
+
+// Résout un conflit une réponse à la fois — pas de cascade sur d'autres réponses
+// conflictuelles du même email/guest. Si un email a 3+ réponses divergentes, chaque
+// résolution est indépendante (last-write-wins sur guests.rsvp_status). Cas rare,
+// limitation connue (cf. ETAT.md "Résolution conflit multi-réponses").
+export async function resolveRsvpConflict(
+  responseId: string,
+  resolution: RsvpConflictResolution
+): Promise<ActionResult<{ id: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  if (!uuidSchema.safeParse(responseId).success || !resolutionSchema.safeParse(resolution).success) {
+    return { error: "INVALID_INPUT" }
+  }
+
+  const authClient = await createClerkSupabaseClient()
+
+  const { data: response } = await authClient
+    .from("rsvp_responses")
+    .select("id, wedding_id, guest_id, attending, status")
+    .eq("id", responseId)
+    .maybeSingle()
+  if (!response) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(authClient, response.wedding_id))) return { error: "FORBIDDEN" }
+  if (response.status !== "conflict") return { error: "INVALID_STATE" }
+
+  // Les deux résolutions nécessitent un guest lié : "garder votre saisie" comme
+  // "appliquer la réponse" supposent une entrée existante dans la liste maître.
+  // Garde-fou serveur en plus du bouton désactivé côté UI (deux onglets, latence).
+  if (!response.guest_id) return { error: "NOT_LINKED" }
+
+  const admin = createAdminClient()
+  const resolvedAt = new Date().toISOString()
+
+  if (resolution === "apply_response") {
+    const { error: guestError } = await admin
+      .from("guests")
+      .update({ rsvp_status: response.attending ? "accepted" : "declined" })
+      .eq("id", response.guest_id)
+    if (guestError) {
+      logDbError("resolveRsvpConflict:guest", guestError)
+      return { error: "DB_ERROR" }
+    }
+
+    const { error } = await admin
+      .from("rsvp_responses")
+      .update({ status: "matched", conflict_resolved_at: resolvedAt })
+      .eq("id", responseId)
+    if (error) {
+      logDbError("resolveRsvpConflict:apply", error)
+      return { error: "DB_ERROR" }
+    }
+  } else {
+    const { error } = await admin
+      .from("rsvp_responses")
+      .update({ status: "resolved_kept_couple", conflict_resolved_at: resolvedAt })
+      .eq("id", responseId)
+    if (error) {
+      logDbError("resolveRsvpConflict:keep", error)
+      return { error: "DB_ERROR" }
+    }
+  }
+
+  revalidatePath("/dashboard/invites")
+  return { data: { id: responseId } }
+}

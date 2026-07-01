@@ -582,6 +582,8 @@ export interface Database {
           message: string | null
           status: string
           created_at: string
+          // PATCH MANUEL — cf. ETAT.md "Audit synchro migrations↔prod". À retirer après régénération propre post-audit.
+          conflict_resolved_at: string | null
         }
         Insert: {
           id?: string
@@ -596,6 +598,8 @@ export interface Database {
           message?: string | null
           status?: string
           created_at?: string
+          // PATCH MANUEL — cf. ETAT.md "Audit synchro migrations↔prod". À retirer après régénération propre post-audit.
+          conflict_resolved_at?: string | null
         }
         Update: {
           guest_id?: string | null
@@ -607,6 +611,8 @@ export interface Database {
           dietary?: string | null
           message?: string | null
           status?: string
+          // PATCH MANUEL — cf. ETAT.md "Audit synchro migrations↔prod". À retirer après régénération propre post-audit.
+          conflict_resolved_at?: string | null
         }
         Relationships: [
           {
