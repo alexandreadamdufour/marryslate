@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getAllPosts } from "@/lib/blog"
+import { env } from "@/lib/env"
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://amora.fr"
+const BASE_URL = env.NEXT_PUBLIC_APP_URL
 
 const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },

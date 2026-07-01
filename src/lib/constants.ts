@@ -1,4 +1,6 @@
 export const APP_NAME = "Marryslate"
+// Volontairement en process.env direct : ce fichier est importé côté client, ne peut pas
+// passer par @/lib/env (secrets serveur).
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 
 export const MAX_GIFT_AMOUNT = 50_000

@@ -8,6 +8,7 @@ import { getGuestbookMessages } from "@/queries/guestbook"
 import { getTimelineSteps } from "@/queries/timeline"
 import { hexToCssHsl, hexGetForeground } from "@/lib/utils"
 import { getWeddingFontCss } from "@/lib/constants"
+import { env } from "@/lib/env"
 import { AccessGate } from "@/components/wedding-site/access-gate"
 import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
@@ -109,7 +110,7 @@ export default async function WeddingPublicPage({ params }: Props) {
     weddingStyle["--wedding-font"] = getWeddingFontCss(wedding.font_family)
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"
+  const baseUrl = env.NEXT_PUBLIC_APP_URL
   const pageUrl = `${baseUrl}/m/${slug}`
   const eventName = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
 

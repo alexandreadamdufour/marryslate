@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { env } from "@/lib/env"
 
 export const metadata: Metadata = {
   title: { absolute: "Marryslate — Liste de mariage & cagnotte en ligne" },
@@ -19,17 +20,17 @@ const schemaOrg = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"}/#website`,
-      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com",
+      "@id": `${env.NEXT_PUBLIC_APP_URL}/#website`,
+      url: env.NEXT_PUBLIC_APP_URL,
       name: "Marryslate",
       description: "Liste de mariage & cagnotte en ligne",
       inLanguage: "fr-FR",
     },
     {
       "@type": "Organization",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com"}/#organization`,
+      "@id": `${env.NEXT_PUBLIC_APP_URL}/#organization`,
       name: "Marryslate",
-      url: process.env.NEXT_PUBLIC_APP_URL ?? "https://marryslate.com",
+      url: env.NEXT_PUBLIC_APP_URL,
       description: "Plateforme française de liste de mariage et site de mariage en ligne.",
     },
   ],

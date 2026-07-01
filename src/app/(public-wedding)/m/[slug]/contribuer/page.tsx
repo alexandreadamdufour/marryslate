@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { env } from "@/lib/env"
 import { getWeddingPublicData } from "@/queries/wedding"
 import { ContributionFormClient } from "@/components/wedding-site/contribution-form-client"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -29,7 +30,7 @@ export default async function ContribuerPage({ params, searchParams }: Props) {
   const themeClass =
     wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? ""
+  const baseUrl = env.NEXT_PUBLIC_APP_URL
   const successUrl = `${baseUrl}/m/${slug}/contribuer/success`
 
   const selectedGift =

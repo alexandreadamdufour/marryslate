@@ -13,6 +13,7 @@ import { Toaster } from "sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import { CrispChat } from "@/components/crisp-chat"
+import { env } from "@/lib/env"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
@@ -23,7 +24,7 @@ const greatVibes = Great_Vibes({ subsets: ["latin"], weight: "400", variable: "-
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", display: "swap" })
 const lora = Lora({ subsets: ["latin"], variable: "--font-lora", display: "swap" })
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+const APP_URL = env.NEXT_PUBLIC_APP_URL
 const DEFAULT_DESCRIPTION =
   "Créez votre liste de mariage et votre site personnalisé. Simple, élégant, mobile-first."
 
