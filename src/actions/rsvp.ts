@@ -17,14 +17,15 @@ type AdminClient = ReturnType<typeof createAdminClient>
 
 const uuidSchema = z.string().uuid()
 
-// Matching par email (SPECS-RSVP.md, incrément 1 : pas de détection de conflit).
+// Matching par email (SPECS-RSVP.md, incrément 1). Responsable UNIQUEMENT du matching —
+// la détection de conflit est déléguée à detectConflict (incrément 2).
 // citext sur guests.email/rsvp_responses.email → comparaison déjà insensible à la casse.
 // Pas de contrainte unique (wedding_id, email) : si plusieurs guests partagent un email
 // (ex. "M. et Mme Dupont"), on prend le plus ancien de façon déterministe (limitation connue).
 async function matchGuestForRsvp(supabase: AdminClient, weddingId: string, email: string) {
   const { data: guests } = await supabase
     .from("guests")
-    .select("id")
+    .select("id, rsvp_status")
     .eq("wedding_id", weddingId)
     .eq("email", email)
     .order("created_at", { ascending: true })
@@ -32,8 +33,49 @@ async function matchGuestForRsvp(supabase: AdminClient, weddingId: string, email
 
   const guest = guests?.[0] ?? null
   return guest
-    ? { guestId: guest.id, status: "matched" as const }
-    : { guestId: null, status: "pending_validation" as const }
+    ? { guestId: guest.id, guestRsvpStatus: guest.rsvp_status, status: "matched" as const }
+    : { guestId: null, guestRsvpStatus: null as string | null, status: "pending_validation" as const }
+}
+
+// SPECS-RSVP.md, incrément 2 : deux règles indépendantes, l'une OU l'autre suffit à
+// déclencher un conflit (pas de sous-catégorisation, cf. diagnostic validé).
+async function detectConflict(
+  supabase: AdminClient,
+  weddingId: string,
+  email: string | null,
+  attending: boolean,
+  matchedGuestRsvpStatus: string | null
+): Promise<{ conflict: boolean; existingResponsesToFlag: string[] }> {
+  // Cas (a) : le couple avait déjà tranché (accepted/declined) et la réponse le contredit.
+  // pending/maybe ne comptent pas comme une affirmation du couple → pas de conflit.
+  const coupleConflict =
+    matchedGuestRsvpStatus != null &&
+    ["accepted", "declined"].includes(matchedGuestRsvpStatus) &&
+    matchedGuestRsvpStatus !== (attending ? "accepted" : "declined")
+
+  // Cas (b) : le même email a déjà répondu différemment, via une réponse encore "active"
+  // (matched/pending_validation — une fois conflict/rejected, une réponse ne sert plus de
+  // référence : une 3e réponse ultérieure sur un email déjà en conflit n'est pas re-comparée
+  // aux 2 premières, elle passera par resolveRsvpConflict au cas par cas — limitation connue,
+  // cf. ETAT.md "Résolution conflit multi-réponses").
+  let existingResponsesToFlag: string[] = []
+  if (email) {
+    const { data: existing } = await supabase
+      .from("rsvp_responses")
+      .select("id, attending")
+      .eq("wedding_id", weddingId)
+      .eq("email", email)
+      .in("status", ["matched", "pending_validation"])
+
+    existingResponsesToFlag = (existing ?? [])
+      .filter((r) => r.attending !== attending)
+      .map((r) => r.id)
+  }
+
+  return {
+    conflict: coupleConflict || existingResponsesToFlag.length > 0,
+    existingResponsesToFlag,
+  }
 }
 
 export async function submitRsvp(
@@ -63,6 +105,14 @@ export async function submitRsvp(
   }
 
   const match = await matchGuestForRsvp(supabase, weddingId, email)
+  const { conflict, existingResponsesToFlag } = await detectConflict(
+    supabase,
+    weddingId,
+    email,
+    attending,
+    match.guestRsvpStatus
+  )
+  const finalStatus = conflict ? ("conflict" as const) : match.status
 
   const { data: response, error: dbError } = await supabase
     .from("rsvp_responses")
@@ -76,7 +126,7 @@ export async function submitRsvp(
       guest_count: attending ? guestCount : 1,
       dietary: attending ? (dietary || null) : null,
       message: message || null,
-      status: match.status,
+      status: finalStatus,
     })
     .select("id")
     .single()
@@ -84,6 +134,14 @@ export async function submitRsvp(
   if (dbError || !response) {
     console.error("[submitRsvp]", dbError?.message)
     return { error: "DB_ERROR" }
+  }
+
+  if (conflict && existingResponsesToFlag.length > 0) {
+    const { error: flagError } = await supabase
+      .from("rsvp_responses")
+      .update({ status: "conflict" })
+      .in("id", existingResponsesToFlag)
+    if (flagError) console.error("[submitRsvp] flag existing conflicts:", flagError.message)
   }
 
   const guestName = `${firstName} ${lastName}`
@@ -116,8 +174,8 @@ export async function submitRsvp(
     }).catch((e) => console.error("[rsvp] couple notif:", e))
   }
 
-  // rsvp_status mis à jour seulement si matché (pas en pending_validation)
-  if (match.status === "matched" && match.guestId) {
+  // rsvp_status mis à jour seulement si matché sans conflit (pas en pending_validation/conflict)
+  if (finalStatus === "matched" && match.guestId) {
     const { error: syncError } = await supabase
       .from("guests")
       .update({ rsvp_status: attending ? "accepted" : "declined" })
