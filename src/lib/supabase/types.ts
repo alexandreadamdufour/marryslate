@@ -572,6 +572,7 @@ export interface Database {
         Row: {
           id: string
           wedding_id: string
+          guest_id: string | null
           first_name: string
           last_name: string
           email: string | null
@@ -579,11 +580,13 @@ export interface Database {
           guest_count: number
           dietary: string | null
           message: string | null
+          status: string
           created_at: string
         }
         Insert: {
           id?: string
           wedding_id: string
+          guest_id?: string | null
           first_name: string
           last_name: string
           email?: string | null
@@ -591,9 +594,11 @@ export interface Database {
           guest_count?: number
           dietary?: string | null
           message?: string | null
+          status?: string
           created_at?: string
         }
         Update: {
+          guest_id?: string | null
           first_name?: string
           last_name?: string
           email?: string | null
@@ -601,6 +606,7 @@ export interface Database {
           guest_count?: number
           dietary?: string | null
           message?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -608,6 +614,13 @@ export interface Database {
             columns: ["wedding_id"]
             isOneToOne: false
             referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rsvp_responses_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
             referencedColumns: ["id"]
           },
         ]
