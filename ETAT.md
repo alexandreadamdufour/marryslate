@@ -41,3 +41,4 @@
 | **5 couples beta** | Exit Club, Réseau Entreprendre, entourage |
 | **Refactor `assertWeddingCoowner`** | Remplacer le `.rpc("is_wedding_coowner")` par un SELECT direct sur `weddings`/`wedding_coowners`. Permet ensuite `REVOKE FROM authenticated` → ferme les 2 WARNs `authenticated_security_definer` restants. Backlog, non bloquant. |
 | **Audit synchro migrations↔prod** | Plusieurs objets créés à la main en prod hors migration (table `rsvp_responses`, policy guestbook, CSP). Vérifier qu'aucun autre écart n'existe. Chantier de fond. |
+| **Ownership fragile** | `createWedding` fait un 2e INSERT `wedding_coowners` sans error handling (`src/actions/wedding.ts` L109-112). Si cet insert échoue silencieusement, l'owner devient invisible via `getMyWedding()` (pas de fallback `owner_id`). Solutions candidates : (a) transactionnaliser `createWedding`, (b) trigger DB `AFTER INSERT ON weddings`. À cadrer. |
