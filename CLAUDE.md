@@ -432,10 +432,14 @@ export const env = envSchema.parse(process.env)
 
 ## 14. GIT WORKFLOW
 
-- Branche par défaut : `main` (protégée)
+- Branche par défaut : `main`
 - Branches feature : `feat/...`, `fix/...`, `chore/...`, `refactor/...`
 - Commits en **conventional commits** : `feat(gifts): add drag and drop reorder`
-- Pas de commit direct sur `main`. Toujours PR.
+- **Solo** : commit direct sur `main` autorisé, à condition que chaque commit soit
+  atomique, bien nommé (conventional commits), et que le changement ait été
+  testé/validé avant push.
+- Passer en flux PR (branches feature + review) dès qu'un contributeur rejoint le
+  projet ou qu'une CI bloquante est en place.
 - PR : titre clair, description avec contexte + screenshots si UI + checklist (tests, types, accessibilité)
 - Squash merge par défaut
 
