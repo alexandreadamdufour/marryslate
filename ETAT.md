@@ -1,6 +1,6 @@
-# État Marryslate — fin session 30 juin 2026
+# État Marryslate — 1er juillet 2026
 
-## ✅ Résolu ce soir
+## ✅ Résolu — session 30 juin 2026
 
 - **Bascule prod complète** : Stripe live, Clerk prod, domaine marryslate.com, DNS, SSL, CSP, rebrand Amora→Marryslate, double webhook Stripe (commits `8c24ec9`, `01c9437`)
 - **OAuth Google** : catch-all Clerk v6 `[[...sign-up]]`/`[[...sign-in]]` + `typedRoutes: false` + 4 env vars `NEXT_PUBLIC_CLERK_*` (commit `6c435ad`). Testé OK.
@@ -13,10 +13,24 @@
 
 ---
 
+## ✅ Résolu — Sécurité RLS — 1er juillet 2026
+
+- **Faille critique `rls_disabled` sur `rsvp_responses` fermée** : RLS activée + policies `rsvp_responses_insert_public` / `rsvp_responses_select_coowner` + `wedding_id NOT NULL`. Migration `20260625000000` alignée avec l'état prod (table avait été créée à la main sans RLS).
+- **Bug de fond `is_wedding_coowner`** : la fonction ne vérifiait que `wedding_coowners`, pas `weddings.owner_id`. Le owner était aveugle sur 26 policies (gifts, contributions, guests, events, budget, checklist, seating, timeline, rsvp_responses…). Corrigée : `owner OR coowner`. Migration `20260701000000`.
+- **Guestbook** : policy INSERT `"Public can insert guestbook messages" WITH CHECK (true)` créée à la main en prod contournait l'anti-spam applicatif (rate limiting + Zod). Supprimée. Migration `20260701010000`.
+- **`search_path` mutable** : fixé sur `clerk_user_id()`, `set_updated_at()`, `update_gift_current_amount()`. Migration `20260701020000`.
+- **`REVOKE EXECUTE FROM PUBLIC`** sur `current_user_id()` + `is_wedding_coowner(uuid)` : le `FROM anon` initial ne marchait pas (le droit venait du grant PUBLIC par défaut). `authenticated` et `service_role` conservent leurs grants explicites. Migration `20260701030000`.
+- **Advisor Supabase** : faille critique `rls_disabled` + WARNs `guestbook_insert_public` / `search_path_mutable` / `anon_security_definer` fermés.
+
+---
+
 ## ⏳ Pending (prochaine session)
 
 | Item | Notes |
 |---|---|
+| **Affichage RSVP dashboard** | `getRsvpResponsesByWedding` existe mais n'est jamais appelée, aucun composant. Le couple ne voit pas les réponses du formulaire public. À construire ou fusionner `rsvp_responses` + `guests`. **PRIORITAIRE avant beta.** |
 | **Test paiement réel end-to-end** | PRÉREQUIS : vérifier le domaine Resend d'abord (sinon l'email de reçu cassera). Puis : `payment_intent.succeeded` → contribution → email + notif couple. Nécessite couple avec Stripe connecté + KYC validé |
 | **Test URL publique `/m/slug`** | ISR, cookie access gate, + chevauchement padding URL `marryslate.com/m/` (cosmétique) |
 | **5 couples beta** | Exit Club, Réseau Entreprendre, entourage |
+| **Refactor `assertWeddingCoowner`** | Remplacer le `.rpc("is_wedding_coowner")` par un SELECT direct sur `weddings`/`wedding_coowners`. Permet ensuite `REVOKE FROM authenticated` → ferme les 2 WARNs `authenticated_security_definer` restants. Backlog, non bloquant. |
+| **Audit synchro migrations↔prod** | Plusieurs objets créés à la main en prod hors migration (table `rsvp_responses`, policy guestbook, CSP). Vérifier qu'aucun autre écart n'existe. Chantier de fond. |
