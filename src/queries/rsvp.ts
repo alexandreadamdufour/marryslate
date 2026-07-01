@@ -3,10 +3,15 @@ import type { Tables } from "@/lib/supabase/types"
 
 export type RsvpResponse = Tables<"rsvp_responses">
 
+export type ConflictResponse = RsvpResponse & {
+  guest: { first_name: string | null; last_name: string | null; rsvp_status: string } | null
+}
+
 export interface RsvpResponsesByStatus {
   pendingValidation: RsvpResponse[]
-  conflict: RsvpResponse[]
+  conflict: ConflictResponse[]
   matched: RsvpResponse[]
+  resolvedKeptCouple: RsvpResponse[]
   rejected: RsvpResponse[]
   counts: {
     pendingValidation: number
@@ -30,9 +35,34 @@ export async function getRsvpResponsesByWedding(weddingId: string): Promise<Rsvp
   const responses = data ?? []
 
   const pendingValidation = responses.filter((r) => r.status === "pending_validation")
-  const conflict = responses.filter((r) => r.status === "conflict")
+  const conflictRaw = responses.filter((r) => r.status === "conflict")
   const matched = responses.filter((r) => r.status === "matched")
+  const resolvedKeptCouple = responses.filter((r) => r.status === "resolved_kept_couple")
   const rejected = responses.filter((r) => r.status === "rejected")
+
+  // Un seul SELECT batché sur les guest_id des conflits (pas de N+1).
+  const conflictGuestIds = [
+    ...new Set(conflictRaw.map((r) => r.guest_id).filter((id): id is string => !!id)),
+  ]
+
+  const guestsById = new Map<
+    string,
+    { first_name: string | null; last_name: string | null; rsvp_status: string }
+  >()
+  if (conflictGuestIds.length > 0) {
+    const { data: guestsData } = await supabase
+      .from("guests")
+      .select("id, first_name, last_name, rsvp_status")
+      .in("id", conflictGuestIds)
+    for (const g of guestsData ?? []) {
+      guestsById.set(g.id, { first_name: g.first_name, last_name: g.last_name, rsvp_status: g.rsvp_status })
+    }
+  }
+
+  const conflict: ConflictResponse[] = conflictRaw.map((r) => ({
+    ...r,
+    guest: r.guest_id ? (guestsById.get(r.guest_id) ?? null) : null,
+  }))
 
   const attending = responses.filter((r) => r.attending)
 
@@ -40,6 +70,7 @@ export async function getRsvpResponsesByWedding(weddingId: string): Promise<Rsvp
     pendingValidation,
     conflict,
     matched,
+    resolvedKeptCouple,
     rejected,
     counts: {
       pendingValidation: pendingValidation.length,

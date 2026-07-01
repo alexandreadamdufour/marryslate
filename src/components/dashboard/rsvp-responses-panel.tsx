@@ -29,9 +29,11 @@ import {
   linkRsvpResponseToGuest,
   createGuestFromRsvpResponse,
   rejectRsvpResponse,
+  resolveRsvpConflict,
 } from "@/actions/rsvp"
+import { RSVP_STATUS_LABELS } from "@/lib/validators/guest"
 import type { Guest } from "@/queries/guests"
-import type { RsvpResponse, RsvpResponsesByStatus } from "@/queries/rsvp"
+import type { ConflictResponse, RsvpResponse, RsvpResponsesByStatus } from "@/queries/rsvp"
 
 interface Props {
   weddingId: string
@@ -44,6 +46,7 @@ const RESPONSE_STATUS_BADGE: Record<string, string> = {
   pending_validation: "bg-orange-100 text-orange-800 border-orange-200",
   conflict: "bg-red-100 text-red-800 border-red-200",
   rejected: "bg-gray-100 text-gray-700 border-gray-200",
+  resolved_kept_couple: "bg-blue-100 text-blue-800 border-blue-200",
 }
 
 const RESPONSE_STATUS_LABELS: Record<string, string> = {
@@ -51,6 +54,7 @@ const RESPONSE_STATUS_LABELS: Record<string, string> = {
   pending_validation: "À valider",
   conflict: "Divergence",
   rejected: "Rejetée",
+  resolved_kept_couple: "Résolu (saisie gardée)",
 }
 
 function formatReceivedAt(dateStr: string): string {
@@ -63,6 +67,8 @@ function errorMessage(code?: string): string {
       return "Action non autorisée."
     case "INVALID_STATE":
       return "Cette réponse a déjà été traitée."
+    case "NOT_LINKED":
+      return "Cette réponse doit d'abord être rattachée à un invité (section « À valider »)."
     case "UNAUTHORIZED":
       return "Session expirée, reconnectez-vous."
     default:
@@ -96,11 +102,21 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
 
   const treated = useMemo(
     () =>
-      [...data.matched, ...data.rejected].sort(
+      [...data.matched, ...data.resolvedKeptCouple, ...data.rejected].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       ),
-    [data.matched, data.rejected]
+    [data.matched, data.resolvedKeptCouple, data.rejected]
   )
+
+  // Groupe les conflits par email : cas (b) explicite = plusieurs réponses dans un même groupe.
+  const conflictsByEmail = useMemo(() => {
+    const map = new Map<string, ConflictResponse[]>()
+    for (const c of data.conflict) {
+      const key = c.email ?? c.id
+      map.set(key, [...(map.get(key) ?? []), c])
+    }
+    return map
+  }, [data.conflict])
 
   function openLinking(responseId: string) {
     setLinkingId(responseId === linkingId ? null : responseId)
@@ -142,6 +158,23 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
       return
     }
     toast.success("Réponse rejetée.")
+    router.refresh()
+  }
+
+  async function handleResolve(responseId: string, resolution: "keep_couple_version" | "apply_response") {
+    const confirmText =
+      resolution === "keep_couple_version"
+        ? "Garder votre saisie et ignorer la réponse de l'invité ?"
+        : "Appliquer la réponse de l'invité et écraser votre saisie actuelle ?"
+    if (!confirm(confirmText)) return
+    setPendingId(responseId)
+    const result = await resolveRsvpConflict(responseId, resolution)
+    setPendingId(null)
+    if (result.error) {
+      toast.error(errorMessage(result.error))
+      return
+    }
+    toast.success("Conflit résolu.")
     router.refresh()
   }
 
@@ -275,20 +308,83 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
         <CardHeader>
           <CardTitle className="text-sm">Divergences</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {data.conflict.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aucune divergence pour le moment. Cette section listera les réponses qui contredisent
-              la liste maître (incrément à venir).
+              Aucune divergence pour le moment. Cette section liste les réponses qui contredisent
+              la liste maître, ou qui divergent d&apos;une réponse précédente pour le même email.
             </p>
           ) : (
-            <Alert variant="destructive">
-              <AlertDescription>
-                {data.conflict.length} réponse{data.conflict.length > 1 ? "s" : ""} en divergence
-                détectée{data.conflict.length > 1 ? "s" : ""}. La vue de traitement dédiée arrive
-                dans un prochain incrément.
-              </AlertDescription>
-            </Alert>
+            [...conflictsByEmail.entries()].map(([key, group]) => (
+              <div key={key} className="space-y-3 rounded-xl border p-4">
+                {group.length > 1 && (
+                  <Alert variant="destructive">
+                    <AlertDescription>
+                      ⚠️ Cet email a répondu plusieurs fois de façon divergente ({group.length} réponses).
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {group.map((c) => (
+                  <div key={c.id} className="space-y-2 border-t pt-3 first:border-t-0 first:pt-0">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="font-medium">
+                          {c.guest
+                            ? [c.guest.first_name, c.guest.last_name].filter(Boolean).join(" ") || "—"
+                            : guestName(c)}
+                        </span>
+                        <span className="ml-2 text-xs text-muted-foreground">{c.email ?? "—"}</span>
+                      </div>
+                      <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE.conflict}`}>
+                        {RESPONSE_STATUS_LABELS.conflict}
+                      </Badge>
+                    </div>
+
+                    {c.guest ? (
+                      <div className="grid gap-2 text-sm sm:grid-cols-2">
+                        <div className="rounded-md bg-muted/50 px-3 py-2">
+                          <span className="text-xs text-muted-foreground">Vous aviez noté</span>
+                          <p className="font-medium">
+                            {RSVP_STATUS_LABELS[c.guest.rsvp_status as keyof typeof RSVP_STATUS_LABELS] ??
+                              c.guest.rsvp_status}
+                          </p>
+                        </div>
+                        <div className="rounded-md bg-muted/50 px-3 py-2">
+                          <span className="text-xs text-muted-foreground">L&apos;invité répond</span>
+                          <p className="font-medium">
+                            {c.attending ? `Présent, ${c.guest_count} pers.` : "Absent"}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Réponses contradictoires pour cet email non rattaché — traiter d&apos;abord
+                        dans « À valider ».
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!c.guest_id || pendingId === c.id}
+                        onClick={() => handleResolve(c.id, "keep_couple_version")}
+                      >
+                        Garder votre saisie
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!c.guest_id || pendingId === c.id}
+                        onClick={() => handleResolve(c.id, "apply_response")}
+                      >
+                        Appliquer la réponse invité
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
           )}
         </CardContent>
       </Card>
