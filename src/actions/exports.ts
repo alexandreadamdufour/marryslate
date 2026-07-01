@@ -2,6 +2,8 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
+import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { getContributionsByWedding } from "@/queries/contributions"
 import { RSVP_STATUS_LABELS, SIDE_LABELS } from "@/lib/validators/guest"
 
@@ -32,25 +34,8 @@ export async function exportContributionsCSV(weddingId: string): Promise<ActionR
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
-  const supabase = createAdminClient()
-
-  const { data: user } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", clerkUserId)
-    .is("deleted_at", null)
-    .maybeSingle()
-
-  if (!user) return { error: "USER_NOT_FOUND" }
-
-  const { data: ownership } = await supabase
-    .from("wedding_coowners")
-    .select("wedding_id")
-    .eq("user_id", user.id)
-    .eq("wedding_id", weddingId)
-    .maybeSingle()
-
-  if (!ownership) return { error: "FORBIDDEN" }
+  const authClient = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(authClient, weddingId))) return { error: "FORBIDDEN" }
 
   const contributions = await getContributionsByWedding(weddingId)
 
@@ -92,25 +77,10 @@ export async function exportRsvpCSV(weddingId: string): Promise<ActionResult<{ c
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
+  const authClient = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(authClient, weddingId))) return { error: "FORBIDDEN" }
+
   const supabase = createAdminClient()
-
-  const { data: user } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", clerkUserId)
-    .is("deleted_at", null)
-    .maybeSingle()
-
-  if (!user) return { error: "USER_NOT_FOUND" }
-
-  const { data: ownership } = await supabase
-    .from("wedding_coowners")
-    .select("wedding_id")
-    .eq("user_id", user.id)
-    .eq("wedding_id", weddingId)
-    .maybeSingle()
-
-  if (!ownership) return { error: "FORBIDDEN" }
 
   const { data } = await supabase
     .from("rsvp_responses")
@@ -154,22 +124,10 @@ export async function exportGuestsCSV(weddingId: string): Promise<ActionResult<{
   const { userId: clerkUserId } = await auth()
   if (!clerkUserId) return { error: "UNAUTHORIZED" }
 
+  const authClient = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(authClient, weddingId))) return { error: "FORBIDDEN" }
+
   const supabase = createAdminClient()
-
-  const { data: user } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", clerkUserId)
-    .maybeSingle()
-  if (!user) return { error: "USER_NOT_FOUND" }
-
-  const { data: ownership } = await supabase
-    .from("wedding_coowners")
-    .select("wedding_id")
-    .eq("user_id", user.id)
-    .eq("wedding_id", weddingId)
-    .maybeSingle()
-  if (!ownership) return { error: "FORBIDDEN" }
 
   const { data } = await supabase
     .from("guests")
