@@ -8,6 +8,26 @@ import { revalidatePath } from "next/cache"
 import { getClientIp, checkRsvpRateLimit } from "@/lib/rate-limit"
 
 type ActionResult<T> = { data: T; error?: never } | { error: string; data?: never }
+type AdminClient = ReturnType<typeof createAdminClient>
+
+// Matching par email (SPECS-RSVP.md, incrément 1 : pas de détection de conflit).
+// citext sur guests.email/rsvp_responses.email → comparaison déjà insensible à la casse.
+// Pas de contrainte unique (wedding_id, email) : si plusieurs guests partagent un email
+// (ex. "M. et Mme Dupont"), on prend le plus ancien de façon déterministe (limitation connue).
+async function matchGuestForRsvp(supabase: AdminClient, weddingId: string, email: string) {
+  const { data: guests } = await supabase
+    .from("guests")
+    .select("id")
+    .eq("wedding_id", weddingId)
+    .eq("email", email)
+    .order("created_at", { ascending: true })
+    .limit(1)
+
+  const guest = guests?.[0] ?? null
+  return guest
+    ? { guestId: guest.id, status: "matched" as const }
+    : { guestId: null, status: "pending_validation" as const }
+}
 
 export async function submitRsvp(
   input: SubmitRsvpInput
@@ -35,10 +55,15 @@ export async function submitRsvp(
     return { error: "RSVP_NOT_AVAILABLE" }
   }
 
+  const match = email
+    ? await matchGuestForRsvp(supabase, weddingId, email)
+    : { guestId: null, status: "pending_validation" as const }
+
   const { data: response, error: dbError } = await supabase
     .from("rsvp_responses")
     .insert({
       wedding_id: weddingId,
+      guest_id: match.guestId,
       first_name: firstName,
       last_name: lastName,
       email: email || null,
@@ -46,6 +71,7 @@ export async function submitRsvp(
       guest_count: attending ? guestCount : 1,
       dietary: attending ? (dietary || null) : null,
       message: message || null,
+      status: match.status,
     })
     .select("id")
     .single()
@@ -87,16 +113,13 @@ export async function submitRsvp(
     }).catch((e) => console.error("[rsvp] couple notif:", e))
   }
 
-  // Sync rsvp_status sur le guest correspondant (si email connu)
-  if (email) {
-    supabase
+  // rsvp_status mis à jour seulement si matché (pas en pending_validation)
+  if (match.status === "matched" && match.guestId) {
+    const { error: syncError } = await supabase
       .from("guests")
       .update({ rsvp_status: attending ? "accepted" : "declined" })
-      .eq("wedding_id", weddingId)
-      .eq("email", email)
-      .then(({ error: e }) => {
-        if (e) console.error("[submitRsvp] guest sync:", e.message)
-      })
+      .eq("id", match.guestId)
+    if (syncError) console.error("[submitRsvp] guest sync:", syncError.message)
   }
 
   revalidatePath("/dashboard/invites")
