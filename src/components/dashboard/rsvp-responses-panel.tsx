@@ -309,6 +309,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
                     <TableHead>Invité</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Réponse</TableHead>
+                    <TableHead>Nb</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Reçue le</TableHead>
                   </TableRow>
@@ -319,6 +320,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
                       <TableCell className="font-medium">{guestName(r)}</TableCell>
                       <TableCell className="text-muted-foreground">{r.email ?? "—"}</TableCell>
                       <TableCell>{r.attending ? "Présent" : "Absent"}</TableCell>
+                      <TableCell>{r.attending ? r.guest_count : "—"}</TableCell>
                       <TableCell>
                         <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE[r.status]}`}>
                           {RESPONSE_STATUS_LABELS[r.status]}
