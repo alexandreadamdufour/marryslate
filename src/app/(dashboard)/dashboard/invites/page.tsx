@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getMyWedding } from "@/queries/wedding"
 import { getGuestsByWedding } from "@/queries/guests"
-import { GuestEditor } from "@/components/dashboard/guest-editor"
+import { getRsvpResponsesByWedding } from "@/queries/rsvp"
+import { InvitesTabs } from "@/components/dashboard/invites-tabs"
 import { RsvpToggle } from "@/components/dashboard/rsvp-toggle"
 
 export const metadata: Metadata = { title: "Invités" }
@@ -11,7 +12,10 @@ export default async function InvitesPage() {
   const wedding = await getMyWedding()
   if (!wedding) notFound()
 
-  const guests = await getGuestsByWedding(wedding.id)
+  const [guests, rsvpData] = await Promise.all([
+    getGuestsByWedding(wedding.id),
+    getRsvpResponsesByWedding(wedding.id),
+  ])
 
   return (
     <div className="space-y-6">
@@ -24,7 +28,7 @@ export default async function InvitesPage() {
         </div>
         <RsvpToggle weddingId={wedding.id} initialEnabled={wedding.rsvp_enabled} />
       </div>
-      <GuestEditor initialGuests={guests} weddingId={wedding.id} />
+      <InvitesTabs weddingId={wedding.id} guests={guests} rsvpData={rsvpData} />
     </div>
   )
 }
