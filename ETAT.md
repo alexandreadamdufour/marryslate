@@ -24,11 +24,18 @@
 
 ---
 
+## ✅ Résolu — RSVP unification incrément 1 (matching) — 1er juillet 2026
+
+- **RSVP unification incrément 1 (matching)** — migration A (`guest_id` + `status` + policy UPDATE, `20260701040000`) appliquée et versionnée ; `submitRsvp` matche par email → `matched`/`pending_validation` + sync `guests.rsvp_status`. Testé en prod : match OK (`matched` + `accepted`) ET non-match OK (`pending_validation`). Insensible à la casse (`citext`), robuste au doublon email (`limit 1`).
+- **CLAUDE.md §14 assoupli** : commit direct sur `main` autorisé en solo (à condition d'être atomique, bien nommé, testé avant push). Passage en flux PR dès qu'un contributeur rejoint le projet ou qu'une CI bloquante est en place.
+
+---
+
 ## ⏳ Pending (prochaine session)
 
 | Item | Notes |
 |---|---|
-| **Affichage RSVP dashboard** | `getRsvpResponsesByWedding` existe mais n'est jamais appelée, aucun composant. Le couple ne voit pas les réponses du formulaire public. À construire ou fusionner `rsvp_responses` + `guests`. **PRIORITAIRE avant beta.** |
+| **RSVP incrément 2 (conflit) + vue dashboard** | Incrément 2 : détection de conflit (divergence avec la saisie couple + double réponse même email) — à cadrer précisément avant build. PUIS étape dashboard : vue file de validation (`pending_validation`) + vue conflits (`conflict`). Specs dans SPECS-RSVP.md. |
 | **Test paiement réel end-to-end** | PRÉREQUIS : vérifier le domaine Resend d'abord (sinon l'email de reçu cassera). Puis : `payment_intent.succeeded` → contribution → email + notif couple. Nécessite couple avec Stripe connecté + KYC validé |
 | **Test URL publique `/m/slug`** | ISR, cookie access gate, + chevauchement padding URL `marryslate.com/m/` (cosmétique) |
 | **5 couples beta** | Exit Club, Réseau Entreprendre, entourage |
