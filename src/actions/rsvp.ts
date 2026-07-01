@@ -1,14 +1,21 @@
 "use server"
 
+import { z } from "zod"
 import { headers } from "next/headers"
+import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
+import { assertWeddingCoowner } from "@/lib/auth/assert-coowner"
 import { submitRsvpSchema, type SubmitRsvpInput } from "@/lib/validators/rsvp"
 import { sendRsvpConfirmationToGuest, sendRsvpNotifToCouple } from "@/lib/resend/send"
 import { revalidatePath } from "next/cache"
 import { getClientIp, checkRsvpRateLimit } from "@/lib/rate-limit"
+import { logDbError } from "@/lib/supabase/log-db-error"
 
 type ActionResult<T> = { data: T; error?: never } | { error: string; data?: never }
 type AdminClient = ReturnType<typeof createAdminClient>
+
+const uuidSchema = z.string().uuid()
 
 // Matching par email (SPECS-RSVP.md, incrément 1 : pas de détection de conflit).
 // citext sur guests.email/rsvp_responses.email → comparaison déjà insensible à la casse.
@@ -121,4 +128,152 @@ export async function submitRsvp(
   revalidatePath("/dashboard/invites")
 
   return { data: { id: response.id } }
+}
+
+// Les 3 actions ci-dessous gèrent la file de validation dashboard (SPECS-RSVP.md,
+// incrément 1 : rattacher/créer/rejeter une réponse pending_validation).
+// Le check ownership lit response/guest via le client Clerk-scopé (RLS filtre déjà
+// les weddings non possédés) puis appelle explicitement assertWeddingCoowner par
+// cohérence avec le reste du code (défense en profondeur). Les mutations passent
+// ensuite par service_role, comme le reste des Server Actions RSVP/guests.
+
+export async function linkRsvpResponseToGuest(
+  responseId: string,
+  guestId: string
+): Promise<ActionResult<{ id: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  if (!uuidSchema.safeParse(responseId).success || !uuidSchema.safeParse(guestId).success) {
+    return { error: "INVALID_INPUT" }
+  }
+
+  const authClient = await createClerkSupabaseClient()
+
+  const { data: response } = await authClient
+    .from("rsvp_responses")
+    .select("id, wedding_id, attending, status")
+    .eq("id", responseId)
+    .maybeSingle()
+  if (!response) return { error: "FORBIDDEN" }
+
+  const { data: guest } = await authClient
+    .from("guests")
+    .select("id, wedding_id")
+    .eq("id", guestId)
+    .maybeSingle()
+  if (!guest) return { error: "FORBIDDEN" }
+
+  if (response.wedding_id !== guest.wedding_id) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(authClient, response.wedding_id))) return { error: "FORBIDDEN" }
+  if (response.status !== "pending_validation") return { error: "INVALID_STATE" }
+
+  const admin = createAdminClient()
+
+  const { error: responseError } = await admin
+    .from("rsvp_responses")
+    .update({ guest_id: guestId, status: "matched" })
+    .eq("id", responseId)
+  if (responseError) {
+    logDbError("linkRsvpResponseToGuest:response", responseError)
+    return { error: "DB_ERROR" }
+  }
+
+  const { error: guestError } = await admin
+    .from("guests")
+    .update({ rsvp_status: response.attending ? "accepted" : "declined" })
+    .eq("id", guestId)
+  if (guestError) {
+    logDbError("linkRsvpResponseToGuest:guest", guestError)
+    return { error: "DB_ERROR" }
+  }
+
+  revalidatePath("/dashboard/invites")
+  return { data: { id: responseId } }
+}
+
+export async function createGuestFromRsvpResponse(
+  responseId: string
+): Promise<ActionResult<{ id: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  if (!uuidSchema.safeParse(responseId).success) return { error: "INVALID_INPUT" }
+
+  const authClient = await createClerkSupabaseClient()
+
+  const { data: response } = await authClient
+    .from("rsvp_responses")
+    .select("id, wedding_id, first_name, last_name, email, attending, status")
+    .eq("id", responseId)
+    .maybeSingle()
+  if (!response) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(authClient, response.wedding_id))) return { error: "FORBIDDEN" }
+  if (response.status !== "pending_validation") return { error: "INVALID_STATE" }
+
+  const admin = createAdminClient()
+
+  const { data: guest, error: guestError } = await admin
+    .from("guests")
+    .insert({
+      wedding_id: response.wedding_id,
+      first_name: response.first_name,
+      last_name: response.last_name,
+      email: response.email,
+      side: "both",
+      rsvp_status: response.attending ? "accepted" : "declined",
+    })
+    .select("id")
+    .single()
+
+  if (guestError || !guest) {
+    logDbError("createGuestFromRsvpResponse:guest", guestError)
+    return { error: "DB_ERROR" }
+  }
+
+  const { error: responseError } = await admin
+    .from("rsvp_responses")
+    .update({ guest_id: guest.id, status: "matched" })
+    .eq("id", responseId)
+  if (responseError) {
+    logDbError("createGuestFromRsvpResponse:response", responseError)
+    return { error: "DB_ERROR" }
+  }
+
+  revalidatePath("/dashboard/invites")
+  return { data: { id: responseId } }
+}
+
+export async function rejectRsvpResponse(
+  responseId: string
+): Promise<ActionResult<{ id: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  if (!uuidSchema.safeParse(responseId).success) return { error: "INVALID_INPUT" }
+
+  const authClient = await createClerkSupabaseClient()
+
+  const { data: response } = await authClient
+    .from("rsvp_responses")
+    .select("id, wedding_id, status")
+    .eq("id", responseId)
+    .maybeSingle()
+  if (!response) return { error: "FORBIDDEN" }
+  if (!(await assertWeddingCoowner(authClient, response.wedding_id))) return { error: "FORBIDDEN" }
+  if (response.status !== "pending_validation") return { error: "INVALID_STATE" }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from("rsvp_responses")
+    .update({ status: "rejected" })
+    .eq("id", responseId)
+
+  if (error) {
+    logDbError("rejectRsvpResponse", error)
+    return { error: "DB_ERROR" }
+  }
+
+  revalidatePath("/dashboard/invites")
+  return { data: { id: responseId } }
 }
