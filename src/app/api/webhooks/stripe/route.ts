@@ -3,10 +3,11 @@ import type Stripe from "stripe"
 import { stripe } from "@/lib/stripe/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { sendContributionReceipt, sendCoupleContributionNotif, sendPayoutNotif } from "@/lib/resend/send"
+import { env } from "@/lib/env"
 
 export async function POST(req: Request) {
-  const platformSecret = process.env.STRIPE_WEBHOOK_SECRET
-  const connectSecret  = process.env.STRIPE_WEBHOOK_SECRET_CONNECT
+  const platformSecret = env.STRIPE_WEBHOOK_SECRET
+  const connectSecret  = env.STRIPE_WEBHOOK_SECRET_CONNECT
 
   const body = await req.text()
   const headerPayload = await headers()

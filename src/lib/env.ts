@@ -15,6 +15,7 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  STRIPE_WEBHOOK_SECRET_CONNECT: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
   // Upstash Redis — rate limiting (optionnel en local, requis en production)
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
