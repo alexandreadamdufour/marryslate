@@ -31,6 +31,7 @@ const VALID_RSVP = {
   weddingId:  WEDDING_ID,
   firstName:  "Marie",
   lastName:   "Dupont",
+  email:      "marie.dupont@test.com",
   attending:  true,
   guestCount: 2,
 }
