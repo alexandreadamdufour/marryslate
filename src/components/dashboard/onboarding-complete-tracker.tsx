@@ -10,6 +10,12 @@ import { sendGAEvent } from "@next/third-parties/google"
 export function OnboardingCompleteTracker() {
   useEffect(() => {
     sendGAEvent("event", "sign_up")
+
+    const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID
+    const label = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL
+    if (adsId && label) {
+      sendGAEvent("event", "conversion", { send_to: `${adsId}/${label}` })
+    }
   }, [])
 
   return null

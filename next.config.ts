@@ -45,6 +45,8 @@ const CSP = [
     "https://www.google-analytics.com",
     "https://www.googletagmanager.com",
     "https://www.facebook.com",
+    "https://www.googleadservices.com",
+    "https://googleads.g.doubleclick.net",
   ].join(" "),
   "font-src 'self' data: https://client.crisp.chat",
   [
@@ -64,6 +66,8 @@ const CSP = [
     "https://region1.google-analytics.com",
     "https://*.sentry.io",
     "https://www.facebook.com",
+    "https://www.googleadservices.com",
+    "https://googleads.g.doubleclick.net",
   ].join(" "),
   [
     "frame-src",

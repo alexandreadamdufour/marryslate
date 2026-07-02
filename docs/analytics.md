@@ -41,3 +41,14 @@ Différence de sémantique importante avec GA4 : `Purchase` fire sur **chaque** 
 Nécessite `META_CAPI_ACCESS_TOKEN` (Events Manager → Conversions API → Generate Access Token) — **vrai secret**, contrairement au Pixel ID, jamais `NEXT_PUBLIC_`. No-op silencieux si `NEXT_PUBLIC_META_PIXEL_ID` ou `META_CAPI_ACCESS_TOKEN` absent.
 
 CSP (`next.config.ts`) : `connect.facebook.net` (script-src), `www.facebook.com` (connect-src + img-src, pixel de fallback `<noscript>`).
+
+## Google Ads Conversion Tracking
+
+Pas de second script gtag.js : `@next/third-parties/google`'s `<GoogleAnalytics>` expose `gtag`/`dataLayer` globalement (vérifié dans le code source du package), donc `sendGAEvent("config", adsId)` fonctionne comme `gtag('config', adsId)` sans rien charger de plus.
+
+- `src/components/shared/google-ads-config.tsx` — monté une fois dans `layout.tsx`, sous la gate `NEXT_PUBLIC_GA_ID` (dépend du bootstrap gtag.js déjà chargé par `<GoogleAnalytics>`) **et** `NEXT_PUBLIC_GOOGLE_ADS_ID`. `useEffect` avec deps `[adsId]` — une seule fois, pas à chaque navigation (contrairement à `GoogleAnalyticsPageview`) : enregistre le tag Ads sitewide pour bâtir l'audience remarketing même sans conversion active.
+- Event `conversion` : déclenché dans `onboarding-complete-tracker.tsx` (même point d'entrée que `sign_up`, réutilisé plutôt que dupliqué) si `NEXT_PUBLIC_GOOGLE_ADS_ID` **et** `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` sont tous les deux présents — `send_to: "${adsId}/${label}"`.
+
+Env optionnels, publics (mêmes raisons que `NEXT_PUBLIC_GA_ID`/`NEXT_PUBLIC_BOOKING_AID` — apparaissent en clair dans les appels réseau du navigateur de toute façon).
+
+CSP : `www.googleadservices.com` + `googleads.g.doubleclick.net` (connect-src + img-src) — comportement standard gtag.js pour les conversions.
