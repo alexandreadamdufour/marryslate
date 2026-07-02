@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation"
-import type { Metadata } from "next"
+import type { Metadata, Route } from "next"
 import Image from "next/image"
+import { HandCoins } from "lucide-react"
 import { getMyWedding } from "@/queries/wedding"
 import { getFreeContributionsByWedding, getFreeContributionTotals } from "@/queries/contributions"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export const metadata: Metadata = { title: "Cagnotte libre" }
 
@@ -83,9 +85,12 @@ export default async function CagnottePage() {
 
       {/* Liste */}
       {contributions.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          Aucune contribution libre pour l&apos;instant. Le lien de contribution de votre site accepte déjà les dons libres !
-        </p>
+        <EmptyState
+          icon={HandCoins}
+          title="Aucune contribution libre pour l'instant."
+          description="Le lien de contribution de votre site accepte déjà les dons libres."
+          action={{ label: "Voir mon site", href: `/m/${wedding.slug}` as Route }}
+        />
       ) : (
         <div className="space-y-3">
           {contributions.map((c) => {

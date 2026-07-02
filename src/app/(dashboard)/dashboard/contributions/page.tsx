@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation"
-import type { Metadata } from "next"
+import type { Metadata, Route } from "next"
 import Image from "next/image"
+import { HeartHandshake } from "lucide-react"
 import { getMyWedding } from "@/queries/wedding"
 import { getContributionsByWedding, getWeddingTotals } from "@/queries/contributions"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ExportCsvButton } from "@/components/dashboard/export-csv-button"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export const metadata: Metadata = { title: "Contributions" }
 
@@ -89,9 +91,12 @@ export default async function ContributionsPage() {
 
       {/* Liste */}
       {contributions.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          Aucune contribution pour l&apos;instant. Partagez le lien de votre site !
-        </p>
+        <EmptyState
+          icon={HeartHandshake}
+          title="Aucune contribution pour l'instant."
+          description="Partagez le lien de votre site pour recevoir vos premières contributions."
+          action={{ label: "Voir mon site", href: `/m/${wedding.slug}` as Route }}
+        />
       ) : (
         <div className="space-y-3">
           {contributions.map((c) => {

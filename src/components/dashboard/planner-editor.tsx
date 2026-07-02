@@ -4,11 +4,12 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { format, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
-import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react"
+import { Plus, Pencil, Trash2, CheckCircle2, ListChecks } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   Select,
   SelectContent,
@@ -101,50 +102,65 @@ export function PlannerEditor({ initialItems, weddingId }: Props) {
     ...Array.from(new Set(items.filter((i) => !(PLANNER_CATEGORIES as readonly string[]).includes(i.category)).map((i) => i.category))),
   ]
 
+  if (total === 0 && addingToCategory === null) {
+    return (
+      <EmptyState
+        icon={ListChecks}
+        title="Aucune tâche pour l'instant."
+        description="Ajoutez vos premières tâches pour suivre l'avancement de vos préparatifs."
+        action={{ label: "Nouvelle tâche", onClick: () => setAddingToCategory("custom") }}
+      />
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {/* Progress */}
-      <div className="rounded-xl border bg-card p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium">{completed}/{total} tâches complétées</span>
-          <span className="text-sm font-semibold text-primary">{progress}%</span>
-        </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-2 rounded-full bg-primary transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        {progress === 100 && total > 0 && (
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-primary">
-            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-            Toutes les tâches sont complétées !
+      {total > 0 && (
+        <>
+          {/* Progress */}
+          <div className="rounded-xl border bg-card p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium">{completed}/{total} tâches complétées</span>
+              <span className="text-sm font-semibold text-primary">{progress}%</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-2 rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            {progress === 100 && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-primary">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                Toutes les tâches sont complétées !
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Filter + add custom */}
-      <div className="flex items-center justify-between">
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="h-8 w-40 text-xs">
-            <SelectValue placeholder="Toutes les priorités" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-xs">Toutes les priorités</SelectItem>
-            {(["high", "medium", "low"] as const).map((p) => (
-              <SelectItem key={p} value={p} className="text-xs">{PRIORITY_LABELS[p]}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => { setAddingToCategory("custom"); setEditingId(null) }}
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" />
-          Tâche personnalisée
-        </Button>
-      </div>
+          {/* Filter + add custom */}
+          <div className="flex items-center justify-between">
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="h-8 w-40 text-xs">
+                <SelectValue placeholder="Toutes les priorités" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-xs">Toutes les priorités</SelectItem>
+                {(["high", "medium", "low"] as const).map((p) => (
+                  <SelectItem key={p} value={p} className="text-xs">{PRIORITY_LABELS[p]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setAddingToCategory("custom"); setEditingId(null) }}
+            >
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              Tâche personnalisée
+            </Button>
+          </div>
+        </>
+      )}
 
       {addingToCategory === "custom" && (
         <PlannerItemForm
@@ -155,7 +171,7 @@ export function PlannerEditor({ initialItems, weddingId }: Props) {
       )}
 
       {/* Category sections */}
-      {allCategories.map((category) => {
+      {total > 0 && allCategories.map((category) => {
         const catItems = filtered.filter((i) => i.category === category)
         const catCompleted = items.filter((i) => i.category === category && i.is_completed).length
         const catTotal = items.filter((i) => i.category === category).length

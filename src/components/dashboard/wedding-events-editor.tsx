@@ -29,6 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import { WeddingEventForm } from "./wedding-event-form"
 import { deleteWeddingEvent, reorderWeddingEvents } from "@/actions/events"
 import type { WeddingEvent } from "@/queries/events"
@@ -193,12 +194,12 @@ export function WeddingEventsEditor({ initialEvents, weddingId }: Props) {
   return (
     <div className="space-y-4">
       {events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
-          <p className="text-muted-foreground">Aucun événement pour l&apos;instant.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ajoutez la cérémonie, le cocktail, le dîner…
-          </p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="Aucun événement pour l'instant."
+          description="Ajoutez la cérémonie, le cocktail, le dîner…"
+          action={{ label: "Ajouter un événement", onClick: () => setAddOpen(true) }}
+        />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={events.map((e) => e.id)} strategy={verticalListSortingStrategy}>

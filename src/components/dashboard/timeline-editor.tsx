@@ -19,7 +19,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react"
+import { CalendarDays, GripVertical, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import { TimelineStepForm } from "./timeline-step-form"
 import { deleteTimelineStep, reorderTimeline } from "@/actions/timeline"
 import type { TimelineStep } from "@/queries/timeline"
@@ -160,12 +161,12 @@ export function TimelineEditor({ initialSteps, weddingId }: TimelineEditorProps)
   return (
     <div className="space-y-4">
       {steps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
-          <p className="text-muted-foreground">Aucune étape pour l&apos;instant.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ajoutez la première étape de votre journée.
-          </p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="Aucune étape pour l'instant."
+          description="Ajoutez la première étape de votre journée."
+          action={{ label: "Ajouter une étape", onClick: () => setAddOpen(true) }}
+        />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
