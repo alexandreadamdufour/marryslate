@@ -3,6 +3,7 @@ import { Eye } from "lucide-react"
 import { getMyWedding } from "@/queries/wedding"
 import { getTimelineSteps } from "@/queries/timeline"
 import { WeddingSettingsForm } from "@/components/dashboard/wedding-settings-form"
+import { CoverImageUploader } from "@/components/dashboard/cover-image-uploader"
 import { VisualForm } from "@/components/dashboard/visual-form"
 import { StoryForm } from "@/components/dashboard/story-form"
 import { PracticalInfoForm } from "@/components/dashboard/practical-info-form"
@@ -45,6 +46,18 @@ export default async function SitePage() {
             </span>
           </div>
         </div>
+
+        <div id="cover" className="scroll-mt-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold">Photo de couverture</h2>
+            <p className="text-sm text-muted-foreground">
+              La première image que vos invités verront en arrivant sur votre site.
+            </p>
+          </div>
+          <CoverImageUploader wedding={wedding} />
+        </div>
+
+        <Separator />
 
         <WeddingSettingsForm wedding={wedding} />
 
