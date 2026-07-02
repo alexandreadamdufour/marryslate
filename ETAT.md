@@ -50,6 +50,18 @@
 
 ---
 
+## ⚖️ Legal / Compliance à démarrer
+
+Aucun code — à lancer côté juridique/administratif avant un vrai lancement grand public. Statut : pas commencé au 2 juillet 2026.
+
+| Item | Notes |
+|---|---|
+| **CGV/CGU spécifiques cagnotte-mariage** | Rédaction par un cabinet spécialisé (ex. Lexing, Alan Walter, ou équivalent). Budget estimé 800-1500€ HT, délai ~2 semaines. Les CGU/CGV actuelles (`src/app/(marketing)/cgu`, `cgv`) sont génériques, pas taillées pour le modèle cagnotte/collecte de fonds tiers. |
+| **RGPD** | Registre des traitements à formaliser + DPA (Data Processing Agreement) à collecter/signer avec chaque sous-traitant : Supabase, Clerk, Stripe, Resend, Sentry. Aucun de ces DPA n'est confirmé signé/archivé à ce jour. |
+| **Agrément IFP/ORIAS (ACPR)** | Marryslate encaisse et reverse des fonds de tiers (invités → couple) — statut potentiel d'Intermédiaire en Financement Participatif ou établissement de paiement selon le montage exact avec Stripe Connect. Agrément ACPR probablement obligatoire avant un lancement grand public (au-delà du cercle beta fermé). Démarches estimées 6-12 mois, budget 5-10k€. **Point bloquant pour la sortie de beta**, à initier tôt vu les délais. |
+
+---
+
 ## ⏳ Pending (prochaine session)
 
 | Item | Notes |
