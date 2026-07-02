@@ -49,7 +49,11 @@ export function getAllPosts(): BlogPostMeta[] {
   return posts.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
 }
 
+const SLUG_PATTERN = /^[a-z0-9-]+$/
+
 export function getPostBySlug(slug: string): BlogPost | null {
+  if (!SLUG_PATTERN.test(slug)) return null
+
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`)
   if (!fs.existsSync(filePath)) return null
 

@@ -140,7 +140,13 @@ export default async function WeddingPublicPage({ params }: Props) {
     <div className={themeClass} style={weddingStyle}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+        // '<' échappé en < : partner1/2_first_name sont du texte libre non
+        // restreint (Zod max(50) sans regex) et pourraient casser la balise
+        // </script> si JSON.stringify() n'était pas échappé. Sémantiquement
+        // neutre pour un parseur JSON-LD (Google le décode normalement).
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(schemaOrg).replace(/</g, "\\u003c"),
+        }}
       />
       <WeddingHero wedding={wedding} />
 
