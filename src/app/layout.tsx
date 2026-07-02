@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import {
-  Fraunces,
   Inter,
   Playfair_Display,
   Cormorant_Garamond,
@@ -8,6 +7,7 @@ import {
   Montserrat,
   Lora,
 } from "next/font/google"
+import localFont from "next/font/local"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
 import { CookieBanner } from "@/components/shared/cookie-banner"
@@ -20,7 +20,20 @@ import { env } from "@/lib/env"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" })
+// Self-hosted (next/font/local) plutôt que next/font/google : évite la
+// requête réseau vers fonts.gstatic.com au chargement, sert le WOFF2 depuis
+// le même domaine. Fichiers dans src/fonts/, récupérés depuis la CSS2 API
+// Google Fonts (2 requêtes séparées par poids — une requête combinée
+// wght@400;600 renvoyait la même URL pour les deux poids, bug silencieux
+// évité en vérifiant avant de committer).
+const fraunces = localFont({
+  src: [
+    { path: "../fonts/fraunces-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/fraunces-600.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-fraunces",
+  display: "swap",
+})
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
