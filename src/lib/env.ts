@@ -15,6 +15,11 @@ const envSchema = z.object({
   // Affiliate ID Booking Partner Network — pas un secret (apparaît en clair
   // dans les URLs rendues côté public), no-op tant qu'absent.
   NEXT_PUBLIC_BOOKING_AID: z.string().optional(),
+  // Meta Pixel ID — pas un secret (visible dans le HTML/network tab).
+  NEXT_PUBLIC_META_PIXEL_ID: z.string().optional(),
+  // Google Ads — pas des secrets non plus (mêmes raisons que GA_ID/AID).
+  NEXT_PUBLIC_GOOGLE_ADS_ID: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL: z.string().optional(),
   // Private
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_WEBHOOK_SECRET: z.string().min(1),
@@ -29,6 +34,10 @@ const envSchema = z.object({
   // propriété GA4. Généré dans GA4 Admin → Data Streams → flux web →
   // Measurement Protocol API secrets.
   GA_MEASUREMENT_PROTOCOL_API_SECRET: z.string().optional(),
+  // Meta Conversions API — VRAI secret (permet d'injecter des events
+  // arbitraires dans le compte pub Meta). Généré dans Events Manager →
+  // Conversions API → Generate Access Token.
+  META_CAPI_ACCESS_TOKEN: z.string().optional(),
   // Build-time uniquement (upload source maps) — lu directement via
   // process.env dans next.config.ts, jamais par l'app runtime. Présent ici
   // pour documentation/complétude avec .env.local.example.

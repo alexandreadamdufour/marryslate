@@ -14,6 +14,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import { CrispChat } from "@/components/crisp-chat"
 import { GoogleAnalyticsPageview } from "@/components/shared/google-analytics-pageview"
+import { MetaPixel } from "@/components/shared/meta-pixel"
 import { env } from "@/lib/env"
 import "./globals.css"
 
@@ -80,6 +81,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
               <GoogleAnalyticsPageview />
             </>
+          )}
+          {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
+            <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
           )}
         </body>
       </html>

@@ -30,6 +30,7 @@ const CSP = [
     "https://client.crisp.chat",
     "https://www.googletagmanager.com",
     "https://www.google-analytics.com",
+    "https://connect.facebook.net",
     "https://*.clerk.accounts.dev",
     "https://clerk.marryslate.com",
     "https://challenges.cloudflare.com",
@@ -43,6 +44,7 @@ const CSP = [
     "https://client.crisp.chat",
     "https://www.google-analytics.com",
     "https://www.googletagmanager.com",
+    "https://www.facebook.com",
   ].join(" "),
   "font-src 'self' data: https://client.crisp.chat",
   [
@@ -61,6 +63,7 @@ const CSP = [
     "https://analytics.google.com",
     "https://region1.google-analytics.com",
     "https://*.sentry.io",
+    "https://www.facebook.com",
   ].join(" "),
   [
     "frame-src",

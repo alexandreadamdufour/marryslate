@@ -29,3 +29,15 @@ Deux options considérées :
 Client (Server/Client Component avec accès navigateur) : `sendGAEvent("event", "nom_event", { params })` depuis `@next/third-parties/google`.
 
 Serveur (webhook, cron, Server Action sans contexte navigateur) : `sendGA4ServerEvent("nom_event", { params })` depuis `@/lib/ga4-server-event`.
+
+## Meta Pixel + Conversions API (CAPI)
+
+`src/components/shared/meta-pixel.tsx` — snippet standard Meta Pixel (`next/script`, pas de support `@next/third-parties` pour Meta). Injecté dans `layout.tsx` sous sa propre gate `NEXT_PUBLIC_META_PIXEL_ID`, indépendante de GA4. Fire `PageView` automatiquement au chargement de chaque page.
+
+**Event serveur `Purchase`** : `src/lib/meta-capi-event.ts` (`sendMetaCapiEvent`), calqué sur `sendGA4ServerEvent` — même limitation (pas d'IP/user-agent du visiteur d'origine disponible dans un webhook server-to-server, match quality réduite). Câblé dans le webhook Stripe (`payment_intent.succeeded`), juste à côté de `first_contribution_received`.
+
+Différence de sémantique importante avec GA4 : `Purchase` fire sur **chaque** contribution réussie, pas seulement la première. `first_contribution_received` (GA4) est un jalon de funnel (one-shot) ; `Purchase` (Meta/Ads) sert à l'optimisation publicitaire (ROAS) et doit refléter toute conversion. Valeur envoyée : `gross_amount` (montant payé par l'invité), pas `net_amount` (après frais Stripe/plateforme) — c'est ce que les plateformes pub utilisent pour évaluer la valeur perçue.
+
+Nécessite `META_CAPI_ACCESS_TOKEN` (Events Manager → Conversions API → Generate Access Token) — **vrai secret**, contrairement au Pixel ID, jamais `NEXT_PUBLIC_`. No-op silencieux si `NEXT_PUBLIC_META_PIXEL_ID` ou `META_CAPI_ACCESS_TOKEN` absent.
+
+CSP (`next.config.ts`) : `connect.facebook.net` (script-src), `www.facebook.com` (connect-src + img-src, pixel de fallback `<noscript>`).

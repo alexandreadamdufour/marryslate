@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { sendContributionReceipt, sendCoupleContributionNotif, sendPayoutNotif } from "@/lib/resend/send"
 import { sendGA4ServerEvent } from "@/lib/ga4-server-event"
+import { sendMetaCapiEvent } from "@/lib/meta-capi-event"
 import { env } from "@/lib/env"
 
 export async function POST(req: Request) {
@@ -66,6 +67,16 @@ export async function POST(req: Request) {
           wedding_id: existing.wedding_id,
         })
       }
+
+      // Purchase Meta : sur CHAQUE contribution réussie, pas juste la
+      // première — sémantique différente de first_contribution_received
+      // (jalon funnel GA4) : Purchase sert à l'optimisation publicitaire
+      // (ROAS), doit refléter toute conversion. Valeur = gross_amount
+      // (montant payé par l'invité, pas le net après frais).
+      await sendMetaCapiEvent("Purchase", {
+        value: Number(existing.gross_amount),
+        currency: "EUR",
+      })
 
       // Recalcule current_amount depuis zéro (idempotent, cohérent avec le trigger DB)
       const giftId = existing.gift_id ?? pi.metadata?.gift_id ?? null
