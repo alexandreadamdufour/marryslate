@@ -13,6 +13,7 @@ import { Toaster } from "sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import { CrispChat } from "@/components/crisp-chat"
+import { GoogleAnalyticsPageview } from "@/components/shared/google-analytics-pageview"
 import { env } from "@/lib/env"
 import "./globals.css"
 
@@ -51,6 +52,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: APP_URL,
   },
+  // Hardcodé volontairement : tag public de vérification GSC, non sensible.
+  // Migration vers env non nécessaire, éviterait juste un round-trip Vercel pour zéro gain sécurité.
   verification: {
     google: "TXAJfXY2wm227MhZfAWaA3MXznxr2rIj73A-0g17Q5o",
   },
@@ -73,7 +76,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CookieBanner />
           <CrispChat />
           {process.env.NEXT_PUBLIC_GA_ID && (
-            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+            <>
+              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+              <GoogleAnalyticsPageview />
+            </>
           )}
         </body>
       </html>
