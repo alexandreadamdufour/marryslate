@@ -36,7 +36,7 @@ export default async function ContributionSuccessPage({ params, searchParams }: 
       <div className="mx-auto max-w-md text-center">
         {succeeded ? (
           <>
-            <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-500" />
+            <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-500" aria-hidden="true" />
             <h1 className="mb-3 text-3xl">Merci{guestName ? `, ${guestName}` : ""} !</h1>
             <p className="mb-8 text-muted-foreground">
               Votre contribution a bien été reçue. Le couple vous remercie chaleureusement.
@@ -45,7 +45,7 @@ export default async function ContributionSuccessPage({ params, searchParams }: 
           </>
         ) : (
           <>
-            <XCircle className="mx-auto mb-6 h-16 w-16 text-destructive" />
+            <XCircle className="mx-auto mb-6 h-16 w-16 text-destructive" aria-hidden="true" />
             <h1 className="mb-3 text-3xl">Paiement non abouti</h1>
             <p className="mb-8 text-muted-foreground">
               Votre paiement n&apos;a pas pu être traité. Aucun montant n&apos;a été débité.
