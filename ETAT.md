@@ -8,6 +8,7 @@
 - **42501 createWedding** : cause = policy SELECT owner manquante. Le `.insert().select()` fait un `INSERT...RETURNING`, PostgREST applique les policies SELECT sur la ligne retournée ; `weddings_select_published` (`is_published=false`) et `weddings_select_coowner` (table vide) échouaient → RETURNING refusé. Fix = policy `weddings_select_owner` `USING (owner_id = current_user_id())` (commit `6b41acb`). + fix token Clerk résolu une fois dans `createClerkSupabaseClient` (`ca9744c`). Debug nettoyé (`54fa25f`). Testé OK : "Votre site est prêt !"
 - **Rebrand passe 2** : `confidentialite/page.tsx` + `cgv/page.tsx` — plus aucune occurrence "Amora" dans les pages légales (commit `cb42d7e`).
 - **Secrets webhook Stripe** : `STRIPE_WEBHOOK_SECRET` et `STRIPE_WEBHOOK_SECRET_CONNECT` confirmés posés dans Vercel Production.
+- **GA4 + GSC déjà live** (jamais documenté avant ce jour, découvert le 2 juillet en croyant à tort qu'il fallait tout poser) : `NEXT_PUBLIC_GA_ID=G-2R1HR0WJR7` posé sur Vercel Production (confirmé via le HTML rendu de marryslate.com), tag de vérification Google Search Console hardcodé dans `src/app/layout.tsx` (`verification.google`, commit `37b4814`, 24 juin) — vérifié live également. Les deux fonctionnent déjà, ne pas repartir de zéro dessus.
 
 **App fonctionnelle de bout en bout : inscription Google → création de site.**
 
