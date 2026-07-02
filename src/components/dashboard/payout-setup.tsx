@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { setupStripeConnect, requestPayout } from "@/actions/withdrawals"
-import { sendGAEvent } from "@next/third-parties/google"
+import { sendGAEvent } from "@/lib/ga-client-event"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -29,7 +29,12 @@ interface PayoutSetupProps {
   isFirstWithdrawal: boolean
 }
 
-export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirstWithdrawal }: PayoutSetupProps) {
+export function PayoutSetup({
+  hasStripeAccount,
+  isActive,
+  availableEuros,
+  isFirstWithdrawal,
+}: PayoutSetupProps) {
   const [onboardingLoading, setOnboardingLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   // Token stable pour une intention de retrait donnée. Réinitialisé si montant changé ou après succès.
@@ -47,7 +52,8 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirs
       const connectErrors: Record<string, string> = {
         UNAUTHORIZED: "Session expirée, veuillez vous reconnecter.",
         USER_NOT_FOUND: "Votre compte est introuvable. Reconnectez-vous.",
-        MIGRATION_NOT_APPLIED: "La migration base de données n'a pas été appliquée. Exécutez pnpm supabase db push.",
+        MIGRATION_NOT_APPLIED:
+          "La migration base de données n'a pas été appliquée. Exécutez pnpm supabase db push.",
         DB_ERROR: "Erreur base de données. Vérifiez les logs serveur.",
         STRIPE_API_ERROR: "Erreur Stripe. Vérifiez la clé STRIPE_SECRET_KEY dans .env.local.",
       }
@@ -73,17 +79,25 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirs
         AMOUNT_TOO_LOW: "Montant minimum : 1 €.",
         STRIPE_NOT_CONFIGURED: "Compte bancaire non configuré.",
         UNAUTHORIZED: "Non autorisé.",
-        PAYOUT_ALREADY_PENDING: "Un retrait est déjà en cours de traitement. Attendez qu'il soit finalisé avant d'en initier un nouveau.",
+        PAYOUT_ALREADY_PENDING:
+          "Un retrait est déjà en cours de traitement. Attendez qu'il soit finalisé avant d'en initier un nouveau.",
         STRIPE_API_ERROR: "Erreur Stripe lors du retrait. Réessayez dans quelques instants.",
         INVALID_INPUT: "Montant invalide.",
-        PAYOUT_UNRECORDED: "Votre retrait a été effectué par Stripe mais n'a pas pu être enregistré dans notre système. Contactez le support en précisant l'heure et le montant — le retrait arrivera bien sur votre compte bancaire.",
+        PAYOUT_UNRECORDED:
+          "Votre retrait a été effectué par Stripe mais n'a pas pu être enregistré dans notre système. Contactez le support en précisant l'heure et le montant — le retrait arrivera bien sur votre compte bancaire.",
       }
-      setMessage({ type: "error", text: messages[result.error as string] ?? "Erreur lors du retrait." })
+      setMessage({
+        type: "error",
+        text: messages[result.error as string] ?? "Erreur lors du retrait.",
+      })
       return
     }
     idempotencyTokenRef.current = null
     if (isFirstWithdrawal) sendGAEvent("event", "first_withdrawal_initiated")
-    setMessage({ type: "success", text: `Retrait de ${values.amountEuros} € initié. Il apparaîtra sous 1 à 3 jours ouvrés.` })
+    setMessage({
+      type: "success",
+      text: `Retrait de ${values.amountEuros} € initié. Il apparaîtra sous 1 à 3 jours ouvrés.`,
+    })
     form.reset({ amountEuros: 0 })
   }
 
@@ -93,8 +107,8 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirs
       <div className="rounded-xl border bg-card p-6">
         <h2 className="mb-2 text-lg font-semibold">Configurer votre compte bancaire</h2>
         <p className="mb-6 text-sm text-muted-foreground">
-          Pour recevoir les fonds collectés, vous devez connecter un compte bancaire via Stripe.
-          La vérification d&apos;identité (KYC) est requise par la réglementation européenne.
+          Pour recevoir les fonds collectés, vous devez connecter un compte bancaire via Stripe. La
+          vérification d&apos;identité (KYC) est requise par la réglementation européenne.
         </p>
         {message?.type === "error" && (
           <Alert variant="destructive" className="mb-4">
@@ -114,8 +128,8 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirs
       <div className="rounded-xl border bg-card p-6">
         <h2 className="mb-2 text-lg font-semibold">Vérification en cours</h2>
         <p className="mb-6 text-sm text-muted-foreground">
-          Votre dossier KYC est en cours de vérification par Stripe. Vous recevrez un email
-          lorsque votre compte sera activé et que les retraits seront disponibles.
+          Votre dossier KYC est en cours de vérification par Stripe. Vous recevrez un email lorsque
+          votre compte sera activé et que les retraits seront disponibles.
         </p>
         <Button variant="outline" onClick={handleSetupConnect} disabled={onboardingLoading}>
           {onboardingLoading ? "Redirection…" : "Reprendre la vérification"}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { sendGAEvent } from "@next/third-parties/google"
+import { sendGAEvent } from "@/lib/ga-client-event"
 
 // Monté uniquement sur /onboarding/etape-4, atteinte seulement après un
 // createWedding réussi (redirect côté onboarding-step3-form.tsx) — la simple

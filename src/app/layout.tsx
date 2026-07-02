@@ -10,9 +10,9 @@ import {
 } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
-import { GoogleAnalytics } from "@next/third-parties/google"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import { CrispChat } from "@/components/crisp-chat"
+import { GoogleAnalyticsLazy } from "@/components/shared/google-analytics-lazy"
 import { GoogleAnalyticsPageview } from "@/components/shared/google-analytics-pageview"
 import { GoogleAdsConfig } from "@/components/shared/google-ads-config"
 import { MetaPixel } from "@/components/shared/meta-pixel"
@@ -104,7 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CrispChat />
           {process.env.NEXT_PUBLIC_GA_ID && (
             <>
-              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+              <GoogleAnalyticsLazy gaId={process.env.NEXT_PUBLIC_GA_ID} />
               <GoogleAnalyticsPageview />
               {process.env.NEXT_PUBLIC_GOOGLE_ADS_ID && (
                 <GoogleAdsConfig adsId={process.env.NEXT_PUBLIC_GOOGLE_ADS_ID} />

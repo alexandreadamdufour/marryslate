@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
-import { sendGAEvent } from "@next/third-parties/google"
+import { sendGAEvent } from "@/lib/ga-client-event"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -85,15 +85,8 @@ export function GiftListEditor({ initialGifts, weddingId }: GiftListEditorProps)
           </p>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={gifts.map((g) => g.id)}
-            strategy={verticalListSortingStrategy}
-          >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={gifts.map((g) => g.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-2">
               {gifts.map((gift) => (
                 <GiftCard key={gift.id} gift={gift} weddingId={weddingId} />

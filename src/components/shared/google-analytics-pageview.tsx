@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
-import { sendGAEvent } from "@next/third-parties/google"
+import { sendGAEvent } from "@/lib/ga-client-event"
 
 function PageviewTracker() {
   const pathname = usePathname()

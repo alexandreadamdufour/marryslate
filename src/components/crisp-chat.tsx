@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import Script from "next/script"
 
 declare global {
   interface Window {
@@ -10,18 +10,18 @@ declare global {
 }
 
 export function CrispChat() {
-  useEffect(() => {
-    const websiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID
-    if (!websiteId) return
+  const websiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID
+  if (!websiteId) return null
 
-    window.$crisp = []
-    window.CRISP_WEBSITE_ID = websiteId
-
-    const script = document.createElement("script")
-    script.src = "https://client.crisp.chat/l.js"
-    script.async = true
-    document.head.appendChild(script)
-  }, [])
-
-  return null
+  return (
+    <>
+      <Script id="crisp-init" strategy="lazyOnload">
+        {`
+          window.$crisp = [];
+          window.CRISP_WEBSITE_ID = "${websiteId}";
+        `}
+      </Script>
+      <Script id="crisp-loader" strategy="lazyOnload" src="https://client.crisp.chat/l.js" />
+    </>
+  )
 }
