@@ -40,3 +40,6 @@ next-env.d.ts
 
 # supabase CLI
 supabase/.temp
+
+# husky internals (régénéré par `pnpm install` via le script prepare)
+.husky/_
