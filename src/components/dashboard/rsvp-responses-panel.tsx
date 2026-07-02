@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { toast } from "sonner"
-import { Check, X as XIcon, UserPlus, Link2 } from "lucide-react"
+import { Check, X as XIcon, UserPlus, Link2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   Accordion,
   AccordionContent,
@@ -187,9 +188,11 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
         </h2>
 
         {data.pendingValidation.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-10 text-center">
-            <p className="text-sm text-muted-foreground">Aucune réponse en attente de validation.</p>
-          </div>
+          <EmptyState
+            icon={UserPlus}
+            size="sm"
+            title="Aucune réponse en attente de validation."
+          />
         ) : (
           <div className="rounded-xl border">
             <Table>
@@ -310,10 +313,12 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.conflict.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Aucune divergence pour le moment. Cette section liste les réponses qui contredisent
-              la liste maître, ou qui divergent d&apos;une réponse précédente pour le même email.
-            </p>
+            <EmptyState
+              icon={AlertTriangle}
+              size="sm"
+              title="Aucune divergence pour le moment."
+              description="Cette section liste les réponses qui contredisent la liste maître, ou qui divergent d'une réponse précédente pour le même email."
+            />
           ) : (
             [...conflictsByEmail.entries()].map(([key, group]) => (
               <div key={key} className="space-y-3 rounded-xl border p-4">
