@@ -4,6 +4,22 @@ import { withSentryConfig } from "@sentry/nextjs"
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
 const isProd = process.env.NODE_ENV === "production"
 
+// Dérive l'endpoint de report CSP natif Sentry depuis le DSN plutôt que de
+// dupliquer org/projet/clé en dur. No-op si NEXT_PUBLIC_SENTRY_DSN absent.
+function getSentryCspReportUri(dsn: string | undefined): string | undefined {
+  if (!dsn) return undefined
+  try {
+    const parsed = new URL(dsn)
+    const projectId = parsed.pathname.replace(/^\//, "")
+    if (!projectId || !parsed.username) return undefined
+    return `https://${parsed.host}/api/${projectId}/security/?sentry_key=${parsed.username}`
+  } catch {
+    return undefined
+  }
+}
+
+const sentryReportUri = getSentryCspReportUri(process.env.NEXT_PUBLIC_SENTRY_DSN)
+
 // unsafe-inline : Next.js RSC hydration inline scripts + GTM init inline
 // unsafe-eval  : requis par Crisp (leur doc CSP officielle)
 const CSP = [
@@ -61,6 +77,7 @@ const CSP = [
   "form-action 'self'",
   "frame-ancestors 'none'",
   ...(isProd ? ["upgrade-insecure-requests"] : []),
+  ...(sentryReportUri ? [`report-uri ${sentryReportUri}`] : []),
 ].join("; ")
 
 const securityHeaders = [
