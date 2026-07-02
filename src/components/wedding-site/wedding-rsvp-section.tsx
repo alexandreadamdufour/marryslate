@@ -83,13 +83,13 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
           Dites-nous si vous serez là pour célébrer avec {partner1} &amp; {partner2}.
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Button size="lg" className="w-full sm:w-auto" onClick={() => openWith(true)}>
+          <Button size="lg" className="h-12 w-full sm:w-auto" onClick={() => openWith(true)}>
             Je serai présent·e
           </Button>
           <Button
             size="lg"
             variant="outline"
-            className="w-full sm:w-auto"
+            className="h-12 w-full sm:w-auto"
             onClick={() => openWith(false)}
           >
             Je ne pourrai pas venir
@@ -98,7 +98,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
       </div>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           {step === "done" ? (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
@@ -118,7 +118,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     : "Votre absence a bien été notée. Merci d'avoir pris le temps de répondre."}
                 </DialogDescription>
               </DialogHeader>
-              <Button className="mt-2" onClick={() => handleOpenChange(false)}>
+              <Button className="mt-2 h-12 w-full" onClick={() => handleOpenChange(false)}>
                 Fermer
               </Button>
             </div>
@@ -145,7 +145,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     type="button"
                     onClick={() => form.setValue("attending", true)}
                     className={[
-                      "flex-1 py-2 text-sm font-medium transition-colors",
+                      "flex-1 py-3 text-sm font-medium transition-colors",
                       watchAttending
                         ? "bg-primary text-primary-foreground"
                         : "bg-background text-muted-foreground hover:bg-muted",
@@ -158,7 +158,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     type="button"
                     onClick={() => form.setValue("attending", false)}
                     className={[
-                      "flex-1 py-2 text-sm font-medium transition-colors",
+                      "flex-1 py-3 text-sm font-medium transition-colors",
                       !watchAttending
                         ? "bg-primary text-primary-foreground"
                         : "bg-background text-muted-foreground hover:bg-muted",
@@ -176,6 +176,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     <Input
                       id="rsvp-first-name"
                       autoComplete="given-name"
+                      className="h-12"
                       {...form.register("firstName")}
                       aria-invalid={!!form.formState.errors.firstName}
                     />
@@ -190,6 +191,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     <Input
                       id="rsvp-last-name"
                       autoComplete="family-name"
+                      className="h-12"
                       {...form.register("lastName")}
                       aria-invalid={!!form.formState.errors.lastName}
                     />
@@ -212,6 +214,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                     type="email"
                     autoComplete="email"
                     placeholder="vous@exemple.fr"
+                    className="h-12"
                     {...form.register("email")}
                     aria-invalid={!!form.formState.errors.email}
                   />
@@ -232,6 +235,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                         type="number"
                         min={1}
                         max={20}
+                        className="h-12"
                         {...form.register("guestCount")}
                         aria-invalid={!!form.formState.errors.guestCount}
                       />
@@ -250,6 +254,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                       <Input
                         id="rsvp-dietary"
                         placeholder="Végétarien, sans gluten, allergies…"
+                        className="h-12"
                         {...form.register("dietary")}
                       />
                     </div>
@@ -271,7 +276,7 @@ export function WeddingRsvpSection({ weddingId, partner1, partner2 }: WeddingRsv
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />

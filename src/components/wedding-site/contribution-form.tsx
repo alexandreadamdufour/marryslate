@@ -118,7 +118,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
             <FormItem>
               <FormLabel>Votre prénom *</FormLabel>
               <FormControl>
-                <Input placeholder="Sophie" {...field} />
+                <Input className="h-12" placeholder="Sophie" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -132,7 +132,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
             <FormItem>
               <FormLabel>Email (pour le reçu)</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="sophie@exemple.fr" {...field} />
+                <Input className="h-12" type="email" placeholder="sophie@exemple.fr" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +154,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
                     step={1}
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    className="pr-8"
+                    className="h-12 pr-8"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                     €
@@ -178,7 +178,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
                   defaultValue={field.value ?? "none"}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12">
                       <SelectValue placeholder="Contribution libre" />
                     </SelectTrigger>
                   </FormControl>
@@ -268,7 +268,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
 
         <Button
           type="submit"
-          className="w-full"
+          className="h-12 w-full"
           disabled={form.formState.isSubmitting || uploading}
         >
           {form.formState.isSubmitting ? "Chargement…" : "Continuer vers le paiement"}
@@ -306,7 +306,7 @@ function PaymentStep({ returnUrl }: PaymentStepProps) {
   return (
     <div className="space-y-5">
       <PaymentElement />
-      <Button onClick={handlePay} disabled={loading || !stripe} className="w-full">
+      <Button onClick={handlePay} disabled={loading || !stripe} className="h-12 w-full">
         {loading ? "Traitement…" : "Payer maintenant"}
       </Button>
     </div>

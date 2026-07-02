@@ -73,7 +73,7 @@ export function SeatingAddTableDialog({ weddingId, defaultPosition, onCreated }:
           Ajouter une table
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Nouvelle table</DialogTitle>
         </DialogHeader>

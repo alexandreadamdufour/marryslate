@@ -95,7 +95,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
               <Pencil className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Modifier l&apos;étape</DialogTitle>
             </DialogHeader>
@@ -186,7 +186,7 @@ export function TimelineEditor({ initialSteps, weddingId }: TimelineEditorProps)
             Ajouter une étape
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Nouvelle étape</DialogTitle>
           </DialogHeader>

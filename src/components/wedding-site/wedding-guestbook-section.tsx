@@ -91,6 +91,7 @@ export function WeddingGuestbookSection({
                 id="gb-author"
                 autoComplete="given-name"
                 placeholder="Marie"
+                className="h-12"
                 {...form.register("authorName")}
                 aria-invalid={!!form.formState.errors.authorName}
               />
@@ -118,7 +119,7 @@ export function WeddingGuestbookSection({
               )}
             </div>
 
-            <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto">
+            <Button type="submit" disabled={form.formState.isSubmitting} className="h-12 w-full sm:w-auto">
               {form.formState.isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />

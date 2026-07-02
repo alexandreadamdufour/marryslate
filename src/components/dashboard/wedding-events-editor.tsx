@@ -128,7 +128,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
               <Pencil className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Modifier l&apos;événement</DialogTitle>
             </DialogHeader>
@@ -219,7 +219,7 @@ export function WeddingEventsEditor({ initialEvents, weddingId }: Props) {
             Ajouter un événement
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Nouvel événement</DialogTitle>
           </DialogHeader>
