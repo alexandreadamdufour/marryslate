@@ -101,6 +101,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
         GIFT_NOT_FOUND: "Ce cadeau n'est plus disponible.",
         STRIPE_ERROR: "Erreur de paiement, réessayez.",
         DB_ERROR: "Erreur serveur, réessayez.",
+        RATE_LIMITED: "Trop de tentatives, réessayez dans une heure.",
       }
       toast.error(messages[result.error as string] ?? "Une erreur est survenue.")
       return
