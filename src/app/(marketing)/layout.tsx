@@ -1,6 +1,7 @@
 import { Logo } from "@/components/shared/logo"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { CONNEXION_ROUTE, INSCRIPTION_ROUTE } from "@/lib/constants"
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,10 +29,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               Blog
             </Link>
             <Button asChild variant="outline" size="sm">
-              <Link href="/connexion">Connexion</Link>
+              <Link href={CONNEXION_ROUTE}>Connexion</Link>
             </Button>
             <Button asChild size="sm">
-              <Link href="/inscription">Créer mon site</Link>
+              <Link href={INSCRIPTION_ROUTE}>Créer mon site</Link>
             </Button>
           </nav>
         </div>

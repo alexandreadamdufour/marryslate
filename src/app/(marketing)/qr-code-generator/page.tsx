@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { QrCodeGeneratorClient } from "@/components/marketing/qr-code-generator-client"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Générateur de QR code mariage gratuit — Marryslate",
@@ -78,7 +79,7 @@ export default function QrCodeGeneratorPage() {
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg">
-              <Link href="/inscription">Créer mon site gratuitement</Link>
+              <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link href="/comment-ca-marche">Voir comment ça marche</Link>

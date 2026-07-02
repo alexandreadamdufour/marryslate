@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 import {
   Accordion,
   AccordionContent,
@@ -135,7 +136,7 @@ export default function FaqPage() {
             Gratuit, sans engagement, en ligne en 5 minutes.
           </p>
           <Button asChild size="lg" className="mt-6">
-            <Link href="/inscription">Créer mon site gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
           </Button>
         </div>
       </div>

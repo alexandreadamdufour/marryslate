@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 import {
   UserCheck,
   BookHeart,
@@ -215,7 +216,7 @@ export default function CommentCaMarchePage() {
             Votre site en ligne en 2 minutes. Aucune carte bancaire, aucun abonnement.
           </p>
           <Button asChild size="lg">
-            <Link href="/inscription">Créer mon site gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
           </Button>
         </div>
       </section>

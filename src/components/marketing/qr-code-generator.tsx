@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Download, QrCode } from "lucide-react"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
 export function QrCodeGenerator() {
   const [url, setUrl] = useState("")
@@ -104,7 +105,7 @@ export function QrCodeGenerator() {
           Télécharger le QR code
         </Button>
         <Button asChild variant="outline" size="lg" className="w-full sm:flex-1">
-          <Link href="/inscription">Créer mon site gratuitement</Link>
+          <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
         </Button>
       </div>
     </div>

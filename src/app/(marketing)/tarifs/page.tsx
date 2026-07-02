@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check, X, Minus } from "lucide-react"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Tarifs",
@@ -155,7 +156,7 @@ export default function TarifsPage() {
           </ul>
 
           <Button asChild className="w-full" size="lg">
-            <Link href="/inscription">Créer mon site gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
           </Button>
         </div>
       </section>
@@ -269,7 +270,7 @@ export default function TarifsPage() {
             Création en 2 minutes. Aucune carte bancaire requise.
           </p>
           <Button asChild size="lg">
-            <Link href="/inscription">Créer mon site gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
           </Button>
         </div>
       </section>

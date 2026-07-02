@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { env } from "@/lib/env"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: { absolute: "Marryslate — Liste de mariage & cagnotte en ligne" },
@@ -56,7 +57,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">
-            <Link href="/inscription">Commencer gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Commencer gratuitement</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link href="/comment-ca-marche">Voir comment ça marche</Link>
@@ -102,7 +103,7 @@ export default function HomePage() {
             Création gratuite. Aucun abonnement. Seulement 2,9&nbsp;% + 0,30&nbsp;€ par contribution reçue.
           </p>
           <Button asChild size="lg">
-            <Link href="/inscription">Créer mon site gratuitement</Link>
+            <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
           </Button>
         </div>
       </section>

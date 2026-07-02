@@ -8,6 +8,7 @@ import { Clock } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { Metadata } from "next"
+import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -82,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
                 Gratuit, sans abonnement. En ligne en 5 minutes.
               </p>
               <Button asChild size="lg" className="mt-6">
-                <Link href="/inscription">Créer mon site gratuitement</Link>
+                <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
               </Button>
             </div>
           </article>

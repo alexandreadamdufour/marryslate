@@ -1,7 +1,15 @@
+import type { Route } from "next"
+
 export const APP_NAME = "Marryslate"
 // Volontairement en process.env direct : ce fichier est importé côté client, ne peut pas
 // passer par @/lib/env (secrets serveur).
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+
+// Cast Route requis : ce sont des catch-all Clerk ("/connexion/[[...sign-in]]",
+// "/inscription/[[...sign-up]]"), le typegen de routes de Next.js ne reconnaît pas
+// le chemin racine du catch-all comme littéral valide.
+export const CONNEXION_ROUTE = "/connexion" as Route
+export const INSCRIPTION_ROUTE = "/inscription" as Route
 
 export const MAX_GIFT_AMOUNT = 50_000
 export const MIN_GIFT_AMOUNT = 1
