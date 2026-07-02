@@ -47,7 +47,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 function SummaryCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-5 transition-colors hover:bg-muted/50", accent && "border-primary/30 bg-primary/5")}>
+    <div className={cn("rounded-xl border p-4 transition-colors hover:bg-muted/50", accent && "border-primary/30 bg-primary/5")}>
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={cn("mt-1.5 text-2xl font-semibold tabular-nums", accent && "text-primary")}>
         {value}
@@ -158,7 +158,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
                         <MailCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-label="Invitation envoyée" />
                       )}
                       {guest.plus_one && (
-                        <Badge variant="outline" className="text-[11px]">+1{guest.plus_one_name ? ` ${guest.plus_one_name}` : ""}</Badge>
+                        <Badge variant="outline" className="text-xs">+1{guest.plus_one_name ? ` ${guest.plus_one_name}` : ""}</Badge>
                       )}
                     </div>
                   </TableCell>
@@ -175,7 +175,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
                     {guest.dietary ?? "—"}
                   </TableCell>
                   <TableCell>
-                    <Badge className={cn("border text-[11px]", STATUS_BADGE[guest.rsvp_status] ?? STATUS_BADGE.pending)}>
+                    <Badge className={cn("border text-xs", STATUS_BADGE[guest.rsvp_status] ?? STATUS_BADGE.pending)}>
                       {RSVP_STATUS_LABELS[guest.rsvp_status as keyof typeof RSVP_STATUS_LABELS]}
                     </Badge>
                   </TableCell>
@@ -208,7 +208,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
 
       {/* Edit form */}
       {editingGuest && (
-        <div className="rounded-xl border p-5">
+        <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Modifier l&apos;invité</h3>
           <GuestForm mode="edit" guest={editingGuest} onDone={() => setEditingGuest(null)} />
         </div>
@@ -216,7 +216,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
 
       {/* Add form */}
       {addOpen && !editingGuest && (
-        <div className="rounded-xl border p-5">
+        <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Nouvel invité</h3>
           <GuestForm mode="add" weddingId={weddingId} onDone={() => setAddOpen(false)} />
         </div>

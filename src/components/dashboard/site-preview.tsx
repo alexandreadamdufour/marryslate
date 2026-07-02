@@ -48,7 +48,7 @@ export function SitePreview() {
       }
     >
       {/* Badge Aperçu */}
-      <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+      <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
         <Eye className="h-3 w-3" aria-hidden="true" />
         Aperçu
       </div>
@@ -58,7 +58,7 @@ export function SitePreview() {
         className="flex min-h-72 flex-col items-center justify-center gap-3 bg-primary/[0.07] px-8 py-12 text-center"
         aria-hidden="true"
       >
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-primary/80">
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-primary/80">
           Mariage
         </p>
 

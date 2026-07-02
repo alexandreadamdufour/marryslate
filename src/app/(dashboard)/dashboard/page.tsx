@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl">
+        <h1 className="text-2xl font-semibold">
           {wedding
             ? `${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
             : "Tableau de bord"}

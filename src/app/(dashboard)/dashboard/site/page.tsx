@@ -30,10 +30,10 @@ export default async function SitePage() {
         fontFamily: wedding.font_family ?? "Fraunces",
       }}
     >
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl">Mon site mariage</h1>
+            <h1 className="text-2xl font-semibold">Mon site mariage</h1>
             <p className="text-sm text-muted-foreground">Personnalisez votre site public.</p>
           </div>
           <div className="flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground">

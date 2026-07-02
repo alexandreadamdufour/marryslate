@@ -15,7 +15,7 @@ export default async function BudgetPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl">Budget mariage</h1>
+        <h1 className="text-2xl font-semibold">Budget mariage</h1>
         <p className="text-sm text-muted-foreground">
           Suivez vos dépenses estimées et réelles pour chaque poste.
         </p>

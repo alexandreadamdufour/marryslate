@@ -15,7 +15,7 @@ export default async function ListePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl">Liste de cadeaux</h1>
+        <h1 className="text-2xl font-semibold">Liste de cadeaux</h1>
         <p className="text-sm text-muted-foreground">
           {gifts.length} cadeau{gifts.length !== 1 ? "x" : ""} — glissez pour réorganiser.
         </p>

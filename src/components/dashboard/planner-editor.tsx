@@ -229,7 +229,7 @@ export function PlannerEditor({ initialItems, weddingId }: Props) {
                         {format(parseISO(item.due_date), "d MMM yyyy", { locale: fr })}
                       </span>
                     )}
-                    <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium", PRIORITY_BADGE[item.priority])}>
+                    <span className={cn("shrink-0 rounded px-1.5 py-0.5 text-xs font-medium", PRIORITY_BADGE[item.priority])}>
                       {PRIORITY_LABELS[item.priority]}
                     </span>
                     <div className="hidden shrink-0 items-center gap-1 group-hover:flex">

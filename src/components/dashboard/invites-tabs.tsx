@@ -23,7 +23,7 @@ export function InvitesTabs({ weddingId, guests, rsvpData }: Props) {
         <TabsTrigger value="reponses" className="gap-2">
           Réponses
           {pendingCount > 0 && (
-            <Badge className="border-transparent bg-orange-100 px-1.5 py-0 text-[11px] text-orange-800">
+            <Badge className="border-transparent bg-orange-100 px-1.5 py-0 text-xs text-orange-800">
               {pendingCount}
             </Badge>
           )}

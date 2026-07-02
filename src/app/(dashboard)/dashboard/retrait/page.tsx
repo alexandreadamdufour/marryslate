@@ -60,7 +60,7 @@ export default async function RetraitPage() {
     .reduce((s, w) => s + Number(w.amount), 0)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Retrait</h1>
         <p className="text-sm text-muted-foreground">Retirez les fonds collectés vers votre compte bancaire.</p>

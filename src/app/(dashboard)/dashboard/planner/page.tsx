@@ -15,9 +15,9 @@ export default async function PlannerPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl">Wedding Planner</h1>
+        <h1 className="text-2xl font-semibold">Wedding Planner</h1>
         <p className="text-sm text-muted-foreground">
-          Suivez l'avancement de vos préparatifs, étape par étape.
+          Suivez l&apos;avancement de vos préparatifs, étape par étape.
         </p>
       </div>
       <PlannerEditor initialItems={items} weddingId={wedding.id} />

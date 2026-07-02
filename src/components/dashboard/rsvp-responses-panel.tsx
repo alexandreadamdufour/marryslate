@@ -315,7 +315,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
                         </span>
                         <span className="ml-2 text-xs text-muted-foreground">{c.email ?? "—"}</span>
                       </div>
-                      <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE.conflict}`}>
+                      <Badge className={`border text-xs ${RESPONSE_STATUS_BADGE.conflict}`}>
                         {RESPONSE_STATUS_LABELS.conflict}
                       </Badge>
                     </div>
@@ -387,7 +387,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
                         <span className="font-medium">{guestName(r)}</span>
                         <span className="ml-2 text-sm text-muted-foreground">{r.email ?? "—"}</span>
                       </div>
-                      <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE[r.status]}`}>
+                      <Badge className={`border text-xs ${RESPONSE_STATUS_BADGE[r.status]}`}>
                         {RESPONSE_STATUS_LABELS[r.status]}
                       </Badge>
                     </div>

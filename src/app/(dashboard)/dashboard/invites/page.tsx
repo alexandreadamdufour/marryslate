@@ -21,7 +21,7 @@ export default async function InvitesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl">Invités</h1>
+          <h1 className="text-2xl font-semibold">Invités</h1>
           <p className="text-sm text-muted-foreground">
             {guests.length} invité{guests.length !== 1 ? "s" : ""} — gérez la liste et suivez les RSVP.
           </p>

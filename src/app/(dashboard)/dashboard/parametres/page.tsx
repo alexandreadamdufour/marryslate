@@ -12,9 +12,9 @@ export default async function ParametresPage() {
   if (!wedding) return null
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl">Paramètres</h1>
+        <h1 className="text-2xl font-semibold">Paramètres</h1>
         <p className="text-sm text-muted-foreground">Gérez les informations de votre mariage.</p>
       </div>
 

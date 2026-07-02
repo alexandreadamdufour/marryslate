@@ -33,7 +33,7 @@ function SummaryCard({
   return (
     <div
       className={cn(
-        "rounded-xl border p-5",
+        "rounded-xl border p-4",
         variant === "accent" && "border-primary/30 bg-primary/5",
         variant === "muted" && "bg-muted/50",
       )}
@@ -228,7 +228,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
 
       {/* Edit inline form */}
       {editingItem && (
-        <div className="rounded-xl border p-5">
+        <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Modifier le poste</h3>
           <BudgetItemForm
             mode="edit"
@@ -240,7 +240,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
 
       {/* Add inline form */}
       {addOpen && !editingItem && (
-        <div className="rounded-xl border p-5">
+        <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Nouveau poste</h3>
           <BudgetItemForm
             mode="add"
