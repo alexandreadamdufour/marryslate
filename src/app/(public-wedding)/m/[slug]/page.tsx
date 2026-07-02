@@ -56,9 +56,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "website",
       locale: "fr_FR",
-      images: wedding.cover_image_url
-        ? [{ url: wedding.cover_image_url, alt: title }]
-        : [],
+      // images volontairement absent : opengraph-image.tsx (convention
+      // fichier) génère l'image dynamiquement. Un champ explicite ici
+      // écraserait cette génération (priorité à generateMetadata).
     },
     twitter: {
       card: "summary_large_image",
