@@ -73,7 +73,7 @@ export type Database = {
           notes: string | null
           paid_amount: number | null
           vendor: string | null
-          wedding_id: string | null
+          wedding_id: string
         }
         Insert: {
           actual_amount?: number | null
@@ -85,7 +85,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           vendor?: string | null
-          wedding_id?: string | null
+          wedding_id: string
         }
         Update: {
           actual_amount?: number | null
@@ -97,7 +97,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           vendor?: string | null
-          wedding_id?: string | null
+          wedding_id?: string
         }
         Relationships: [
           {
@@ -112,36 +112,36 @@ export type Database = {
       checklist_items: {
         Row: {
           category: string
-          created_at: string | null
+          created_at: string
           description: string | null
           due_date: string | null
           id: string
-          is_completed: boolean | null
-          priority: string | null
+          is_completed: boolean
+          priority: string
           title: string
-          wedding_id: string | null
+          wedding_id: string
         }
         Insert: {
           category: string
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           due_date?: string | null
           id?: string
-          is_completed?: boolean | null
-          priority?: string | null
+          is_completed?: boolean
+          priority?: string
           title: string
-          wedding_id?: string | null
+          wedding_id: string
         }
         Update: {
           category?: string
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           due_date?: string | null
           id?: string
-          is_completed?: boolean | null
-          priority?: string | null
+          is_completed?: boolean
+          priority?: string
           title?: string
-          wedding_id?: string | null
+          wedding_id?: string
         }
         Relationships: [
           {
@@ -388,11 +388,11 @@ export type Database = {
         Row: {
           attending: boolean
           conflict_resolved_at: string | null
-          created_at: string | null
+          created_at: string
           dietary: string | null
           email: string | null
           first_name: string
-          guest_count: number | null
+          guest_count: number
           guest_id: string | null
           id: string
           last_name: string
@@ -403,11 +403,11 @@ export type Database = {
         Insert: {
           attending?: boolean
           conflict_resolved_at?: string | null
-          created_at?: string | null
+          created_at?: string
           dietary?: string | null
           email?: string | null
           first_name: string
-          guest_count?: number | null
+          guest_count?: number
           guest_id?: string | null
           id?: string
           last_name: string
@@ -418,11 +418,11 @@ export type Database = {
         Update: {
           attending?: boolean
           conflict_resolved_at?: string | null
-          created_at?: string | null
+          created_at?: string
           dietary?: string | null
           email?: string | null
           first_name?: string
-          guest_count?: number | null
+          guest_count?: number
           guest_id?: string | null
           id?: string
           last_name?: string
@@ -485,34 +485,34 @@ export type Database = {
       }
       seating_tables: {
         Row: {
-          capacity: number | null
+          capacity: number
           created_at: string | null
           id: string
           name: string
-          position_x: number | null
-          position_y: number | null
+          position_x: number
+          position_y: number
           shape: string | null
-          wedding_id: string | null
+          wedding_id: string
         }
         Insert: {
-          capacity?: number | null
+          capacity?: number
           created_at?: string | null
           id?: string
           name: string
-          position_x?: number | null
-          position_y?: number | null
+          position_x?: number
+          position_y?: number
           shape?: string | null
-          wedding_id?: string | null
+          wedding_id: string
         }
         Update: {
-          capacity?: number | null
+          capacity?: number
           created_at?: string | null
           id?: string
           name?: string
-          position_x?: number | null
-          position_y?: number | null
+          position_x?: number
+          position_y?: number
           shape?: string | null
-          wedding_id?: string | null
+          wedding_id?: string
         }
         Relationships: [
           {
@@ -667,7 +667,7 @@ export type Database = {
           position: number | null
           time: string
           title: string
-          wedding_id: string | null
+          wedding_id: string
         }
         Insert: {
           created_at?: string | null
@@ -677,7 +677,7 @@ export type Database = {
           position?: number | null
           time: string
           title: string
-          wedding_id?: string | null
+          wedding_id: string
         }
         Update: {
           created_at?: string | null
@@ -687,7 +687,7 @@ export type Database = {
           position?: number | null
           time?: string
           title?: string
-          wedding_id?: string | null
+          wedding_id?: string
         }
         Relationships: [
           {
@@ -702,19 +702,19 @@ export type Database = {
       weddings: {
         Row: {
           access_code: string | null
-          access_code_enabled: boolean | null
+          access_code_enabled: boolean
           cover_image_url: string | null
           created_at: string
           font_family: string | null
           id: string
           is_published: boolean
-          notifications_enabled: boolean | null
+          notifications_enabled: boolean
           owner_id: string
           partner1_first_name: string
           partner2_first_name: string
           practical_info: Json | null
           primary_color: string | null
-          rsvp_enabled: boolean | null
+          rsvp_enabled: boolean
           slug: string
           story_images: Json | null
           story_md: string | null
@@ -727,19 +727,19 @@ export type Database = {
         }
         Insert: {
           access_code?: string | null
-          access_code_enabled?: boolean | null
+          access_code_enabled?: boolean
           cover_image_url?: string | null
           created_at?: string
           font_family?: string | null
           id?: string
           is_published?: boolean
-          notifications_enabled?: boolean | null
+          notifications_enabled?: boolean
           owner_id: string
           partner1_first_name: string
           partner2_first_name: string
           practical_info?: Json | null
           primary_color?: string | null
-          rsvp_enabled?: boolean | null
+          rsvp_enabled?: boolean
           slug: string
           story_images?: Json | null
           story_md?: string | null
@@ -752,19 +752,19 @@ export type Database = {
         }
         Update: {
           access_code?: string | null
-          access_code_enabled?: boolean | null
+          access_code_enabled?: boolean
           cover_image_url?: string | null
           created_at?: string
           font_family?: string | null
           id?: string
           is_published?: boolean
-          notifications_enabled?: boolean | null
+          notifications_enabled?: boolean
           owner_id?: string
           partner1_first_name?: string
           partner2_first_name?: string
           practical_info?: Json | null
           primary_color?: string | null
-          rsvp_enabled?: boolean | null
+          rsvp_enabled?: boolean
           slug?: string
           story_images?: Json | null
           story_md?: string | null
@@ -842,6 +842,10 @@ export type Database = {
     Functions: {
       clerk_user_id: { Args: never; Returns: string }
       current_user_id: { Args: never; Returns: string }
+      increment_wedding_view_count: {
+        Args: { p_slug: string }
+        Returns: undefined
+      }
       is_wedding_coowner: { Args: { p_wedding_id: string }; Returns: boolean }
     }
     Enums: {
