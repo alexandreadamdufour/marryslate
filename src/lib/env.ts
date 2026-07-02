@@ -12,6 +12,9 @@ const envSchema = z.object({
   // DSN Sentry — pas un secret (safe à exposer), doit être NEXT_PUBLIC_ pour
   // que instrumentation-client.ts (browser) puisse le lire.
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  // Affiliate ID Booking Partner Network — pas un secret (apparaît en clair
+  // dans les URLs rendues côté public), no-op tant qu'absent.
+  NEXT_PUBLIC_BOOKING_AID: z.string().optional(),
   // Private
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_WEBHOOK_SECRET: z.string().min(1),

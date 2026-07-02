@@ -1,4 +1,6 @@
 import { Hotel, ExternalLink } from "lucide-react"
+import { withBookingAffiliate } from "@/lib/booking-affiliate"
+import { env } from "@/lib/env"
 import type { AccommodationInfo } from "@/lib/validators/practical-info"
 
 interface Props {
@@ -32,7 +34,7 @@ export function WeddingAccommodationsSection({ accommodations }: Props) {
                 </div>
                 {acc.booking_url && (
                   <a
-                    href={acc.booking_url}
+                    href={withBookingAffiliate(acc.booking_url, env.NEXT_PUBLIC_BOOKING_AID)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex shrink-0 items-center gap-1 text-sm text-primary hover:underline"
