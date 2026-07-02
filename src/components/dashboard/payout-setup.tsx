@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { setupStripeConnect, requestPayout } from "@/actions/withdrawals"
+import { sendGAEvent } from "@next/third-parties/google"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,9 +26,10 @@ interface PayoutSetupProps {
   hasStripeAccount: boolean
   isActive: boolean
   availableEuros: number
+  isFirstWithdrawal: boolean
 }
 
-export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: PayoutSetupProps) {
+export function PayoutSetup({ hasStripeAccount, isActive, availableEuros, isFirstWithdrawal }: PayoutSetupProps) {
   const [onboardingLoading, setOnboardingLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   // Token stable pour une intention de retrait donnée. Réinitialisé si montant changé ou après succès.
@@ -80,6 +82,7 @@ export function PayoutSetup({ hasStripeAccount, isActive, availableEuros }: Payo
       return
     }
     idempotencyTokenRef.current = null
+    if (isFirstWithdrawal) sendGAEvent("event", "first_withdrawal_initiated")
     setMessage({ type: "success", text: `Retrait de ${values.amountEuros} € initié. Il apparaîtra sous 1 à 3 jours ouvrés.` })
     form.reset({ amountEuros: 0 })
   }

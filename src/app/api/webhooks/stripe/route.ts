@@ -3,6 +3,7 @@ import type Stripe from "stripe"
 import { stripe } from "@/lib/stripe/client"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { sendContributionReceipt, sendCoupleContributionNotif, sendPayoutNotif } from "@/lib/resend/send"
+import { sendGA4ServerEvent } from "@/lib/ga4-server-event"
 import { env } from "@/lib/env"
 
 export async function POST(req: Request) {
@@ -47,6 +48,24 @@ export async function POST(req: Request) {
         .from("contributions")
         .update({ payment_status: "succeeded", stripe_payment_intent_id: pi.id })
         .eq("id", contributionId)
+
+      // first_contribution_received : compte APRÈS l'update ci-dessus, donc
+      // cette contribution est incluse. count === 1 => c'est la première
+      // succeeded de ce wedding. Fait ici (pas côté client success page) :
+      // le redirect Stripe vers /contribuer/success peut arriver avant que
+      // ce webhook n'ait tourné (race condition), donc un count côté client
+      // serait peu fiable pour déterminer "la première".
+      const { count: succeededCount } = await supabase
+        .from("contributions")
+        .select("id", { count: "exact", head: true })
+        .eq("wedding_id", existing.wedding_id)
+        .eq("payment_status", "succeeded")
+
+      if (succeededCount === 1) {
+        await sendGA4ServerEvent("first_contribution_received", {
+          wedding_id: existing.wedding_id,
+        })
+      }
 
       // Recalcule current_amount depuis zéro (idempotent, cohérent avec le trigger DB)
       const giftId = existing.gift_id ?? pi.metadata?.gift_id ?? null

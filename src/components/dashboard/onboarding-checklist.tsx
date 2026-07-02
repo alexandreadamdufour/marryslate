@@ -5,6 +5,7 @@ import Link from "next/link"
 import type { Route } from "next"
 import { toast } from "sonner"
 import { CheckCircle2, Circle, Copy } from "lucide-react"
+import { sendGAEvent } from "@next/third-parties/google"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { completeOnboardingChecklist } from "@/actions/wedding"
@@ -48,6 +49,7 @@ export function OnboardingChecklist({ wedding, hasGuests, hasGifts }: Props) {
     await navigator.clipboard.writeText(url)
     localStorage.setItem(storageKey, "1")
     setShared(true)
+    sendGAEvent("event", "share_link_copied", { source: "onboarding_checklist" })
     toast.success("Lien copié.", { duration: 3000 })
   }
 

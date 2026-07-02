@@ -19,6 +19,7 @@ import {
 } from "@dnd-kit/sortable"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
+import { sendGAEvent } from "@next/third-parties/google"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -116,6 +117,7 @@ export function GiftListEditor({ initialGifts, weddingId }: GiftListEditorProps)
           <GiftForm
             weddingId={weddingId}
             onSuccess={() => {
+              if (gifts.length === 0) sendGAEvent("event", "first_gift_created")
               setAddOpen(false)
               router.refresh()
             }}

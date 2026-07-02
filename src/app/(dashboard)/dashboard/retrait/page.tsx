@@ -93,6 +93,7 @@ export default async function RetraitPage() {
         hasStripeAccount={!!stripeAccountId}
         isActive={isActive}
         availableEuros={availableEuros}
+        isFirstWithdrawal={withdrawals.length === 0}
       />
 
       {/* Historique des retraits */}

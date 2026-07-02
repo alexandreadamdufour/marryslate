@@ -23,6 +23,12 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
   STRIPE_WEBHOOK_SECRET_CONNECT: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
+  // GA4 Measurement Protocol — événements serveur (webhook Stripe, pas de
+  // contexte navigateur pour sendGAEvent). VRAI secret contrairement au DSN/
+  // AID : quiconque le possède peut injecter des events arbitraires dans la
+  // propriété GA4. Généré dans GA4 Admin → Data Streams → flux web →
+  // Measurement Protocol API secrets.
+  GA_MEASUREMENT_PROTOCOL_API_SECRET: z.string().optional(),
   // Build-time uniquement (upload source maps) — lu directement via
   // process.env dans next.config.ts, jamais par l'app runtime. Présent ici
   // pour documentation/complétude avec .env.local.example.

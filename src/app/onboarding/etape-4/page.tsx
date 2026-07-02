@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { OnboardingStepIndicator } from "@/components/dashboard/onboarding-step-indicator"
+import { OnboardingCompleteTracker } from "@/components/dashboard/onboarding-complete-tracker"
 import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = { title: "Votre site est prêt !" }
@@ -8,6 +9,7 @@ export const metadata: Metadata = { title: "Votre site est prêt !" }
 export default function OnboardingStep4Page() {
   return (
     <div className="w-full max-w-md space-y-8 text-center">
+      <OnboardingCompleteTracker />
       <OnboardingStepIndicator currentStep={4} />
       <div className="space-y-4">
         <div className="text-6xl">🎉</div>
