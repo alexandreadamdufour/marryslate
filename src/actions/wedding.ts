@@ -190,6 +190,44 @@ export async function checkSlugAvailability(
   return { available: !data }
 }
 
+export async function uploadCoverImage(formData: FormData): Promise<ActionResult<{ url: string }>> {
+  const { userId } = await auth()
+  if (!userId) return { error: "UNAUTHORIZED" }
+
+  const file = formData.get("file") as File | null
+  const weddingId = formData.get("weddingId") as string | null
+  if (!file || !weddingId) return { error: "INVALID_INPUT" }
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"]
+  if (!allowedTypes.includes(file.type)) return { error: "INVALID_FILE_TYPE" }
+  if (file.size > 5 * 1024 * 1024) return { error: "FILE_TOO_LARGE" }
+
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
+
+  const ext = file.type.split("/")[1]
+  const path = `${weddingId}/cover-${Date.now()}.${ext}`
+
+  // Storage: admin client — storage policies sont indépendantes de la DB RLS
+  const adminClient = createAdminClient()
+  const arrayBuffer = await file.arrayBuffer()
+
+  const { error } = await adminClient.storage
+    .from("gift-images")
+    .upload(path, arrayBuffer, { contentType: file.type, upsert: false })
+
+  if (error) {
+    console.error("[uploadCoverImage]", error.message)
+    return { error: "UPLOAD_ERROR" }
+  }
+
+  const {
+    data: { publicUrl },
+  } = adminClient.storage.from("gift-images").getPublicUrl(path)
+
+  return { data: { url: publicUrl } }
+}
+
 export async function completeOnboardingChecklist(
   weddingId: string
 ): Promise<ActionResult<{ id: string }>> {
