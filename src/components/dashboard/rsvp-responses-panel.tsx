@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -18,14 +18,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import {
   linkRsvpResponseToGuest,
   createGuestFromRsvpResponse,
@@ -194,114 +186,97 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
             title="Aucune réponse en attente de validation."
           />
         ) : (
-          <div className="rounded-xl border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invité</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Réponse</TableHead>
-                  <TableHead>Nb</TableHead>
-                  <TableHead>Reçue le</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.pendingValidation.map((r) => (
-                  <Fragment key={r.id}>
-                    <TableRow>
-                      <TableCell className="font-medium">{guestName(r)}</TableCell>
-                      <TableCell className="text-muted-foreground">{r.email ?? "—"}</TableCell>
-                      <TableCell>
-                        {r.attending ? (
-                          <span className="inline-flex items-center gap-1 text-green-700">
-                            <Check className="h-3.5 w-3.5" aria-hidden="true" /> Présent
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-muted-foreground">
-                            <XIcon className="h-3.5 w-3.5" aria-hidden="true" /> Absent
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>{r.attending ? r.guest_count : "—"}</TableCell>
-                      <TableCell className="text-muted-foreground">{formatReceivedAt(r.created_at)}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-1.5">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={pendingId === r.id}
-                            onClick={() => openLinking(r.id)}
-                            className="gap-1.5"
-                          >
-                            <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            Rattacher
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={pendingId === r.id}
-                            onClick={() => handleCreate(r.id)}
-                            className="gap-1.5"
-                          >
-                            <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
-                            Créer
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={pendingId === r.id}
-                            onClick={() => handleReject(r.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            Rejeter
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {linkingId === r.id && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="bg-muted/30">
-                          <div className="space-y-2 py-1">
-                            <Input
-                              autoFocus
-                              placeholder="Filtrer par nom ou email…"
-                              value={filterText}
-                              onChange={(e) => setFilterText(e.target.value)}
-                              className="max-w-sm"
-                            />
-                            {availableGuests.length === 0 ? (
-                              <p className="text-xs text-muted-foreground">
-                                Aucun invité disponible pour ce filtre.
-                              </p>
-                            ) : (
-                              <div className="max-h-48 divide-y overflow-y-auto rounded-md border bg-background">
-                                {availableGuests.map((g) => (
-                                  <button
-                                    key={g.id}
-                                    type="button"
-                                    disabled={pendingId === r.id}
-                                    onClick={() => handleLink(r.id, g.id)}
-                                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
-                                  >
-                                    <span className="font-medium">
-                                      {[g.first_name, g.last_name].filter(Boolean).join(" ") || "—"}
-                                    </span>
-                                    {g.email && (
-                                      <span className="text-xs text-muted-foreground">{g.email}</span>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
+          <div className="space-y-3">
+            {data.pendingValidation.map((r) => (
+              <div key={r.id} className="rounded-xl border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium">{guestName(r)}</p>
+                    <p className="text-sm text-muted-foreground">{r.email ?? "—"}</p>
+                  </div>
+                  <div className="text-right">
+                    {r.attending ? (
+                      <span className="inline-flex items-center gap-1 text-sm text-green-700">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        Présent{r.guest_count > 1 ? `, ${r.guest_count} pers.` : ""}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                        <XIcon className="h-3.5 w-3.5" aria-hidden="true" /> Absent
+                      </span>
                     )}
-                  </Fragment>
-                ))}
-              </TableBody>
-            </Table>
+                    <p className="text-xs text-muted-foreground">Reçue le {formatReceivedAt(r.created_at)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pendingId === r.id}
+                    onClick={() => openLinking(r.id)}
+                    className="gap-1.5"
+                  >
+                    <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Rattacher
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pendingId === r.id}
+                    onClick={() => handleCreate(r.id)}
+                    className="gap-1.5"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                    Créer
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={pendingId === r.id}
+                    onClick={() => handleReject(r.id)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    Rejeter
+                  </Button>
+                </div>
+
+                {linkingId === r.id && (
+                  <div className="mt-3 space-y-2 rounded-md bg-muted/30 p-3">
+                    <Input
+                      autoFocus
+                      placeholder="Filtrer par nom ou email…"
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                    />
+                    {availableGuests.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        Aucun invité disponible pour ce filtre.
+                      </p>
+                    ) : (
+                      <div className="max-h-48 divide-y overflow-y-auto rounded-md border bg-background">
+                        {availableGuests.map((g) => (
+                          <button
+                            key={g.id}
+                            type="button"
+                            disabled={pendingId === r.id}
+                            onClick={() => handleLink(r.id, g.id)}
+                            className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                          >
+                            <span className="font-medium">
+                              {[g.first_name, g.last_name].filter(Boolean).join(" ") || "—"}
+                            </span>
+                            {g.email && (
+                              <span className="text-xs text-muted-foreground">{g.email}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -404,34 +379,25 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
             {treated.length === 0 ? (
               <p className="text-sm text-muted-foreground">Aucune réponse traitée pour l&apos;instant.</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Invité</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Réponse</TableHead>
-                    <TableHead>Nb</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Reçue le</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {treated.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="font-medium">{guestName(r)}</TableCell>
-                      <TableCell className="text-muted-foreground">{r.email ?? "—"}</TableCell>
-                      <TableCell>{r.attending ? "Présent" : "Absent"}</TableCell>
-                      <TableCell>{r.attending ? r.guest_count : "—"}</TableCell>
-                      <TableCell>
-                        <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE[r.status]}`}>
-                          {RESPONSE_STATUS_LABELS[r.status]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{formatReceivedAt(r.created_at)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-2">
+                {treated.map((r) => (
+                  <div key={r.id} className="rounded-lg border px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="font-medium">{guestName(r)}</span>
+                        <span className="ml-2 text-sm text-muted-foreground">{r.email ?? "—"}</span>
+                      </div>
+                      <Badge className={`border text-[11px] ${RESPONSE_STATUS_BADGE[r.status]}`}>
+                        {RESPONSE_STATUS_LABELS[r.status]}
+                      </Badge>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-x-3 text-sm text-muted-foreground">
+                      <span>{r.attending ? `Présent${r.guest_count > 1 ? `, ${r.guest_count} pers.` : ""}` : "Absent"}</span>
+                      <span>Reçue le {formatReceivedAt(r.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </AccordionContent>
         </AccordionItem>
