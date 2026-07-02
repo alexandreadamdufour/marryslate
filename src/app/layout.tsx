@@ -21,10 +21,28 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" })
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" })
-const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500", "600"], variable: "--font-cormorant", display: "swap" })
-const greatVibes = Great_Vibes({ subsets: ["latin"], weight: "400", variable: "--font-greatvibes", display: "swap" })
-const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", display: "swap" })
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+})
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-cormorant",
+  display: "swap",
+})
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-greatvibes",
+  display: "swap",
+})
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+})
 const lora = Lora({ subsets: ["latin"], variable: "--font-lora", display: "swap" })
 
 const APP_URL = env.NEXT_PUBLIC_APP_URL
@@ -54,10 +72,14 @@ export const metadata: Metadata = {
   alternates: {
     canonical: APP_URL,
   },
-  // Hardcodé volontairement : tag public de vérification GSC, non sensible.
+  // Hardcodé volontairement : tags publics de vérification GSC, non sensibles.
   // Migration vers env non nécessaire, éviterait juste un round-trip Vercel pour zéro gain sécurité.
+  // Deux propriétés GSC distinctes (domain + URL-prefix) → deux tags.
   verification: {
-    google: "TXAJfXY2wm227MhZfAWaA3MXznxr2rIj73A-0g17Q5o",
+    google: [
+      "TXAJfXY2wm227MhZfAWaA3MXznxr2rIj73A-0g17Q5o",
+      "NT8pKOAcxWNF6C3OryDWcgconNuuIQJdNooobSWVPEw",
+    ],
   },
   robots: {
     index: true,
@@ -71,7 +93,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="fr" className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}>
+      <html
+        lang="fr"
+        className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}
+      >
         <body>
           {children}
           <Toaster richColors position="bottom-right" toastOptions={{ duration: 5000 }} />
