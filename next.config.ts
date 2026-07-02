@@ -76,9 +76,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   typedRoutes: false,
-  // URGENT — workaround temporaire post-DROP guest_rsvps (drift migrations↔prod révélé,
-  // cf. ETAT.md "Audit synchro migrations↔prod"). À RETIRER dès que l'audit est fait.
-  typescript: { ignoreBuildErrors: true },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
