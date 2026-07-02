@@ -189,3 +189,27 @@ export async function checkSlugAvailability(
   const { data } = await query.maybeSingle()
   return { available: !data }
 }
+
+export async function completeOnboardingChecklist(
+  weddingId: string
+): Promise<ActionResult<{ id: string }>> {
+  const { userId: clerkUserId } = await auth()
+  if (!clerkUserId) return { error: "UNAUTHORIZED" }
+
+  const supabase = await createClerkSupabaseClient()
+  if (!(await assertWeddingCoowner(supabase, weddingId))) return { error: "FORBIDDEN" }
+
+  const { error } = await supabase
+    .from("weddings")
+    .update({ onboarding_completed_at: new Date().toISOString() })
+    .eq("id", weddingId)
+    .is("onboarding_completed_at", null)
+
+  if (error) {
+    logDbError("completeOnboardingChecklist", error)
+    return { error: "DB_ERROR" }
+  }
+
+  revalidatePath("/dashboard")
+  return { data: { id: weddingId } }
+}

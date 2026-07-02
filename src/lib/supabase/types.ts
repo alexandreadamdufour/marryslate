@@ -709,6 +709,7 @@ export type Database = {
           id: string
           is_published: boolean
           notifications_enabled: boolean
+          onboarding_completed_at: string | null
           owner_id: string
           partner1_first_name: string
           partner2_first_name: string
@@ -734,6 +735,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           notifications_enabled?: boolean
+          onboarding_completed_at?: string | null
           owner_id: string
           partner1_first_name: string
           partner2_first_name: string
@@ -759,6 +761,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           notifications_enabled?: boolean
+          onboarding_completed_at?: string | null
           owner_id?: string
           partner1_first_name?: string
           partner2_first_name?: string
