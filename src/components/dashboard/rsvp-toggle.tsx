@@ -23,7 +23,7 @@ export function RsvpToggle({ weddingId, initialEnabled }: RsvpToggleProps) {
         setEnabled(!next)
         toast.error("Impossible de modifier le RSVP. Réessayez.")
       } else {
-        toast.success(next ? "Formulaire RSVP activé" : "Formulaire RSVP désactivé")
+        toast.success(next ? "Formulaire RSVP activé" : "Formulaire RSVP désactivé", { duration: 3000 })
       }
     })
   }

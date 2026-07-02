@@ -54,7 +54,7 @@ export function GiftCard({ gift, weddingId }: GiftCardProps) {
     if ("error" in result) {
       toast.error("Erreur lors de la suppression")
     } else {
-      toast.success("Cadeau supprimé")
+      toast.success("Cadeau supprimé", { duration: 3000 })
       router.refresh()
     }
     setDeleting(false)
@@ -62,7 +62,7 @@ export function GiftCard({ gift, weddingId }: GiftCardProps) {
 
   async function handleToggleActive() {
     await updateGift({ giftId: gift.id, isActive: !gift.is_active })
-    toast.success(gift.is_active ? "Cadeau masqué" : "Cadeau visible")
+    toast.success(gift.is_active ? "Cadeau masqué" : "Cadeau visible", { duration: 3000 })
     router.refresh()
   }
 

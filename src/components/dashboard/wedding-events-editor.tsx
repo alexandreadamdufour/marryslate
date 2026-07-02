@@ -71,7 +71,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
     if (result.error) {
       toast.error("Erreur lors de la suppression")
     } else {
-      toast.success("Événement supprimé")
+      toast.success("Événement supprimé", { duration: 3000 })
       router.refresh()
     }
     setDeleting(false)

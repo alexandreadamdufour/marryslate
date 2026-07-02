@@ -110,7 +110,7 @@ export function SeatingEditor({ initialTables, guests, weddingId }: Props) {
   async function handleDeleteTable(tableId: string) {
     const result = await deleteSeatingTable(tableId)
     if (result.error) { toast.error("Erreur lors de la suppression."); return }
-    toast.success("Table supprimée")
+    toast.success("Table supprimée", { duration: 3000 })
     router.refresh()
   }
 

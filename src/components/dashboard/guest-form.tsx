@@ -97,7 +97,7 @@ export function GuestForm(props: Props) {
 
     if (result.error) { toast.error(result.error); return }
 
-    toast.success(isEdit ? "Invité mis à jour" : "Invité ajouté")
+    toast.success(isEdit ? "Invité mis à jour" : "Invité ajouté", { duration: 3000 })
     router.refresh()
     props.onDone()
   }

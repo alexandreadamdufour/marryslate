@@ -95,7 +95,7 @@ export function GuestCsvButtons({ weddingId }: Props) {
 
     if (result.error ?? !result.data) { toast.error("Erreur lors de l'import."); return }
     const count = result.data.count
-    toast.success(`${count} invité${count !== 1 ? "s" : ""} importé${count !== 1 ? "s" : ""}`)
+    toast.success(`${count} invité${count !== 1 ? "s" : ""} importé${count !== 1 ? "s" : ""}`, { duration: 3000 })
     router.refresh()
   }
 

@@ -114,7 +114,7 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
       return
     }
 
-    toast.success(gift ? "Cadeau mis à jour" : "Cadeau ajouté")
+    toast.success(gift ? "Cadeau mis à jour" : "Cadeau ajouté", { duration: 3000 })
     onSuccess()
   }
 

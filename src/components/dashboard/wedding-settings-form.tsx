@@ -78,7 +78,7 @@ export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
       return
     }
 
-    toast.success("Modifications enregistrées")
+    toast.success("Modifications enregistrées", { duration: 3000 })
     setSlugStatus("unchanged")
     setIsSaving(false)
   }

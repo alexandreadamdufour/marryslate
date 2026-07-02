@@ -81,7 +81,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
   async function handleDelete(guestId: string) {
     const result = await deleteGuest(guestId)
     if (result.error) { toast.error("Erreur lors de la suppression."); return }
-    toast.success("Invité supprimé")
+    toast.success("Invité supprimé", { duration: 3000 })
     router.refresh()
   }
 

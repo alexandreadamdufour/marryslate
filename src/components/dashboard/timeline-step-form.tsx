@@ -46,7 +46,7 @@ export function TimelineStepForm({ weddingId, step, onSuccess }: TimelineStepFor
       toast.error("Une erreur est survenue. Veuillez réessayer.")
       return
     }
-    toast.success(step ? "Étape modifiée" : "Étape ajoutée")
+    toast.success(step ? "Étape modifiée" : "Étape ajoutée", { duration: 3000 })
     onSuccess()
   }
 

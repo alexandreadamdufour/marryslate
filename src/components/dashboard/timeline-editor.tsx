@@ -55,7 +55,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
     if (result.error) {
       toast.error("Erreur lors de la suppression")
     } else {
-      toast.success("Étape supprimée")
+      toast.success("Étape supprimée", { duration: 3000 })
       router.refresh()
     }
     setDeleting(false)

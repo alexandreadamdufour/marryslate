@@ -131,7 +131,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
       toast.error(errorMessage(result.error))
       return
     }
-    toast.success("Réponse rattachée à l'invité.")
+    toast.success("Réponse rattachée à l'invité.", { duration: 3000 })
     setLinkingId(null)
     router.refresh()
   }
@@ -144,7 +144,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
       toast.error(errorMessage(result.error))
       return
     }
-    toast.success("Invité créé et réponse rattachée.")
+    toast.success("Invité créé et réponse rattachée.", { duration: 3000 })
     router.refresh()
   }
 
@@ -157,7 +157,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
       toast.error(errorMessage(result.error))
       return
     }
-    toast.success("Réponse rejetée.")
+    toast.success("Réponse rejetée.", { duration: 3000 })
     router.refresh()
   }
 
@@ -174,7 +174,7 @@ export function RsvpResponsesPanel({ guests, data }: Props) {
       toast.error(errorMessage(result.error))
       return
     }
-    toast.success("Conflit résolu.")
+    toast.success("Conflit résolu.", { duration: 3000 })
     router.refresh()
   }
 

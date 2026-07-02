@@ -87,7 +87,7 @@ export function StoryForm({ wedding }: Props) {
       toast.error("Erreur lors de la sauvegarde.")
       return
     }
-    toast.success("Histoire enregistrée")
+    toast.success("Histoire enregistrée", { duration: 3000 })
   }
 
   return (

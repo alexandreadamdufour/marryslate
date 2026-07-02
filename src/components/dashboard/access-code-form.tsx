@@ -41,7 +41,8 @@ export function AccessCodeForm({ wedding }: Props) {
       toast.error("Erreur lors de la sauvegarde.")
     } else {
       toast.success(
-        enabled ? "Accès par code activé." : "Protection désactivée."
+        enabled ? "Accès par code activé." : "Protection désactivée.",
+        { duration: 3000 }
       )
     }
   }

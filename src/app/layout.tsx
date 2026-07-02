@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="fr" className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}>
         <body>
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="bottom-right" toastOptions={{ duration: 5000 }} />
           <CookieBanner />
           <CrispChat />
           {process.env.NEXT_PUBLIC_GA_ID && (

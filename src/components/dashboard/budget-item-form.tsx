@@ -104,7 +104,7 @@ export function BudgetItemForm(props: Props) {
       return
     }
 
-    toast.success(isEdit ? "Poste mis à jour" : "Poste ajouté")
+    toast.success(isEdit ? "Poste mis à jour" : "Poste ajouté", { duration: 3000 })
     router.refresh()
     props.onDone()
   }

@@ -168,7 +168,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
       toast.error("Erreur lors de la suppression.")
       return
     }
-    toast.success("Poste supprimé")
+    toast.success("Poste supprimé", { duration: 3000 })
     router.refresh()
   }
 

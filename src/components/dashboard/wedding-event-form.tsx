@@ -58,7 +58,7 @@ export function WeddingEventForm({ weddingId, event, onSuccess }: Props) {
       toast.error("Une erreur est survenue. Veuillez réessayer.")
       return
     }
-    toast.success(event ? "Événement modifié" : "Événement ajouté")
+    toast.success(event ? "Événement modifié" : "Événement ajouté", { duration: 3000 })
     onSuccess()
   }
 

@@ -115,7 +115,7 @@ export function PracticalInfoForm({ wedding }: Props) {
       toast.error("Erreur lors de la sauvegarde.")
       return
     }
-    toast.success("Infos pratiques enregistrées")
+    toast.success("Infos pratiques enregistrées", { duration: 3000 })
   }
 
   return (

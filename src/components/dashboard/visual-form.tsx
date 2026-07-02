@@ -65,7 +65,7 @@ export function VisualForm({ wedding }: Props) {
     if (result.error) {
       toast.error("Erreur lors de la sauvegarde.")
     } else {
-      toast.success("Apparence enregistrée")
+      toast.success("Apparence enregistrée", { duration: 3000 })
     }
   }
 
