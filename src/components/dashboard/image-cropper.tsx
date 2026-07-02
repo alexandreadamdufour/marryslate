@@ -12,6 +12,8 @@ interface ImageCropperProps {
   aspect: number
   onConfirm: (blob: Blob) => void
   onCancel: () => void
+  /** Si fourni, affiche un bouton "Passer" qui laisse l'appelant utiliser l'image d'origine sans recadrage. */
+  onSkip?: () => void
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -36,7 +38,7 @@ async function getCroppedBlob(imageSrc: string, area: Area): Promise<Blob> {
   })
 }
 
-export function ImageCropper({ open, imageSrc, aspect, onConfirm, onCancel }: ImageCropperProps) {
+export function ImageCropper({ open, imageSrc, aspect, onConfirm, onCancel, onSkip }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedArea, setCroppedArea] = useState<Area | null>(null)
@@ -92,17 +94,24 @@ export function ImageCropper({ open, imageSrc, aspect, onConfirm, onCancel }: Im
           />
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="sm:justify-between">
           <Button type="button" variant="outline" onClick={onCancel} disabled={processing}>
             Annuler
           </Button>
-          <Button type="button" onClick={handleConfirm} disabled={processing || !croppedArea}>
-            {processing ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              "Valider le cadrage"
+          <div className="flex gap-2">
+            {onSkip && (
+              <Button type="button" variant="ghost" onClick={onSkip} disabled={processing}>
+                Passer, garder l&apos;original
+              </Button>
             )}
-          </Button>
+            <Button type="button" onClick={handleConfirm} disabled={processing || !croppedArea}>
+              {processing ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                "Valider le cadrage"
+              )}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

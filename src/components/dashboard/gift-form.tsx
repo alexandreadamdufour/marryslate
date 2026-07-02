@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import imageCompression from "browser-image-compression"
-import { Loader2, Upload, X, ExternalLink } from "lucide-react"
+import { Loader2, X, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 
@@ -28,9 +28,13 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form"
+import { ImageDropzone } from "@/components/dashboard/image-dropzone"
+import { ImageCropper } from "@/components/dashboard/image-cropper"
 import { createGift, updateGift, uploadGiftImage } from "@/actions/gifts"
 import { GIFT_CATEGORIES } from "@/lib/constants"
 import type { Gift } from "@/queries/gifts"
+
+const GIFT_ASPECT = 4 / 3
 
 const formSchema = z.object({
   title: z.string().min(1, "Requis").max(120),
@@ -51,6 +55,8 @@ interface GiftFormProps {
 export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(gift?.image_url ?? null)
   const [uploading, setUploading] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -63,10 +69,18 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
     },
   })
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  function openCropper(file: File) {
+    setPendingFile(file)
+    setCropSrc(URL.createObjectURL(file))
+  }
 
+  function closeCropper() {
+    if (cropSrc) URL.revokeObjectURL(cropSrc)
+    setCropSrc(null)
+    setPendingFile(null)
+  }
+
+  async function uploadFile(file: File, filename: string) {
     setUploading(true)
     try {
       const compressed = await imageCompression(file, {
@@ -76,7 +90,7 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
       })
 
       const formData = new FormData()
-      formData.append("file", compressed, file.name)
+      formData.append("file", compressed, filename)
       formData.append("weddingId", weddingId)
 
       const result = await uploadGiftImage(formData)
@@ -90,6 +104,19 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
     } finally {
       setUploading(false)
     }
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    const cropped = new File([blob], "gift.jpg", { type: "image/jpeg" })
+    closeCropper()
+    await uploadFile(cropped, "gift.jpg")
+  }
+
+  async function handleCropSkip() {
+    if (!pendingFile) return
+    const original = pendingFile
+    closeCropper()
+    await uploadFile(original, original.name)
   }
 
   async function onSubmit(values: FormValues) {
@@ -143,25 +170,26 @@ export function GiftForm({ weddingId, gift, onSuccess }: GiftFormProps) {
               </button>
             </div>
           ) : (
-            <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-input bg-muted/40 text-sm text-muted-foreground transition-colors hover:bg-muted/60">
-              {uploading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Upload className="h-5 w-5" />
-                  <span>Choisir une image (JPG, PNG, WebP — max 5 Mo)</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/avif"
-                className="sr-only"
-                onChange={handleImageChange}
-                disabled={uploading}
-              />
-            </label>
+            <ImageDropzone
+              multiple={false}
+              disabled={uploading}
+              className="h-32 w-full"
+              label={uploading ? "Envoi en cours…" : "Glissez une image ici, ou cliquez pour parcourir"}
+              onFilesAccepted={([file]) => file && openCropper(file)}
+            />
           )}
         </div>
+
+        {cropSrc && (
+          <ImageCropper
+            open
+            imageSrc={cropSrc}
+            aspect={GIFT_ASPECT}
+            onConfirm={handleCropConfirm}
+            onSkip={handleCropSkip}
+            onCancel={closeCropper}
+          />
+        )}
 
         <FormField
           control={form.control}
