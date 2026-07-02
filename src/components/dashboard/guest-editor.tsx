@@ -14,6 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import {
   WEDDING_SIDES,
@@ -126,45 +134,68 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
         )}
       </div>
 
-      {/* Guest list */}
+      {/* Guest list — colonnes compactées (Nom/Statut/Actions) sur mobile, complètes à partir de md */}
       {filtered.length > 0 && (
-        <div className="divide-y rounded-xl border">
-          {filtered.map((guest) => (
-            <div key={guest.id} className="flex items-center justify-between gap-4 px-4 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">
-                    {[guest.first_name, guest.last_name].filter(Boolean).join(" ") || "—"}
-                  </span>
-                  <Badge className={cn("border text-[11px]", STATUS_BADGE[guest.rsvp_status] ?? STATUS_BADGE.pending)}>
-                    {RSVP_STATUS_LABELS[guest.rsvp_status as keyof typeof RSVP_STATUS_LABELS]}
-                  </Badge>
-                  {guest.invitation_sent && (
-                    <MailCheck className="h-3.5 w-3.5 text-muted-foreground" aria-label="Invitation envoyée" />
-                  )}
-                  {guest.plus_one && (
-                    <Badge variant="outline" className="text-[11px]">+1{guest.plus_one_name ? ` ${guest.plus_one_name}` : ""}</Badge>
-                  )}
-                </div>
-                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
-                  {guest.email && <span>{guest.email}</span>}
-                  {guest.group_name && <span>{guest.group_name}</span>}
-                  <span>{SIDE_LABELS[guest.side as keyof typeof SIDE_LABELS]}</span>
-                  {guest.dietary && <span>🍽 {guest.dietary}</span>}
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Modifier ${guest.first_name ?? ""}`}
-                  onClick={() => { setEditingGuest(guest); setAddOpen(false) }}>
-                  <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
-                  aria-label={`Supprimer ${guest.first_name ?? ""}`} onClick={() => handleDelete(guest.id)}>
-                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                </Button>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nom</TableHead>
+                <TableHead className="hidden md:table-cell">Côté</TableHead>
+                <TableHead className="hidden md:table-cell">Groupe</TableHead>
+                <TableHead className="hidden md:table-cell">Email</TableHead>
+                <TableHead className="hidden md:table-cell">Régime</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((guest) => (
+                <TableRow key={guest.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span>{[guest.first_name, guest.last_name].filter(Boolean).join(" ") || "—"}</span>
+                      {guest.invitation_sent && (
+                        <MailCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-label="Invitation envoyée" />
+                      )}
+                      {guest.plus_one && (
+                        <Badge variant="outline" className="text-[11px]">+1{guest.plus_one_name ? ` ${guest.plus_one_name}` : ""}</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {SIDE_LABELS[guest.side as keyof typeof SIDE_LABELS]}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {guest.group_name ?? "—"}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {guest.email ?? "—"}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {guest.dietary ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={cn("border text-[11px]", STATUS_BADGE[guest.rsvp_status] ?? STATUS_BADGE.pending)}>
+                      {RSVP_STATUS_LABELS[guest.rsvp_status as keyof typeof RSVP_STATUS_LABELS]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Modifier ${guest.first_name ?? ""}`}
+                        onClick={() => { setEditingGuest(guest); setAddOpen(false) }}>
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                        aria-label={`Supprimer ${guest.first_name ?? ""}`} onClick={() => handleDelete(guest.id)}>
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 

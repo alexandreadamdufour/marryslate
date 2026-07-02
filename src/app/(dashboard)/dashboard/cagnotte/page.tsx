@@ -48,7 +48,7 @@ export default async function CagnottePage() {
       </div>
 
       {/* Totaux */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total brut</CardTitle>

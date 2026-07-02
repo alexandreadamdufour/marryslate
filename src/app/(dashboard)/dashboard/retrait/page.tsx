@@ -67,7 +67,7 @@ export default async function RetraitPage() {
       </div>
 
       {/* Synthèse financière */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border bg-card p-4">
           <p className="text-sm text-muted-foreground">Total collecté (net)</p>
           <p className="mt-1 text-2xl font-semibold">

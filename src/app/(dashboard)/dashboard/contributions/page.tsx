@@ -7,6 +7,14 @@ import { getContributionsByWedding, getWeddingTotals } from "@/queries/contribut
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { ExportCsvButton } from "@/components/dashboard/export-csv-button"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -54,7 +62,7 @@ export default async function ContributionsPage() {
       </div>
 
       {/* Totaux */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total brut</CardTitle>
@@ -98,61 +106,70 @@ export default async function ContributionsPage() {
           action={{ label: "Voir mon site", href: `/m/${wedding.slug}` as Route }}
         />
       ) : (
-        <div className="space-y-3">
-          {contributions.map((c) => {
-            const status = statusLabel[c.payment_status] ?? { label: c.payment_status, variant: "outline" as const }
-            return (
-              <div
-                key={c.id}
-                className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3"
-              >
-                {/* Photo souvenir */}
-                {c.contributor_photo_url && (
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md">
-                    <Image
-                      src={c.contributor_photo_url}
-                      alt="Photo souvenir"
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {c.is_anonymous ? "Anonyme" : c.guest_name}
-                    </span>
-                    <Badge variant={status.variant} className="shrink-0 text-xs">
-                      {status.label}
-                    </Badge>
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    {c.gift && <span>{c.gift.title}</span>}
-                    {c.guest_message && (
-                      <span className="truncate italic">&quot;{c.guest_message}&quot;</span>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{formatDate(c.created_at)}</p>
-                </div>
-
-                <div className="ml-auto shrink-0 text-right">
-                  <p className="font-semibold">
-                    {Number(c.gross_amount).toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                    })}
-                  </p>
-                  {c.payment_status === "succeeded" && (
-                    <p className="text-xs text-muted-foreground">
-                      {formatEuros(Math.round(Number(c.net_amount) * 100))} net
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+        <div className="rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Contributeur</TableHead>
+                <TableHead className="hidden md:table-cell">Cadeau</TableHead>
+                <TableHead className="hidden md:table-cell">Message</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="text-right">Brut</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Net</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {contributions.map((c) => {
+                const status = statusLabel[c.payment_status] ?? { label: c.payment_status, variant: "outline" as const }
+                return (
+                  <TableRow key={c.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {c.contributor_photo_url && (
+                          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                            <Image
+                              src={c.contributor_photo_url}
+                              alt="Photo souvenir"
+                              fill
+                              sizes="32px"
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <span>{c.is_anonymous ? "Anonyme" : c.guest_name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-muted-foreground md:table-cell">
+                      {c.gift?.title ?? "—"}
+                    </TableCell>
+                    <TableCell className="hidden max-w-[200px] truncate italic text-muted-foreground md:table-cell">
+                      {c.guest_message ? `"${c.guest_message}"` : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={status.variant} className="shrink-0 text-xs">
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {Number(c.gross_amount).toLocaleString("fr-FR", {
+                        style: "currency",
+                        currency: "EUR",
+                      })}
+                    </TableCell>
+                    <TableCell className="hidden text-right text-muted-foreground md:table-cell">
+                      {c.payment_status === "succeeded"
+                        ? formatEuros(Math.round(Number(c.net_amount) * 100))
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="hidden text-muted-foreground md:table-cell">
+                      {formatDate(c.created_at)}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
         </div>
       )}
 
