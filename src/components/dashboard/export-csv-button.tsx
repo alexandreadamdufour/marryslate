@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Download } from "lucide-react"
+import { toast } from "sonner"
 import { exportContributionsCSV } from "@/actions/exports"
 import { Button } from "@/components/ui/button"
 
@@ -15,7 +16,7 @@ export function ExportCsvButton({ weddingId }: Props) {
     const result = await exportContributionsCSV(weddingId)
     setLoading(false)
 
-    if ("error" in result) return
+    if ("error" in result) { toast.error("Erreur lors de l'export."); return }
 
     const blob = new Blob(["﻿" + result.data.csv], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
