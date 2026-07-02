@@ -68,19 +68,19 @@ export default async function RetraitPage() {
 
       {/* Synthèse financière */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-muted/50">
           <p className="text-sm text-muted-foreground">Total collecté (net)</p>
           <p className="mt-1 text-2xl font-semibold">
             {totals.totalNet.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
           </p>
         </div>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-muted/50">
           <p className="text-sm text-muted-foreground">Déjà retiré</p>
           <p className="mt-1 text-2xl font-semibold">
             {totalWithdrawn.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
           </p>
         </div>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-muted/50">
           <p className="text-sm text-muted-foreground">Disponible maintenant</p>
           <p className="mt-1 text-2xl font-semibold text-primary">
             {availableEuros.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}

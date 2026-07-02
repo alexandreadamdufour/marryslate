@@ -55,7 +55,7 @@ export function NotificationToggle({ wedding }: Props) {
           disabled={isPending}
           onChange={handleChange}
         />
-        <div className="peer relative h-5 w-9 rounded-full bg-input transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-primary peer-checked:after:translate-x-4 peer-disabled:opacity-60 peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2" />
+        <div className="peer relative h-5 w-9 rounded-full bg-input transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform hover:bg-input/80 peer-checked:bg-primary peer-checked:after:translate-x-4 peer-checked:hover:bg-primary/90 peer-disabled:opacity-60 peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2" />
       </label>
     </div>
   )

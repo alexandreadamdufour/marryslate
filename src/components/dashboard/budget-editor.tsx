@@ -54,12 +54,11 @@ function SummaryCard({
 interface CategoryGroupProps {
   category: string
   items: BudgetItem[]
-  weddingId: string
   onEdit: (item: BudgetItem) => void
   onDelete: (itemId: string) => void
 }
 
-function CategoryGroup({ category, items, weddingId, onEdit, onDelete }: CategoryGroupProps) {
+function CategoryGroup({ category, items, onEdit, onDelete }: CategoryGroupProps) {
   const [open, setOpen] = useState(true)
 
   const estimated = items.reduce((s, i) => s + Number(i.estimated_amount), 0)
@@ -70,7 +69,7 @@ function CategoryGroup({ category, items, weddingId, onEdit, onDelete }: Categor
     <div className="rounded-xl border">
       <button
         type="button"
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted/50"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
@@ -206,7 +205,6 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
               key={category}
               category={category}
               items={catItems}
-              weddingId={weddingId}
               onEdit={(item) => {
                 setEditingItem(item)
                 setAddOpen(false)

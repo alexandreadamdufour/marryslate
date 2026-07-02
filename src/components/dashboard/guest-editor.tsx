@@ -6,7 +6,6 @@ import { Plus, Pencil, Trash2, MailCheck } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -48,7 +47,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 function SummaryCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-5", accent && "border-primary/30 bg-primary/5")}>
+    <div className={cn("rounded-xl border p-5 transition-colors hover:bg-muted/50", accent && "border-primary/30 bg-primary/5")}>
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={cn("mt-1.5 text-2xl font-semibold tabular-nums", accent && "text-primary")}>
         {value}

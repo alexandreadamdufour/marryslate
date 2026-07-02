@@ -49,7 +49,7 @@ export default async function CagnottePage() {
 
       {/* Totaux */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="transition-colors hover:bg-muted/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total brut</CardTitle>
           </CardHeader>
@@ -59,7 +59,7 @@ export default async function CagnottePage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-colors hover:bg-muted/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Net (après frais)</CardTitle>
           </CardHeader>
@@ -69,7 +69,7 @@ export default async function CagnottePage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-colors hover:bg-muted/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Commission Marryslate</CardTitle>
           </CardHeader>

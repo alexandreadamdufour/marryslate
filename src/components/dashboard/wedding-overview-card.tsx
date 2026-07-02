@@ -17,7 +17,7 @@ export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {/* Statut du site */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3 transition-colors hover:bg-muted/50">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
           <span>Votre site</span>
@@ -38,9 +38,9 @@ export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
             <Link href="/dashboard/site">Personnaliser</Link>
           </Button>
           {wedding.is_published && (
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="ghost" size="sm" aria-label="Voir le site">
               <Link href={siteUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" aria-label="Voir le site" />
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
           )}
@@ -48,7 +48,7 @@ export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
       </div>
 
       {/* Date */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3 transition-colors hover:bg-muted/50">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
           <span>Date du mariage</span>
@@ -64,7 +64,7 @@ export function WeddingOverviewCard({ wedding }: WeddingOverviewCardProps) {
       </div>
 
       {/* Adresse */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3 transition-colors hover:bg-muted/50">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
           <span>URL du site</span>
