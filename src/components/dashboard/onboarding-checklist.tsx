@@ -27,7 +27,7 @@ export function OnboardingChecklist({ wedding, hasGuests, hasGifts }: Props) {
   }, [storageKey])
 
   const items = [
-    { key: "hero", label: "Ajouter votre photo de couple", href: "/dashboard/site" as Route, done: !!wedding.cover_image_url },
+    { key: "hero", label: "Ajouter votre photo de couple", href: "/dashboard/site#cover" as Route, done: !!wedding.cover_image_url },
     { key: "guests", label: "Ajouter vos premiers invités", href: "/dashboard/invites" as Route, done: hasGuests },
     { key: "gifts", label: "Créer votre premier cadeau", href: "/dashboard/liste" as Route, done: hasGifts },
     { key: "rsvp", label: "Activer le RSVP", href: "/dashboard/invites" as Route, done: wedding.rsvp_enabled },
