@@ -14,6 +14,7 @@ import { WeddingHero } from "@/components/wedding-site/wedding-hero"
 import { WeddingStory } from "@/components/wedding-site/wedding-story"
 import { WeddingEventsSection } from "@/components/wedding-site/wedding-events-section"
 import { WeddingPracticalInfoSection } from "@/components/wedding-site/wedding-practical-info-section"
+import { WeddingAccommodationsSection } from "@/components/wedding-site/wedding-accommodations-section"
 import { WeddingGiftsSection } from "@/components/wedding-site/wedding-gifts-section"
 import { WeddingTimelineSection } from "@/components/wedding-site/wedding-timeline-section"
 import { ViewTracker } from "@/components/wedding-site/view-tracker"
@@ -152,6 +153,10 @@ export default async function WeddingPublicPage({ params }: Props) {
       )}
 
       <WeddingEventsSection events={wedding.events} />
+
+      <WeddingAccommodationsSection
+        accommodations={(wedding.practical_info as PracticalInfo | null)?.accommodations}
+      />
 
       <WeddingPracticalInfoSection
         info={wedding.practical_info as PracticalInfo | null}

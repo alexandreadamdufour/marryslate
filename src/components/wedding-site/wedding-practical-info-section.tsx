@@ -1,4 +1,4 @@
-import { MapPin, Hotel, Shirt, ExternalLink } from "lucide-react"
+import { MapPin, Shirt, ExternalLink } from "lucide-react"
 import type { PracticalInfo, VenueInfo } from "@/lib/validators/practical-info"
 
 interface Props {
@@ -11,9 +11,8 @@ export function WeddingPracticalInfoSection({ info }: Props) {
   const hasCeremony = !!(info.venue_ceremony?.name || info.venue_ceremony?.address)
   const hasReception = !!(info.venue_reception?.name || info.venue_reception?.address)
   const hasDressCode = !!info.dress_code
-  const hasAccommodations = (info.accommodations?.length ?? 0) > 0
 
-  if (!hasCeremony && !hasReception && !hasDressCode && !hasAccommodations) return null
+  if (!hasCeremony && !hasReception && !hasDressCode) return null
 
   return (
     <section id="infos-pratiques" className="bg-muted/30 py-20">
@@ -40,42 +39,6 @@ export function WeddingPracticalInfoSection({ info }: Props) {
             </div>
           )}
 
-          {hasAccommodations && (
-            <div className="flex gap-4">
-              <Hotel className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-              <div className="flex-1">
-                <p className="mb-3 font-semibold">Hébergements recommandés</p>
-                <div className="space-y-3">
-                  {info.accommodations!.map((acc, i) => (
-                    <div key={i} className="rounded-lg border bg-card p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="font-medium">{acc.name}</p>
-                          {acc.address && (
-                            <p className="mt-0.5 text-sm text-muted-foreground">{acc.address}</p>
-                          )}
-                          {acc.price_range && (
-                            <p className="mt-0.5 text-sm text-muted-foreground">{acc.price_range}</p>
-                          )}
-                        </div>
-                        {acc.booking_url && (
-                          <a
-                            href={acc.booking_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex shrink-0 items-center gap-1 text-sm text-primary hover:underline"
-                          >
-                            Réserver
-                            <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </section>
