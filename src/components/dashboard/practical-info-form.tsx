@@ -100,6 +100,7 @@ export function PracticalInfoForm({ wedding }: Props) {
         address: a.address ?? "",
         booking_url: a.booking_url ?? "",
         price_range: a.price_range ?? "",
+        distance: a.distance ?? "",
       })) ?? [],
     },
   })
@@ -159,7 +160,7 @@ export function PracticalInfoForm({ wedding }: Props) {
         <div className="space-y-3">
           <p className="text-sm font-semibold">
             Hébergements recommandés{" "}
-            <span className="text-xs font-normal text-muted-foreground">(5 max)</span>
+            <span className="text-xs font-normal text-muted-foreground">(8 max)</span>
           </p>
 
           {fields.length === 0 && (
@@ -207,7 +208,7 @@ export function PracticalInfoForm({ wedding }: Props) {
                   </FormItem>
                 )}
               />
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
                 <FormField
                   control={form.control}
                   name={`accommodations.${index}.price_range`}
@@ -216,6 +217,19 @@ export function PracticalInfoForm({ wedding }: Props) {
                       <FormLabel>Fourchette de prix</FormLabel>
                       <FormControl>
                         <Input placeholder="80–120 €/nuit" {...f} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`accommodations.${index}.distance`}
+                  render={({ field: f }) => (
+                    <FormItem>
+                      <FormLabel>Distance</FormLabel>
+                      <FormControl>
+                        <Input placeholder="10 min à pied" {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -238,13 +252,13 @@ export function PracticalInfoForm({ wedding }: Props) {
             </div>
           ))}
 
-          {fields.length < 5 && (
+          {fields.length < 8 && (
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="gap-2"
-              onClick={() => append({ name: "", address: "", booking_url: "", price_range: "" })}
+              onClick={() => append({ name: "", address: "", booking_url: "", price_range: "", distance: "" })}
             >
               <Plus className="h-4 w-4" />
               Ajouter un hébergement

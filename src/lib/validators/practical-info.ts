@@ -19,6 +19,7 @@ const accommodationSchema = z.object({
   address: z.string().max(300),
   booking_url: urlOrEmpty,
   price_range: z.string().max(50),
+  distance: z.string().max(100),
 })
 
 export const updatePracticalInfoSchema = z.object({
@@ -26,7 +27,7 @@ export const updatePracticalInfoSchema = z.object({
   venue_ceremony: venueSchema,
   venue_reception: venueSchema,
   dress_code: z.string().max(500),
-  accommodations: z.array(accommodationSchema).max(5, "5 hébergements maximum"),
+  accommodations: z.array(accommodationSchema).max(8, "8 hébergements maximum"),
 })
 
 export type UpdatePracticalInfoInput = z.infer<typeof updatePracticalInfoSchema>
