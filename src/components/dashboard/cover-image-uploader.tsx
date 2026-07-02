@@ -3,9 +3,11 @@
 import { useRef, useState } from "react"
 import Image from "next/image"
 import imageCompression from "browser-image-compression"
-import { Loader2, Upload, X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { ImageDropzone } from "@/components/dashboard/image-dropzone"
+import { ImageCropper } from "@/components/dashboard/image-cropper"
 import { uploadCoverImage, updateWedding } from "@/actions/wedding"
 import type { Tables } from "@/lib/supabase/types"
 
@@ -13,16 +15,27 @@ interface Props {
   wedding: Tables<"weddings">
 }
 
+const HERO_ASPECT = 3 / 2
+
 export function CoverImageUploader({ wedding }: Props) {
   const [coverUrl, setCoverUrl] = useState(wedding.cover_image_url)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  function openCropper(file: File) {
+    setCropSrc(URL.createObjectURL(file))
+  }
 
+  function closeCropper() {
+    if (cropSrc) URL.revokeObjectURL(cropSrc)
+    setCropSrc(null)
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    const file = new File([blob], "cover.jpg", { type: "image/jpeg" })
+    closeCropper()
     setUploading(true)
     try {
       const compressed = await imageCompression(file, {
@@ -32,7 +45,7 @@ export function CoverImageUploader({ wedding }: Props) {
       })
 
       const fd = new FormData()
-      fd.append("file", compressed, file.name)
+      fd.append("file", compressed, "cover.jpg")
       fd.append("weddingId", wedding.id)
 
       const uploadResult = await uploadCoverImage(fd)
@@ -56,7 +69,6 @@ export function CoverImageUploader({ wedding }: Props) {
       toast.error("Erreur lors de la compression.")
     } finally {
       setUploading(false)
-      e.target.value = ""
     }
   }
 
@@ -76,13 +88,18 @@ export function CoverImageUploader({ wedding }: Props) {
 
   return (
     <div>
+      {/* Input caché pour le bouton "Changer la photo" (remplacement d'une photo existante) */}
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/avif"
         className="sr-only"
         disabled={busy}
-        onChange={handleChange}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) openCropper(file)
+          e.target.value = ""
+        }}
       />
 
       {coverUrl ? (
@@ -125,21 +142,23 @@ export function CoverImageUploader({ wedding }: Props) {
           </div>
         </div>
       ) : (
-        <button
-          type="button"
+        <ImageDropzone
+          multiple={false}
           disabled={busy}
-          onClick={() => inputRef.current?.click()}
-          className="flex aspect-[21/9] w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {uploading ? (
-            <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
-          ) : (
-            <>
-              <Upload className="h-6 w-6" aria-hidden="true" />
-              <span className="text-sm">Ajouter une photo de couverture</span>
-            </>
-          )}
-        </button>
+          className="aspect-[21/9] w-full"
+          label={uploading ? "Envoi en cours…" : "Glissez une photo de couverture ici, ou cliquez pour parcourir"}
+          onFilesAccepted={([file]) => file && openCropper(file)}
+        />
+      )}
+
+      {cropSrc && (
+        <ImageCropper
+          open
+          imageSrc={cropSrc}
+          aspect={HERO_ASPECT}
+          onConfirm={handleCropConfirm}
+          onCancel={closeCropper}
+        />
       )}
     </div>
   )
