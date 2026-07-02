@@ -1,13 +1,15 @@
+import { Skeleton } from "@/components/ui/skeleton"
+
 export default function DashboardLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse">
-      <div className="h-8 w-48 rounded-lg bg-muted" />
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-48" />
       <div className="grid gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 rounded-2xl bg-muted" />
+          <Skeleton key={i} className="h-28 rounded-2xl" />
         ))}
       </div>
-      <div className="h-48 rounded-2xl bg-muted" />
+      <Skeleton className="h-48 rounded-2xl" />
     </div>
   )
 }
