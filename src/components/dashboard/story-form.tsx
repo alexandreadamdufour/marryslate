@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import imageCompression from "browser-image-compression"
-import { Loader2, Plus, X } from "lucide-react"
+import pLimit from "p-limit"
+import { Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -19,9 +20,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { ImageDropzone } from "@/components/dashboard/image-dropzone"
 import { updateStorySchema, type UpdateStoryInput } from "@/lib/validators/story"
 import { updateStory, uploadStoryImage } from "@/actions/story"
 import type { Tables } from "@/lib/supabase/types"
+
+const UPLOAD_CONCURRENCY = 3
 
 interface Props {
   wedding: Tables<"weddings">
@@ -42,36 +46,43 @@ export function StoryForm({ wedding }: Props) {
     },
   })
 
-  async function handleAddImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function uploadOne(file: File) {
+    const compressed = await imageCompression(file, {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1600,
+      useWebWorker: true,
+    })
 
-    setUploading(true)
-    try {
-      const compressed = await imageCompression(file, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1600,
-        useWebWorker: true,
-      })
+    const fd = new FormData()
+    fd.append("file", compressed, file.name)
+    fd.append("weddingId", wedding.id)
 
-      const fd = new FormData()
-      fd.append("file", compressed, file.name)
-      fd.append("weddingId", wedding.id)
+    const result = await uploadStoryImage(fd)
+    if (result.error || result.data === undefined) throw new Error(result.error ?? "UPLOAD_ERROR")
 
-      const result = await uploadStoryImage(fd)
-      if (result.error || result.data === undefined) {
-        toast.error("Erreur lors de l'upload.")
-        return
-      }
-
-      const next = [...images, result.data.url]
-      setImages(next)
+    setImages((prev) => {
+      const next = [...prev, result.data.url]
       form.setValue("storyImages", next)
-    } catch {
-      toast.error("Erreur lors de la compression.")
-    } finally {
-      setUploading(false)
-      e.target.value = ""
+      return next
+    })
+  }
+
+  async function handleFilesAccepted(files: File[]) {
+    setUploading(true)
+    const limit = pLimit(UPLOAD_CONCURRENCY)
+
+    const outcomes = await Promise.allSettled(files.map((file) => limit(() => uploadOne(file))))
+    setUploading(false)
+
+    const successCount = outcomes.filter((o) => o.status === "fulfilled").length
+    const failCount = outcomes.length - successCount
+
+    if (failCount === 0) {
+      toast.success(`${successCount} photo${successCount > 1 ? "s" : ""} ajoutée${successCount > 1 ? "s" : ""}`, { duration: 3000 })
+    } else if (successCount === 0) {
+      toast.error(`Échec de l'upload (${failCount} photo${failCount > 1 ? "s" : ""}).`)
+    } else {
+      toast.error(`${successCount} photo${successCount > 1 ? "s" : ""} uploadée${successCount > 1 ? "s" : ""}, ${failCount} en échec.`)
     }
   }
 
@@ -156,32 +167,14 @@ export function StoryForm({ wedding }: Props) {
               </div>
             ))}
 
-            {/* Bouton ajout — toujours en dernier */}
-            <label
-              className={[
-                "flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed text-muted-foreground transition-colors",
-                uploading
-                  ? "cursor-not-allowed opacity-60"
-                  : "hover:border-primary hover:text-primary",
-              ].join(" ")}
-              aria-label="Ajouter une photo"
-            >
-              {uploading ? (
-                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-              ) : (
-                <>
-                  <Plus className="h-5 w-5" aria-hidden="true" />
-                  <span className="mt-1 text-xs">Ajouter</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/avif"
-                className="sr-only"
-                disabled={uploading}
-                onChange={handleAddImage}
-              />
-            </label>
+            {/* Dropzone — toujours en dernier, multiple + concurrence bornée */}
+            <ImageDropzone
+              multiple
+              disabled={uploading}
+              className="aspect-square rounded-lg"
+              label={uploading ? "Envoi…" : "Ajouter"}
+              onFilesAccepted={handleFilesAccepted}
+            />
           </div>
         </div>
 
