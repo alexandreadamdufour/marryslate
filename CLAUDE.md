@@ -443,6 +443,17 @@ export const env = envSchema.parse(process.env)
 - PR : titre clair, description avec contexte + screenshots si UI + checklist (tests, types, accessibilité)
 - Squash merge par défaut
 
+### Types de commit autorisés (commitlint)
+
+`feat` `fix` `chore` `docs` `refactor` `test` `perf` — formalise ce qui était déjà
+la pratique réelle du projet, pas une nouvelle contrainte. Vérifié automatiquement
+par un hook `commit-msg` (`.husky/commit-msg` → `commitlint`, config
+`.commitlintrc.json` → `@commitlint/config-conventional`). Un hook `pre-commit`
+(`.husky/pre-commit` → `lint-staged`) lance `eslint --fix` + `prettier --write`
+sur les fichiers `.ts`/`.tsx` stagés — volontairement **pas** de `tsc --noEmit` en
+pre-commit (trop lent sur l'ensemble du projet à chaque commit), le typecheck
+reste une vérification manuelle avant push.
+
 ---
 
 ## 15. TESTS
