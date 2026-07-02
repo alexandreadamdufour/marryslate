@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import { withSentryConfig } from "@sentry/nextjs"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
 const isProd = process.env.NODE_ENV === "production"
@@ -43,6 +44,7 @@ const CSP = [
     "https://www.google-analytics.com",
     "https://analytics.google.com",
     "https://region1.google-analytics.com",
+    "https://*.sentry.io",
   ].join(" "),
   [
     "frame-src",
@@ -96,4 +98,10 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  org: "marryslate",
+  project: "marryslate",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+})
