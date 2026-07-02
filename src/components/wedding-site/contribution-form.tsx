@@ -29,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toast } from "sonner"
 import type { Gift } from "@/queries/gifts"
 
@@ -49,7 +48,6 @@ interface Step1FormProps {
 }
 
 function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormProps) {
-  const [serverError, setServerError] = useState<string | null>(null)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -94,7 +92,6 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
   }
 
   async function onSubmit(values: Step1Values) {
-    setServerError(null)
     const result = await createPaymentIntent({ ...values, contributorPhotoUrl: photoUrl, weddingSlug })
     if ("error" in result) {
       const messages: Record<string, string> = {
@@ -105,7 +102,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
         STRIPE_ERROR: "Erreur de paiement, réessayez.",
         DB_ERROR: "Erreur serveur, réessayez.",
       }
-      setServerError(messages[result.error as string] ?? "Une erreur est survenue.")
+      toast.error(messages[result.error as string] ?? "Une erreur est survenue.")
       return
     }
     onSuccess(result.data.clientSecret)
@@ -269,12 +266,6 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
           )}
         </div>
 
-        {serverError && (
-          <Alert variant="destructive">
-            <AlertDescription>{serverError}</AlertDescription>
-          </Alert>
-        )}
-
         <Button
           type="submit"
           className="w-full"
@@ -294,13 +285,11 @@ interface PaymentStepProps {
 function PaymentStep({ returnUrl }: PaymentStepProps) {
   const stripe = useStripe()
   const elements = useElements()
-  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handlePay() {
     if (!stripe || !elements) return
     setLoading(true)
-    setError(null)
 
     const { error: stripeError } = await stripe.confirmPayment({
       elements,
@@ -309,7 +298,7 @@ function PaymentStep({ returnUrl }: PaymentStepProps) {
 
     // confirmPayment only returns here on error — success redirects
     if (stripeError) {
-      setError(stripeError.message ?? "Une erreur est survenue lors du paiement.")
+      toast.error(stripeError.message ?? "Une erreur est survenue lors du paiement.")
       setLoading(false)
     }
   }
@@ -317,11 +306,6 @@ function PaymentStep({ returnUrl }: PaymentStepProps) {
   return (
     <div className="space-y-5">
       <PaymentElement />
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
       <Button onClick={handlePay} disabled={loading || !stripe} className="w-full">
         {loading ? "Traitement…" : "Payer maintenant"}
       </Button>
