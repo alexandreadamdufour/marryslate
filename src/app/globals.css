@@ -21,7 +21,10 @@
     --secondary-foreground: 20 14% 15%;
 
     --muted: 36 20% 92%;
-    --muted-foreground: 20 10% 45%;
+    /* L 45%→40% : contraste muted-foreground/muted passait sous 4.5:1 WCAG AA
+       (4.07:1 mesuré). Fix uniforme ici plutôt qu'en utility class éparpillée —
+       même ajustement répercuté sur .theme-classic et .theme-contemporary. */
+    --muted-foreground: 20 10% 40%;
 
     --accent: 36 30% 90%;
     --accent-foreground: 20 14% 15%;
@@ -63,7 +66,7 @@
   --primary: 16 45% 45%;
   --primary-foreground: 36 33% 97%;
   --muted: 36 20% 92%;
-  --muted-foreground: 20 10% 45%;
+  --muted-foreground: 20 10% 40%;
   --border: 36 20% 88%;
   --radius: 0.5rem;
 }
@@ -85,7 +88,7 @@
   --secondary: 0 0% 95%;
   --secondary-foreground: 0 0% 9%;
   --muted: 0 0% 94%;
-  --muted-foreground: 0 0% 45%;
+  --muted-foreground: 0 0% 40%;
   --border: 0 0% 89%;
   --radius: 0rem;
 }
