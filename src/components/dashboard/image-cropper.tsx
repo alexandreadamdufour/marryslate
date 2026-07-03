@@ -3,7 +3,13 @@
 import { useCallback, useState } from "react"
 import Cropper, { type Area } from "react-easy-crop"
 import { Loader2 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
 interface ImageCropperProps {
@@ -34,11 +40,22 @@ async function getCroppedBlob(imageSrc: string, area: Area): Promise<Blob> {
   if (!ctx) throw new Error("Canvas context indisponible")
   ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, area.width, area.height)
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Échec export canvas"))), "image/jpeg", 0.92)
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Échec export canvas"))),
+      "image/jpeg",
+      0.92
+    )
   })
 }
 
-export function ImageCropper({ open, imageSrc, aspect, onConfirm, onCancel, onSkip }: ImageCropperProps) {
+export function ImageCropper({
+  open,
+  imageSrc,
+  aspect,
+  onConfirm,
+  onCancel,
+  onSkip,
+}: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedArea, setCroppedArea] = useState<Area | null>(null)
@@ -61,7 +78,7 @@ export function ImageCropper({ open, imageSrc, aspect, onConfirm, onCancel, onSk
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Recadrer la photo</DialogTitle>
         </DialogHeader>
