@@ -1,6 +1,6 @@
-# État Marryslate — 3 juillet 2026
+# État Marryslate — 3 juillet 2026 (suite)
 
-> Dernier commit : `7734273` — feat(features): grille Bento asymétrique pour section features homepage
+> Dernier commit : `7814597` — feat(security): ajoute header COOP same-origin-allow-popups
 > Ce fichier est la source de vérité sur l'avancement. À remettre à jour à la fin de chaque session (voir CLAUDE.md §17).
 
 ---
@@ -101,6 +101,12 @@
 - Site personnalisé (phare, cover réelle + nav factice), Cagnotte (vraies photos gifts + progression), RSVP (badges shadcn), Plan de table (table ronde vue de dessus + drag-preview), Livre d'or
 - Aucune migration DB, contenu figé dans le composant
 - Vérifié en dev local (navigateur, desktop) ; comportement mobile vérifié par lecture de code (classes `lg:`), pas testé visuellement ni en prod
+
+### Hygiène perf/sécu (Bloc 1, 4 items)
+- Image bloc phare Bento : `sizes` next/image ajusté sur les breakpoints réels (814px entre lg et 2xl, 987px au-delà) au lieu de `66vw` — évite l'upscale sur écrans ≥2xl tout en corrigeant le sur-dimensionnement signalé par Lighthouse (~20 Kio) (`b2096c6`)
+- `browserslist` ajouté à `package.json` (cible navigateurs modernes ES6-module, exclut IE11) — coupe les polyfills legacy inutiles générés par défaut (~15 Kio Lighthouse) (`280d2ff`)
+- Header `Cross-Origin-Opener-Policy: same-origin-allow-popups` ajouté — vérifié sans impact sur Clerk (OAuth Google en redirect plein-page, pas de popup) ni Stripe Connect (`window.location.href`, pas de popup) ; `-allow-popups` retenu plutôt que strict pour ne pas casser silencieusement une future intégration OAuth en popup (`7814597`)
+- Source maps Sentry en prod : vérifiées déjà correctes (`authToken` lu depuis `SENTRY_AUTH_TOKEN`, upload actif par défaut, `hideSourceMaps` absent = comportement par défaut sécurisé — maps uploadées à Sentry puis retirées du bundle public). Aucun fix nécessaire, item skippé.
 
 ---
 
