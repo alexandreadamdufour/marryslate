@@ -506,3 +506,15 @@ Si un point du SPEC.md ou de ce CLAUDE.md est ambigu pour la tâche en cours : *
 Si une convention de ce fichier est mal adaptée à un cas réel rencontré : **proposer une modification de ce fichier en PR**, ne pas la contourner.
 
 ---
+
+## 18. GUIDELINES COMPORTEMENTALES (KARPATHY)
+
+@docs/karpathy-guidelines.md
+
+Calibration générique (pas de plugin, pas de dépendance) qui complète les
+sections 16-17 sans les remplacer : mêmes principes (simplicité,
+changements chirurgicaux, poser la question si ambigu), formulés de façon
+plus générale. En cas de divergence avec une section précédente de ce
+fichier, la bannière en tête de fichier prime — **ce fichier avant tout**.
+
+---
