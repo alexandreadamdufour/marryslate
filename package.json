@@ -3,8 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "browserslist": {
-    "production": [">0.3%", "not dead", "not op_mini all", "not ie 11", "supports es6-module"],
-    "development": ["last 2 chrome version", "last 2 firefox version", "last 2 safari version"]
+    "production": [
+      ">0.3%",
+      "not dead",
+      "not op_mini all",
+      "not ie 11",
+      "supports es6-module"
+    ],
+    "development": [
+      "last 2 chrome version",
+      "last 2 firefox version",
+      "last 2 safari version"
+    ]
   },
   "scripts": {
     "dev": "next dev",
@@ -45,6 +55,7 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.2.0",
     "@sentry/nextjs": "^10.63.0",
+    "@sentry/replay": "^10.63.0",
     "@stripe/react-stripe-js": "^6.6.0",
     "@stripe/stripe-js": "^9.8.0",
     "@supabase/ssr": "^0.6.1",
