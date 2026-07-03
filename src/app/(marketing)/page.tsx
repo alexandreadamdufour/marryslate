@@ -94,7 +94,7 @@ export default function HomePage() {
             className="absolute -inset-8 -z-10 rounded-full bg-primary/5 blur-3xl"
             aria-hidden="true"
           />
-          <div className="animate-fade-in-scale">
+          <div>
             <div className="lg:[transform:perspective(1200px)_rotateY(-6deg)_rotateX(2deg)] motion-safe:lg:animate-float">
               <div className="overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-primary/10">
                 {/* Barre de navigateur factice */}

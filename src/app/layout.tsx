@@ -1,12 +1,5 @@
 import type { Metadata } from "next"
-import {
-  Inter,
-  Playfair_Display,
-  Cormorant_Garamond,
-  Great_Vibes,
-  Montserrat,
-  Lora,
-} from "next/font/google"
+import { Inter } from "next/font/google"
 import localFont from "next/font/local"
 import { Toaster } from "sonner"
 import { CookieBanner } from "@/components/shared/cookie-banner"
@@ -33,29 +26,6 @@ const fraunces = localFont({
   variable: "--font-fraunces",
   display: "swap",
 })
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-})
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-cormorant",
-  display: "swap",
-})
-const greatVibes = Great_Vibes({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-greatvibes",
-  display: "swap",
-})
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  variable: "--font-montserrat",
-  display: "swap",
-})
-const lora = Lora({ subsets: ["latin"], variable: "--font-lora", display: "swap" })
 
 const APP_URL = env.NEXT_PUBLIC_APP_URL
 const DEFAULT_DESCRIPTION =
@@ -104,10 +74,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="fr"
-      className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}
-    >
+    <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
         <link
           rel="preconnect"
