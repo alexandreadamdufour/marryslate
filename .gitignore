@@ -41,5 +41,8 @@ next-env.d.ts
 # supabase CLI
 supabase/.temp
 
+# Serena MCP (index + mémoires locales)
+.serena/
+
 # husky internals (régénéré par `pnpm install` via le script prepare)
 .husky/_
