@@ -108,6 +108,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="fr"
       className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}
     >
+      <head>
+        <link
+          rel="preconnect"
+          href="https://o4511666402230272.ingest.de.sentry.io"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         {children}
         <Toaster richColors position="bottom-right" toastOptions={{ duration: 5000 }} />
