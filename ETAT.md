@@ -148,6 +148,7 @@
 | **Lint `seating-table-node.tsx`** | `'X' is defined but never used`, présent depuis plusieurs sessions, ne bloque rien. |
 | **Vestiges MangoPay** | 4 clés `MANGOPAY_*` orphelines dans `.env.local` (absentes de `.env.local.example`) + colonne DB `contributions.mangopay_payment_id` (nullable, jamais lue). Code applicatif déjà retiré (`d3c3238`). Aucun risque, nettoyage cosmétique un jour. |
 | **Bug UI onboarding étape 3 — placeholder slug** | Le placeholder du champ slug (ex. `sophie-et-thomas`) se superpose au préfixe fixe `marryslate.com/m/` — problème de padding/positionnement CSS de l'input. Repéré le 3 juillet lors du test de validation du trigger ownership. Fichier probable : `src/app/onboarding/etape-3/` ou composant slug input. |
+| **4 lignes `contributions` du 1er juillet en `succeeded`** | Alors que refunded côté Stripe — webhook `charge.refunded` n'était pas souscrit à l'époque, l'endpoint a été corrigé depuis (3 juillet). Nettoyage manuel possible en DB si un jour la compta le nécessite. |
 | **Leçon — `RESEND_API_KEY` placeholder résiduel** | La clé Resend en prod était `re_aBcDe...` (placeholder de doc jamais remplacé) depuis le 24 juin. Aucun email n'était envoyé — les `.catch()` silencieux dans les Server Actions masquaient l'erreur 401. Résolu le 1er juillet. **Discipline à retenir** : auditer les placeholders documentaires (`re_aBcDe`, `sk_live_xxx`, etc.) au setup initial de chaque service, ne jamais commit avec la valeur d'exemple. |
 
 ---
