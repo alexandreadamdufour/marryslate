@@ -1,6 +1,6 @@
 # État Marryslate — 3 juillet 2026
 
-> Dernier commit : `9ed7f3a` — fix(hero): réduit padding top pour hiérarchie visuelle
+> Dernier commit : `7734273` — feat(features): grille Bento asymétrique pour section features homepage
 > Ce fichier est la source de vérité sur l'avancement. À remettre à jour à la fin de chaque session (voir CLAUDE.md §17).
 
 ---
@@ -16,7 +16,7 @@
 | Axe | % | Ce qui manque |
 |---|---|---|
 | **Beta technique** | ~90% | Test paiement réel end-to-end jamais fait, 5 couples beta pas encore onboardés |
-| **UI** | ~85% | Hero + features homepage refaits récemment (Bento grid features interrompu en cours de session) ; dashboard jamais audité mobile de façon systématique |
+| **UI** | ~85% | Hero + features homepage refaits récemment ; dashboard jamais audité mobile de façon systématique |
 | **UX** | ~70% | Onboarding "rugueux" (confort UX), propagation `guest_count`/conflits RSVP à trancher avec de vrais retours |
 | **Produit complet (légal inclus)** | ~50% | Bloqué par le volet Legal/Compliance — rien engagé à ce jour |
 
@@ -96,7 +96,11 @@
 - Split gauche/droite + mockup animé (`50c6ab8`)
 - Fix padding top (`9ed7f3a`)
 
-**En cours, interrompu par cette session** : refonte section "features" homepage en Bento Grid asymétrique — diagnostic fait, 6 features candidates proposées, en attente du choix des 5 finales.
+### Bento Grid features homepage
+- Refonte section features en grille 6 colonnes asymétrique, 5 blocs (`7734273`)
+- Site personnalisé (phare, cover réelle + nav factice), Cagnotte (vraies photos gifts + progression), RSVP (badges shadcn), Plan de table (table ronde vue de dessus + drag-preview), Livre d'or
+- Aucune migration DB, contenu figé dans le composant
+- Vérifié en dev local (navigateur, desktop) ; comportement mobile vérifié par lecture de code (classes `lg:`), pas testé visuellement ni en prod
 
 ---
 
