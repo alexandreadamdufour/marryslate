@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!coowner) redirect("/onboarding/etape-1")
 
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/">
       <div className="flex h-screen flex-col overflow-hidden md:flex-row">
         <a
           href="#main-content"

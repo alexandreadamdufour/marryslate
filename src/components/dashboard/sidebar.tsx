@@ -82,7 +82,7 @@ function AccountFooter() {
   return (
     <div className="border-t border-border p-4">
       <div className="flex items-center gap-3">
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
         <span className="text-sm text-muted-foreground">Mon compte</span>
       </div>
     </div>
