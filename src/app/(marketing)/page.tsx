@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { FeatureBentoGrid } from "@/components/marketing/feature-bento-grid"
 import { env } from "@/lib/env"
 import { INSCRIPTION_ROUTE } from "@/lib/constants"
 
@@ -134,17 +135,7 @@ export default function HomePage() {
       <section className="bg-muted/50 py-20">
         <div className="container mx-auto px-4 sm:px-6">
           <h2 className="mb-12 text-center text-3xl">Tout pour votre mariage, au même endroit</h2>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="rounded-xl bg-card p-6 shadow-sm">
-                <div className="mb-4 text-3xl" aria-hidden="true">
-                  {f.emoji}
-                </div>
-                <h3 className="mb-2 text-lg font-medium">{f.title}</h3>
-                <p className="text-sm text-muted-foreground">{f.description}</p>
-              </div>
-            ))}
-          </div>
+          <FeatureBentoGrid />
         </div>
       </section>
 
@@ -178,43 +169,6 @@ export default function HomePage() {
     </>
   )
 }
-
-const FEATURES = [
-  {
-    emoji: "🎁",
-    title: "Liste de cadeaux",
-    description:
-      "Créez votre liste, vos invités participent en ligne. Suivez les contributions en temps réel.",
-  },
-  {
-    emoji: "💝",
-    title: "Cagnotte libre",
-    description:
-      "En complément de votre liste, acceptez les contributions libres pour financer votre voyage de noces.",
-  },
-  {
-    emoji: "🌐",
-    title: "Site de mariage",
-    description:
-      "Un site personnalisé à votre image : hero, programme, lieu, informations pratiques.",
-  },
-  {
-    emoji: "📱",
-    title: "Mobile-first",
-    description: "60 % de vos invités sont sur mobile. Marryslate est pensé mobile avant tout.",
-  },
-  {
-    emoji: "💸",
-    title: "Retraits simples",
-    description:
-      "Retirez les fonds collectés directement sur votre compte bancaire, quand vous voulez.",
-  },
-  {
-    emoji: "🔒",
-    title: "Paiements sécurisés",
-    description: "Propulsé par Stripe. Vos données et celles de vos invités sont protégées.",
-  },
-]
 
 const STATS = [
   { value: "2 min", label: "pour créer votre site" },
