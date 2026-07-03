@@ -1,6 +1,6 @@
 # État Marryslate — 3 juillet 2026 (suite)
 
-> Dernier commit : `7814597` — feat(security): ajoute header COOP same-origin-allow-popups
+> Dernier commit : `d397a2e` — perf: preconnect Sentry ingest (gain LCP estime 300ms)
 > Ce fichier est la source de vérité sur l'avancement. À remettre à jour à la fin de chaque session (voir CLAUDE.md §17).
 
 ---
@@ -107,6 +107,30 @@
 - `browserslist` ajouté à `package.json` (cible navigateurs modernes ES6-module, exclut IE11) — coupe les polyfills legacy inutiles générés par défaut (~15 Kio Lighthouse) (`280d2ff`)
 - Header `Cross-Origin-Opener-Policy: same-origin-allow-popups` ajouté — vérifié sans impact sur Clerk (OAuth Google en redirect plein-page, pas de popup) ni Stripe Connect (`window.location.href`, pas de popup) ; `-allow-popups` retenu plutôt que strict pour ne pas casser silencieusement une future intégration OAuth en popup (`7814597`)
 - Source maps Sentry en prod : vérifiées déjà correctes (`authToken` lu depuis `SENTRY_AUTH_TOKEN`, upload actif par défaut, `hideSourceMaps` absent = comportement par défaut sécurisé — maps uploadées à Sentry puis retirées du bundle public). Aucun fix nécessaire, item skippé.
+
+### Bloc 2 — Audit mobile dashboard + Lighthouse mobile marketing (fermé, bilan mesuré)
+- Audit Lighthouse mobile réel + audit code mobile dashboard (6 agents parallèles), plan d'action 6 fixes priorisés
+- `fetchPriority="high"` sur l'image hero marketing — `priority` seul ne suffit pas en Next 16.2.9 pour poser `fetchpriority` sur le `<img>` (vérifié dans le code source du package + le HTML servi) (`50f5371`)
+- Pattern `pointer-coarse` (déjà présent dans `seating-table-node.tsx`) généralisé aux actions/drag masqués au tactile : `planner-editor.tsx` (bloquant réel — actions inaccessibles), `gift-card.tsx`, `wedding-events-editor.tsx`, `timeline-editor.tsx` (`9b64bae`)
+- `SeatingEditor` (plan de table) chargé via `dynamic(ssr:false)` gated par `matchMedia` — ne s'importe plus du tout sur mobile au lieu d'être monté puis masqué en CSS (`d557203`)
+- Dialog cropper : hauteur bornée `max-h-[90vh] overflow-y-auto` (évite bouton coupé sur petit écran clavier ouvert) (`f07adaa`)
+- Sweep hitbox tactile 44px sur 21 boutons/10 fichiers (actions destructives adjacentes priorisées : `guest-editor`, `gift-card`, `budget-editor`, `timeline-editor`, `wedding-events-editor`, `planner-editor`, `practical-info-form`, `story-form`, `contribution-form`, burger nav `sidebar.tsx`) (`ffae006`)
+- **`ClerkProvider` scopé à `(auth)` et `(dashboard)` uniquement** (retiré du layout racine) : cartographie exhaustive préalable (aucun hook client Clerk hors de ces 2 groupes, `/onboarding` traité pareil que marketing), Angle A retenu (2 instances séparées) vs Angle B (layout partagé) après comparaison des risques de remount. Testé en réel : sign-in Google → dashboard, pas de flash, `UserButton` immédiat (`c131e0e`)
+- Fix `afterSignOutUrl` deprecated sur `UserButton`, remonté au niveau `ClerkProvider` (`a7d9ee2`)
+- Lazy-load Sentry Replay via package standalone `@sentry/replay` (pas `@sentry/nextjs`, déjà importé statiquement — un `import()` du même spécificateur ne scinde pas le chunk chez Turbopack, vérifié empiriquement en comparant deux tentatives) — chunk Replay confirmé hors `rootMainFiles`, priorité réseau "Low" (`6522d10`)
+- Préconnect Sentry ingest dans le `<head>` du layout racine (`d397a2e`)
+- **Bilan mesuré** (PageSpeed/Lighthouse, machine sous charge variable — mesures mobiles bruitées, desktop fiable) : **desktop ~99** (quasi parfait), **mobile ~72-75**. 0 chunk Clerk sur homepage/site public confirmé sur tous les runs. Objectif ≥90 mobile non atteint — voir Bloc 2bis ci-dessous.
+
+---
+
+## Pending — Bloc 2bis (perf mobile, non bloquant beta)
+
+| Item | Notes |
+|---|---|
+| **LCP mobile ~7.8s, stable, non tranché** | Reproductible sur plusieurs runs (pas du bruit de mesure), mais incohérence non résolue dans les insights Lighthouse : l'élément LCP identifié varie entre l'image hero et un élément texte selon les runs, avec des durées qui ne se recoupent pas. Nécessite une vraie investigation de l'élément LCP réel (pas juste re-mesurer) avant d'agir. |
+| **Chunk vendor `06tfw...` — 60 Kio inutilisés** | Identifié via bundle analyzer (webpack forcé, Turbopack incompatible avec `@next/bundle-analyzer` — nécessite `next build --webpack` pour générer le rapport). Composition exacte non identifiée à date (zod + probablement d'autres deps mêlées par le chunk-splitting automatique). À creuser. |
+| **CSS critique 18 Kio bloquant ~320ms** | Render-blocking CSS repéré par Lighthouse (`render-blocking-insight`), pas encore traité (candidat : inline critical CSS ou split). |
+| **Préconnect Sentry (`d397a2e`) marqué "inutilisé" par PageSpeed** | À réévaluer plus tard — potentiellement à retirer si le gain ne se confirme pas en usage réel. |
 
 ---
 
