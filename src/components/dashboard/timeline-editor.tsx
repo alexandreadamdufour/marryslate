@@ -71,7 +71,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
+        className="cursor-grab touch-none p-2 text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label="Déplacer"
       >
         <GripVertical className="h-5 w-5" />
@@ -91,7 +91,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
       <div className="flex shrink-0 items-center gap-1">
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Modifier">
+            <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Modifier">
               <Pencil className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -113,7 +113,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-destructive hover:text-destructive"
+          className="h-9 w-9 text-destructive hover:text-destructive"
           onClick={handleDelete}
           disabled={deleting}
           aria-label="Supprimer"

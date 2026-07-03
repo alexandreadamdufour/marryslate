@@ -78,11 +78,16 @@ export function StoryForm({ wedding }: Props) {
     const failCount = outcomes.length - successCount
 
     if (failCount === 0) {
-      toast.success(`${successCount} photo${successCount > 1 ? "s" : ""} ajoutée${successCount > 1 ? "s" : ""}`, { duration: 3000 })
+      toast.success(
+        `${successCount} photo${successCount > 1 ? "s" : ""} ajoutée${successCount > 1 ? "s" : ""}`,
+        { duration: 3000 }
+      )
     } else if (successCount === 0) {
       toast.error(`Échec de l'upload (${failCount} photo${failCount > 1 ? "s" : ""}).`)
     } else {
-      toast.error(`${successCount} photo${successCount > 1 ? "s" : ""} uploadée${successCount > 1 ? "s" : ""}, ${failCount} en échec.`)
+      toast.error(
+        `${successCount} photo${successCount > 1 ? "s" : ""} uploadée${successCount > 1 ? "s" : ""}, ${failCount} en échec.`
+      )
     }
   }
 
@@ -114,7 +119,9 @@ export function StoryForm({ wedding }: Props) {
               <FormControl>
                 <Input placeholder="Notre histoire" {...field} value={field.value ?? ""} />
               </FormControl>
-              <FormDescription>Laissez vide pour afficher &laquo;&nbsp;Notre histoire&nbsp;&raquo;.</FormDescription>
+              <FormDescription>
+                Laissez vide pour afficher &laquo;&nbsp;Notre histoire&nbsp;&raquo;.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -159,7 +166,7 @@ export function StoryForm({ wedding }: Props) {
                   type="button"
                   onClick={() => removeImage(i)}
                   disabled={uploading}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 disabled:opacity-50"
+                  className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 disabled:opacity-50"
                   aria-label={`Supprimer la photo ${i + 1}`}
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -178,10 +185,7 @@ export function StoryForm({ wedding }: Props) {
           </div>
         </div>
 
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting || uploading}
-        >
+        <Button type="submit" disabled={form.formState.isSubmitting || uploading}>
           {form.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />

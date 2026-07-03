@@ -90,7 +90,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
       <button
         {...attributes}
         {...listeners}
-        className="mt-0.5 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
+        className="mt-0.5 cursor-grab touch-none p-2 text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label="Déplacer"
       >
         <GripVertical className="h-5 w-5" />
@@ -130,7 +130,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-9 w-9"
               aria-label={`Modifier ${event.title}`}
             >
               <Pencil className="h-4 w-4" />
@@ -154,7 +154,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-destructive hover:text-destructive"
+          className="h-9 w-9 text-destructive hover:text-destructive"
           onClick={handleDelete}
           disabled={deleting}
           aria-label={`Supprimer ${event.title}`}

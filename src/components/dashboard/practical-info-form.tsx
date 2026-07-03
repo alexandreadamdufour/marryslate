@@ -89,19 +89,28 @@ export function PracticalInfoForm({ wedding }: Props) {
     defaultValues: {
       weddingId: wedding.id,
       venue_ceremony: existing?.venue_ceremony
-        ? { name: existing.venue_ceremony.name ?? "", address: existing.venue_ceremony.address ?? "", maps_url: existing.venue_ceremony.maps_url ?? "" }
+        ? {
+            name: existing.venue_ceremony.name ?? "",
+            address: existing.venue_ceremony.address ?? "",
+            maps_url: existing.venue_ceremony.maps_url ?? "",
+          }
         : emptyVenue,
       venue_reception: existing?.venue_reception
-        ? { name: existing.venue_reception.name ?? "", address: existing.venue_reception.address ?? "", maps_url: existing.venue_reception.maps_url ?? "" }
+        ? {
+            name: existing.venue_reception.name ?? "",
+            address: existing.venue_reception.address ?? "",
+            maps_url: existing.venue_reception.maps_url ?? "",
+          }
         : emptyVenue,
       dress_code: existing?.dress_code ?? "",
-      accommodations: existing?.accommodations?.map((a) => ({
-        name: a.name ?? "",
-        address: a.address ?? "",
-        booking_url: a.booking_url ?? "",
-        price_range: a.price_range ?? "",
-        distance: a.distance ?? "",
-      })) ?? [],
+      accommodations:
+        existing?.accommodations?.map((a) => ({
+          name: a.name ?? "",
+          address: a.address ?? "",
+          booking_url: a.booking_url ?? "",
+          price_range: a.price_range ?? "",
+          distance: a.distance ?? "",
+        })) ?? [],
     },
   })
 
@@ -141,8 +150,7 @@ export function PracticalInfoForm({ wedding }: Props) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Dress code{" "}
-                <span className="text-xs text-muted-foreground">(optionnel)</span>
+                Dress code <span className="text-xs text-muted-foreground">(optionnel)</span>
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -175,7 +183,7 @@ export function PracticalInfoForm({ wedding }: Props) {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  className="h-9 w-9 text-destructive hover:text-destructive"
                   onClick={() => remove(index)}
                   aria-label="Supprimer"
                 >
@@ -258,7 +266,9 @@ export function PracticalInfoForm({ wedding }: Props) {
               variant="outline"
               size="sm"
               className="gap-2"
-              onClick={() => append({ name: "", address: "", booking_url: "", price_range: "", distance: "" })}
+              onClick={() =>
+                append({ name: "", address: "", booking_url: "", price_range: "", distance: "" })
+              }
             >
               <Plus className="h-4 w-4" />
               Ajouter un hébergement

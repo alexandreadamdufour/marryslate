@@ -35,14 +35,14 @@ function SummaryCard({
       className={cn(
         "rounded-xl border p-4",
         variant === "accent" && "border-primary/30 bg-primary/5",
-        variant === "muted" && "bg-muted/50",
+        variant === "muted" && "bg-muted/50"
       )}
     >
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p
         className={cn(
           "mt-1.5 text-2xl font-semibold tabular-nums",
-          variant === "accent" && "text-primary",
+          variant === "accent" && "text-primary"
         )}
       >
         {fmt(amount)}
@@ -126,7 +126,7 @@ function CategoryGroup({ category, items, onEdit, onDelete }: CategoryGroupProps
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-9 w-9"
                     aria-label={`Modifier ${item.name}`}
                     onClick={() => onEdit(item)}
                   >
@@ -135,7 +135,7 @@ function CategoryGroup({ category, items, onEdit, onDelete }: CategoryGroupProps
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
+                    className="h-9 w-9 text-destructive hover:text-destructive"
                     aria-label={`Supprimer ${item.name}`}
                     onClick={() => onDelete(item.id)}
                   >
@@ -182,7 +182,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
   })).filter((g) => g.items.length > 0)
 
   const uncategorized = items.filter(
-    (i) => !(BUDGET_CATEGORIES as readonly string[]).includes(i.category),
+    (i) => !(BUDGET_CATEGORIES as readonly string[]).includes(i.category)
   )
   if (uncategorized.length > 0) {
     grouped.push({ category: "Autre", items: uncategorized })
@@ -230,11 +230,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
       {editingItem && (
         <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Modifier le poste</h3>
-          <BudgetItemForm
-            mode="edit"
-            item={editingItem}
-            onDone={() => setEditingItem(null)}
-          />
+          <BudgetItemForm mode="edit" item={editingItem} onDone={() => setEditingItem(null)} />
         </div>
       )}
 
@@ -242,20 +238,12 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
       {addOpen && !editingItem && (
         <div className="rounded-xl border p-4">
           <h3 className="mb-4 text-sm font-semibold">Nouveau poste</h3>
-          <BudgetItemForm
-            mode="add"
-            weddingId={weddingId}
-            onDone={() => setAddOpen(false)}
-          />
+          <BudgetItemForm mode="add" weddingId={weddingId} onDone={() => setAddOpen(false)} />
         </div>
       )}
 
       {!addOpen && !editingItem && (
-        <Button
-          variant="outline"
-          onClick={() => setAddOpen(true)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" aria-hidden="true" />
           Ajouter un poste
         </Button>

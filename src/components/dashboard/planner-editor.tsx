@@ -298,7 +298,7 @@ export function PlannerEditor({ initialItems, weddingId }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
+                          className="h-9 w-9"
                           onClick={() => {
                             setEditingId(item.id)
                             setAddingToCategory(null)
@@ -310,7 +310,7 @@ export function PlannerEditor({ initialItems, weddingId }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-destructive hover:text-destructive"
+                          className="h-9 w-9 text-destructive hover:text-destructive"
                           onClick={() => handleDelete(item.id)}
                           aria-label={`Supprimer "${item.title}"`}
                         >

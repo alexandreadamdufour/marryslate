@@ -101,7 +101,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9"
+            className="h-11 w-11"
             aria-label="Ouvrir le menu"
             onClick={() => setOpen(true)}
           >

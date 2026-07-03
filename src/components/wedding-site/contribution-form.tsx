@@ -33,7 +33,10 @@ import { toast } from "sonner"
 import type { Gift } from "@/queries/gifts"
 
 const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-if (!stripeKey) throw new Error("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY manquant — configurer la variable d'environnement")
+if (!stripeKey)
+  throw new Error(
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY manquant — configurer la variable d'environnement"
+  )
 const stripePromise = loadStripe(stripeKey)
 
 // Step 1 schema — same as server validator but coerces amount from string input
@@ -92,7 +95,11 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
   }
 
   async function onSubmit(values: Step1Values) {
-    const result = await createPaymentIntent({ ...values, contributorPhotoUrl: photoUrl, weddingSlug })
+    const result = await createPaymentIntent({
+      ...values,
+      contributorPhotoUrl: photoUrl,
+      weddingSlug,
+    })
     if ("error" in result) {
       const messages: Record<string, string> = {
         INVALID_INPUT: "Données invalides, vérifiez le formulaire.",
@@ -222,7 +229,10 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
 
         {/* Photo souvenir */}
         <div className="space-y-2">
-          <p className="text-sm font-medium">Joindre un souvenir <span className="font-normal text-muted-foreground">(optionnel)</span></p>
+          <p className="text-sm font-medium">
+            Joindre un souvenir{" "}
+            <span className="font-normal text-muted-foreground">(optionnel)</span>
+          </p>
           {photoUrl ? (
             <div className="relative w-full">
               <Image
@@ -235,7 +245,7 @@ function Step1Form({ gifts, defaultGiftId, onSuccess, weddingSlug }: Step1FormPr
               <button
                 type="button"
                 onClick={() => setPhotoUrl(null)}
-                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
                 aria-label="Supprimer la photo"
               >
                 <X className="h-3.5 w-3.5" />
@@ -341,10 +351,7 @@ export function ContributionForm({
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{ clientSecret, locale: "fr" }}
-    >
+    <Elements stripe={stripePromise} options={{ clientSecret, locale: "fr" }}>
       <PaymentStep returnUrl={successUrl} />
     </Elements>
   )
