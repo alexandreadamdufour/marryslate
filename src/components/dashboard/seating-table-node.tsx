@@ -2,7 +2,7 @@
 
 import { useCallback } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
-import { X, Trash2 } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { SeatingTableWithGuests } from "@/queries/seating"
 
@@ -37,7 +37,7 @@ export function SeatingTableNode({ table, onUnassign, onDelete }: Props) {
       setDropRef(el)
       setDragRef(el)
     },
-    [setDropRef, setDragRef],
+    [setDropRef, setDragRef]
   )
 
   const isRound = table.shape === "round"
@@ -69,9 +69,12 @@ export function SeatingTableNode({ table, onUnassign, onDelete }: Props) {
           Touch (pointer:coarse): always fully visible. */}
       <button
         type="button"
-        onClick={(e) => { e.stopPropagation(); onDelete(table.id) }}
+        onClick={(e) => {
+          e.stopPropagation()
+          onDelete(table.id)
+        }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="absolute right-0 top-0 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm transition-opacity opacity-0 group-hover:opacity-100 hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
+        className="absolute right-0 top-0 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 shadow-sm transition-opacity hover:opacity-100 group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label={`Supprimer la table ${table.name}`}
       >
         <Trash2 className="h-3 w-3" aria-hidden="true" />
@@ -90,14 +93,19 @@ export function SeatingTableNode({ table, onUnassign, onDelete }: Props) {
           isOver && isFull && "border-destructive ring-4 ring-destructive/20",
           !isOver && isFull && "border-muted-foreground/30",
           !isOver && !isFull && "border-border",
-          isDragging && "shadow-2xl opacity-90 ring-2 ring-primary/30",
+          isDragging && "opacity-90 shadow-2xl ring-2 ring-primary/30"
         )}
       >
         {/* Table name */}
         <p className="px-2 text-center text-xs font-semibold leading-tight">{table.name}</p>
 
         {/* Capacity indicator */}
-        <p className={cn("text-xs font-medium tabular-nums", isFull ? "text-muted-foreground" : "text-primary")}>
+        <p
+          className={cn(
+            "text-xs font-medium tabular-nums",
+            isFull ? "text-muted-foreground" : "text-primary"
+          )}
+        >
           {table.assignedGuests.length}/{table.capacity}
         </p>
 
@@ -108,7 +116,10 @@ export function SeatingTableNode({ table, onUnassign, onDelete }: Props) {
               <button
                 key={g.assignmentId}
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onUnassign(g.assignmentId) }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onUnassign(g.assignmentId)
+                }}
                 title={`${g.firstName ?? ""} ${g.lastName ?? ""} — cliquer pour retirer`}
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[9px] font-semibold text-primary hover:bg-destructive/20 hover:text-destructive"
               >
@@ -128,7 +139,9 @@ export function SeatingTableNode({ table, onUnassign, onDelete }: Props) {
           <p className="absolute bottom-2 text-[9px] font-medium text-primary">Déposer ici</p>
         )}
         {isOver && isFull && (
-          <p className="absolute bottom-2 text-[9px] font-medium text-destructive">Table complète</p>
+          <p className="absolute bottom-2 text-[9px] font-medium text-destructive">
+            Table complète
+          </p>
         )}
       </div>
     </div>
