@@ -70,7 +70,7 @@ export function FeatureBentoGrid() {
             src={DEMO_WEDDING_COVER_URL}
             alt="Aperçu du site de mariage réel d'Alex et Louise créé avec Marryslate"
             fill
-            sizes="(min-width: 1024px) 66vw, 100vw"
+            sizes="(min-width: 1536px) 987px, (min-width: 1024px) 814px, 100vw"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
