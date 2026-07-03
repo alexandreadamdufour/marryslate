@@ -121,13 +121,22 @@
 - Préconnect Sentry ingest dans le `<head>` du layout racine (`d397a2e`)
 - **Bilan mesuré** (PageSpeed/Lighthouse, machine sous charge variable — mesures mobiles bruitées, desktop fiable) : **desktop ~99** (quasi parfait), **mobile ~72-75**. 0 chunk Clerk sur homepage/site public confirmé sur tous les runs. Objectif ≥90 mobile non atteint — voir Bloc 2bis ci-dessous.
 
+### Bloc 2bis-A — LCP mobile 7.8s (fermé, bilan mesuré)
+- Diagnostic (Serena + inspection HTML/réseau réel) : root layout déclarait 6 familles de polices (dont 5 de thème mariage, utilisées seulement par `(dashboard)` et le site public) — préchargées en priorité haute sur **toutes** les routes, y compris la homepage. Animation `animate-fade-in-scale` (opacity 0→1, delay 0.2s) sur le wrapper de l'image hero retardait en plus sa reconnaissance LCP par Chrome.
+- Fix : polices de thème extraites vers `src/lib/fonts.ts`, appliquées seulement où consommées (`(dashboard)` layout + nouveau `(public-wedding)/layout.tsx`) ; root layout ne garde qu'Inter + Fraunces. Animation retirée du wrapper de l'image hero (`priority` + `fetchPriority="high"` déjà un signal explicite, contradictoire avec une entrée animée) (`542d347`, précédé d'un fix lint isolé sans rapport `7d30fd5`)
+- **Bilan mesuré** (Lighthouse mobile, 2 runs, prod) : LCP **7.8s → ~3.2s médiane (-59%)**.
+- Deux pistes complémentaires testées et écartées (impasses documentées, pas de code résiduel) :
+  - **Recompression de l'image source** (294 KB JPEG brut) : le dérivé réellement livré au mobile est déjà 40 KB AVIF via `next/image` (`q=75`, `sizes` correct) — confirmé par inspection du HTML servi + test direct de la variante mobile. Gain marginal à nul attendu, Next re-quantifie systématiquement à q75 quel que soit le poids source.
+  - **Inter en police variable (50 KB)** : testé empiriquement (`weight: ["400","500","600","700"]` + build local + inspection du CSS généré). Aucun gain — Google Fonts ne sert Inter que sous forme de fichier variable, les 4 graisses déclarées pointent vers le **même fichier physique** (dédupliqué par le navigateur de toute façon). Changement reverté, aucun commit.
+- Objectif <2.5s (budget CLAUDE.md §10) non atteint à ce stade — facteur limitant restant identifié : contention réseau/main-thread avec les scripts tiers (voir Bloc 2bis-B).
+
 ---
 
 ## Pending — Bloc 2bis (perf mobile, non bloquant beta)
 
 | Item | Notes |
 |---|---|
-| **LCP mobile ~7.8s, stable, non tranché** | Reproductible sur plusieurs runs (pas du bruit de mesure), mais incohérence non résolue dans les insights Lighthouse : l'élément LCP identifié varie entre l'image hero et un élément texte selon les runs, avec des durées qui ne se recoupent pas. Nécessite une vraie investigation de l'élément LCP réel (pas juste re-mesurer) avant d'agir. |
+| **2bis-B — Scripts tiers (GTM/Crisp/Meta Pixel/Sentry), LCP <2.5s** | En cours. Diagnostic : GTM, Crisp, Meta Pixel déjà en `strategy="lazyOnload"` (rien à faire). Le chunk 130 Kio priorité Low identifié dans le waterfall (tirait au même instant que l'image hero) est en réalité le SDK **Sentry** (`instrumentation-client.ts`, import statique de `@sentry/nextjs`), pas un des 3 scripts nommés. |
 | **Chunk vendor `06tfw...` — 60 Kio inutilisés** | Identifié via bundle analyzer (webpack forcé, Turbopack incompatible avec `@next/bundle-analyzer` — nécessite `next build --webpack` pour générer le rapport). Composition exacte non identifiée à date (zod + probablement d'autres deps mêlées par le chunk-splitting automatique). À creuser. |
 | **CSS critique 18 Kio bloquant ~320ms** | Render-blocking CSS repéré par Lighthouse (`render-blocking-insight`), pas encore traité (candidat : inline critical CSS ou split). |
 | **Préconnect Sentry (`d397a2e`) marqué "inutilisé" par PageSpeed** | À réévaluer plus tard — potentiellement à retirer si le gain ne se confirme pas en usage réel. |
