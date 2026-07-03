@@ -2,6 +2,10 @@
   "name": "amora",
   "version": "0.1.0",
   "private": true,
+  "browserslist": {
+    "production": [">0.3%", "not dead", "not op_mini all", "not ie 11", "supports es6-module"],
+    "development": ["last 2 chrome version", "last 2 firefox version", "last 2 safari version"]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
