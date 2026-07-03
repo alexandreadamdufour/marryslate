@@ -54,7 +54,7 @@ export default function HomePage() {
       />
 
       {/* Hero */}
-      <section className="container mx-auto grid gap-16 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-32">
+      <section className="container mx-auto grid gap-16 px-4 pb-24 pt-12 sm:px-6 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pb-32 lg:pt-16">
         {/* Contenu gauche */}
         <div className="flex animate-fade-in-up flex-col items-start gap-6 text-left lg:col-span-5">
           <span className="rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
