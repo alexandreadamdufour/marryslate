@@ -4,7 +4,7 @@ import { Monitor } from "lucide-react"
 import { getMyWedding } from "@/queries/wedding"
 import { getGuestsByWedding } from "@/queries/guests"
 import { getSeatingTables } from "@/queries/seating"
-import { SeatingEditor } from "@/components/dashboard/seating-editor"
+import { SeatingEditorGate } from "@/components/dashboard/seating-editor-gate"
 import { EmptyState } from "@/components/ui/empty-state"
 
 export const metadata: Metadata = { title: "Plan de table" }
@@ -60,7 +60,7 @@ export default async function SeatingPage() {
       </div>
 
       <div className="hidden md:block">
-        <SeatingEditor initialTables={tables} guests={guests} weddingId={wedding.id} />
+        <SeatingEditorGate initialTables={tables} guests={guests} weddingId={wedding.id} />
       </div>
     </div>
   )
