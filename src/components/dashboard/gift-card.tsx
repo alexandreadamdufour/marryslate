@@ -76,7 +76,7 @@ export function GiftCard({ gift, weddingId }: GiftCardProps) {
       <button
         {...attributes}
         {...listeners}
-        className="mt-1 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="mt-1 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label="Déplacer"
       >
         <GripVertical className="h-5 w-5" />
@@ -140,16 +140,18 @@ export function GiftCard({ gift, weddingId }: GiftCardProps) {
               onClick={handleToggleActive}
               aria-label={gift.is_active ? "Masquer" : "Afficher"}
             >
-              {gift.is_active ? (
-                <Eye className="h-4 w-4" />
-              ) : (
-                <EyeOff className="h-4 w-4" />
-              )}
+              {gift.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </Button>
 
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger asChild>
-                <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Modifier">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  aria-label="Modifier"
+                >
                   <Pencil className="h-4 w-4" />
                 </Button>
               </DialogTrigger>

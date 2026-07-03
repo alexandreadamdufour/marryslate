@@ -46,7 +46,10 @@ function formatEventTime(start: string | null, end: string | null): string {
 function formatEventDate(start: string | null): string {
   if (!start) return ""
   return new Date(start).toLocaleDateString("fr-FR", {
-    day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
   })
 }
 
@@ -87,7 +90,7 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
       <button
         {...attributes}
         {...listeners}
-        className="mt-0.5 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="mt-0.5 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label="Déplacer"
       >
         <GripVertical className="h-5 w-5" />
@@ -124,7 +127,12 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
       <div className="flex shrink-0 items-center gap-1">
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Modifier ${event.title}`}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              aria-label={`Modifier ${event.title}`}
+            >
               <Pencil className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -135,7 +143,10 @@ function EventCard({ event, weddingId }: { event: WeddingEvent; weddingId: strin
             <WeddingEventForm
               weddingId={weddingId}
               event={event}
-              onSuccess={() => { setEditOpen(false); router.refresh() }}
+              onSuccess={() => {
+                setEditOpen(false)
+                router.refresh()
+              }}
             />
           </DialogContent>
         </Dialog>
@@ -165,7 +176,9 @@ export function WeddingEventsEditor({ initialEvents, weddingId }: Props) {
   const [addOpen, setAddOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => { setEvents(initialEvents) }, [initialEvents])
+  useEffect(() => {
+    setEvents(initialEvents)
+  }, [initialEvents])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -225,7 +238,10 @@ export function WeddingEventsEditor({ initialEvents, weddingId }: Props) {
           </DialogHeader>
           <WeddingEventForm
             weddingId={weddingId}
-            onSuccess={() => { setAddOpen(false); router.refresh() }}
+            onSuccess={() => {
+              setAddOpen(false)
+              router.refresh()
+            }}
           />
         </DialogContent>
       </Dialog>

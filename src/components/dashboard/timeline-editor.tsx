@@ -71,7 +71,7 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity hover:opacity-100 active:cursor-grabbing group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
         aria-label="Déplacer"
       >
         <GripVertical className="h-5 w-5" />
@@ -102,7 +102,10 @@ function TimelineStepCard({ step, weddingId }: { step: TimelineStep; weddingId: 
             <TimelineStepForm
               weddingId={weddingId}
               step={step}
-              onSuccess={() => { setEditOpen(false); router.refresh() }}
+              onSuccess={() => {
+                setEditOpen(false)
+                router.refresh()
+              }}
             />
           </DialogContent>
         </Dialog>
@@ -132,7 +135,9 @@ export function TimelineEditor({ initialSteps, weddingId }: TimelineEditorProps)
   const [addOpen, setAddOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => { setSteps(initialSteps) }, [initialSteps])
+  useEffect(() => {
+    setSteps(initialSteps)
+  }, [initialSteps])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -192,7 +197,10 @@ export function TimelineEditor({ initialSteps, weddingId }: TimelineEditorProps)
           </DialogHeader>
           <TimelineStepForm
             weddingId={weddingId}
-            onSuccess={() => { setAddOpen(false); router.refresh() }}
+            onSuccess={() => {
+              setAddOpen(false)
+              router.refresh()
+            }}
           />
         </DialogContent>
       </Dialog>
