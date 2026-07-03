@@ -130,13 +130,20 @@
   - **Inter en police variable (50 KB)** : testé empiriquement (`weight: ["400","500","600","700"]` + build local + inspection du CSS généré). Aucun gain — Google Fonts ne sert Inter que sous forme de fichier variable, les 4 graisses déclarées pointent vers le **même fichier physique** (dédupliqué par le navigateur de toute façon). Changement reverté, aucun commit.
 - Objectif <2.5s (budget CLAUDE.md §10) non atteint à ce stade — facteur limitant restant identifié : contention réseau/main-thread avec les scripts tiers (voir Bloc 2bis-B).
 
+### Bloc 2bis-B — Scripts tiers, LCP <2.5s (fermé, bilan mesuré)
+- Diagnostic : GTM, Crisp, Meta Pixel déjà en `strategy="lazyOnload"` — rien à faire dessus. Le chunk 130 Kio priorité Low qui tirait au même instant que l'image hero (identifié via Serena + téléchargement direct du chunk prod) est en réalité le SDK **Sentry** (`instrumentation-client.ts`, import statique de `@sentry/nextjs`), gardé eager par choix délibéré passé (`60a485d`).
+- Fix : init Sentry différée via `requestIdleCallback` (fallback `setTimeout`) sur les routes marketing (pas de flux sensible) ; init eager conservée sur auth/dashboard/onboarding/site public (argent en jeu, capture d'erreur précoce prioritaire). Split fait dans `instrumentation-client.ts` lui-même (fichier global unique, pas de layout par route pour cette convention Next.js) via `window.location.pathname`. Vérifié avant commit : `captureRouterTransitionStart` est un no-op silencieux tant que `Sentry.init()` n'a pas tourné (source `@sentry/nextjs` inspectée) — safe à exporter avant l'init différée (`c74ec73`).
+- **Bilan mesuré** (Lighthouse mobile, 2 runs, prod) : LCP **3.2s → ~2.8s médiane**, meilleur run individuel **2.16s** (sous le budget).
+- **Bilan cumulé Bloc 2bis (7.8s de départ) : 7.8s → 2.8s médiane (-64%)**, meilleur run 2.16s sous budget.
+- Seuil <2.5s (CLAUDE.md §10) **pas franchi stablement en Lighthouse local** (machine bruitée, variance 3.4s/2.2s sur 2 runs identiques) mais **atteint sur run individuel**. Vérification finale à faire via PageSpeed Insights (infra web Google, stable) avant de trancher le vrai chiffre.
+
 ---
 
 ## Pending — Bloc 2bis (perf mobile, non bloquant beta)
 
 | Item | Notes |
 |---|---|
-| **2bis-B — Scripts tiers (GTM/Crisp/Meta Pixel/Sentry), LCP <2.5s** | En cours. Diagnostic : GTM, Crisp, Meta Pixel déjà en `strategy="lazyOnload"` (rien à faire). Le chunk 130 Kio priorité Low identifié dans le waterfall (tirait au même instant que l'image hero) est en réalité le SDK **Sentry** (`instrumentation-client.ts`, import statique de `@sentry/nextjs`), pas un des 3 scripts nommés. |
+| **Vérif finale LCP via PageSpeed Insights (infra Google stable)** | Lighthouse local trop bruité pour trancher <2.5s de façon fiable (2bis-B). À relancer via `pagespeed.web.dev` ou l'API PSI avec clé, pour un chiffre stable. |
 | **Chunk vendor `06tfw...` — 60 Kio inutilisés** | Identifié via bundle analyzer (webpack forcé, Turbopack incompatible avec `@next/bundle-analyzer` — nécessite `next build --webpack` pour générer le rapport). Composition exacte non identifiée à date (zod + probablement d'autres deps mêlées par le chunk-splitting automatique). À creuser. |
 | **CSS critique 18 Kio bloquant ~320ms** | Render-blocking CSS repéré par Lighthouse (`render-blocking-insight`), pas encore traité (candidat : inline critical CSS ou split). |
 | **Préconnect Sentry (`d397a2e`) marqué "inutilisé" par PageSpeed** | À réévaluer plus tard — potentiellement à retirer si le gain ne se confirme pas en usage réel. |
