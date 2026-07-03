@@ -8,7 +8,6 @@ import {
   Lora,
 } from "next/font/google"
 import localFont from "next/font/local"
-import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "sonner"
 import { CookieBanner } from "@/components/shared/cookie-banner"
 import { CrispChat } from "@/components/crisp-chat"
@@ -105,30 +104,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html
-        lang="fr"
-        className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}
-      >
-        <body>
-          {children}
-          <Toaster richColors position="bottom-right" toastOptions={{ duration: 5000 }} />
-          <CookieBanner />
-          <CrispChat />
-          {process.env.NEXT_PUBLIC_GA_ID && (
-            <>
-              <GoogleAnalyticsLazy gaId={process.env.NEXT_PUBLIC_GA_ID} />
-              <GoogleAnalyticsPageview />
-              {process.env.NEXT_PUBLIC_GOOGLE_ADS_ID && (
-                <GoogleAdsConfig adsId={process.env.NEXT_PUBLIC_GOOGLE_ADS_ID} />
-              )}
-            </>
-          )}
-          {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
-            <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
-          )}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html
+      lang="fr"
+      className={`${inter.variable} ${fraunces.variable} ${playfair.variable} ${cormorant.variable} ${greatVibes.variable} ${montserrat.variable} ${lora.variable}`}
+    >
+      <body>
+        {children}
+        <Toaster richColors position="bottom-right" toastOptions={{ duration: 5000 }} />
+        <CookieBanner />
+        <CrispChat />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <GoogleAnalyticsLazy gaId={process.env.NEXT_PUBLIC_GA_ID} />
+            <GoogleAnalyticsPageview />
+            {process.env.NEXT_PUBLIC_GOOGLE_ADS_ID && (
+              <GoogleAdsConfig adsId={process.env.NEXT_PUBLIC_GOOGLE_ADS_ID} />
+            )}
+          </>
+        )}
+        {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
+          <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
+        )}
+      </body>
+    </html>
   )
 }
