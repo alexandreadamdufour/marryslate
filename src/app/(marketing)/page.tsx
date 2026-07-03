@@ -113,6 +113,7 @@ export default function HomePage() {
                     alt="Aperçu du site de mariage d'Alex et Louise créé avec Marryslate"
                     fill
                     priority
+                    fetchPriority="high"
                     sizes="(min-width: 1024px) 58vw, 100vw"
                     className="object-cover"
                   />
