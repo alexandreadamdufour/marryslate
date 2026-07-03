@@ -98,7 +98,12 @@ export async function createWedding(
   if (weddingError ?? !wedding) {
     console.error("[createWedding] DB insert failed", {
       error: weddingError
-        ? { code: weddingError.code, message: weddingError.message, details: weddingError.details, hint: weddingError.hint }
+        ? {
+            code: weddingError.code,
+            message: weddingError.message,
+            details: weddingError.details,
+            hint: weddingError.hint,
+          }
         : "null (RLS silent block? wedding=null sans erreur Supabase)",
       owner_id: user.id,
       slug: parsed.data.slug,
@@ -106,10 +111,10 @@ export async function createWedding(
     return { error: "DB_ERROR" }
   }
 
-  await supabase.from("wedding_coowners").insert({
-    wedding_id: wedding.id,
-    user_id: user.id,
-  })
+  // wedding_coowners est peuplé automatiquement par le trigger DB
+  // trg_ensure_owner_is_coowner (migration 20260703084245) — garantie
+  // structurelle, plus besoin de le faire ici. Voir cette migration pour
+  // le contexte du bug que ça corrige.
 
   revalidatePath("/dashboard")
   return { data: { id: wedding.id, slug: wedding.slug } }
