@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,10 +9,12 @@ import { WEDDING_THEMES, type WeddingThemeId } from "@/lib/constants"
 
 export function OnboardingThemeForm() {
   const router = useRouter()
-  const [selected, setSelected] = useState<WeddingThemeId>(() => {
+  const [selected, setSelected] = useState<WeddingThemeId>("classic")
+
+  useEffect(() => {
     const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
-    return existing.themeId ?? "classic"
-  })
+    if (existing.themeId) setSelected(existing.themeId)
+  }, [])
 
   function onSubmit() {
     const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
