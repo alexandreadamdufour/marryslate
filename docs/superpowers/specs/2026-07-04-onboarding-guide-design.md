@@ -62,4 +62,4 @@ Constat fait en préparant le plan d'implémentation : `@playwright/test` est un
 ## Risques / points d'attention pour le plan d'implémentation
 
 - La renumérotation de dossiers Next.js (`etape-1..4` → `etape-1..6`) est mécanique mais touche plusieurs fichiers en cascade — à faire dans un seul commit atomique, pas de déploiement intermédiaire.
-- Pas de `middleware.ts` dans ce projet (confirmé en préparant le plan) — la protection d'auth se fait au niveau des layouts (`(dashboard)/layout.tsx` fait un `redirect()` serveur), donc aucun matcher à mettre à jour pour les nouvelles routes `/onboarding/etape-5` et `etape-6`.
+- Le middleware Clerk existe sous le nom `src/proxy.ts` (pas `middleware.ts` — correction après vérification manuelle en exécutant le plan). Son matcher protège déjà `/onboarding(.*)` génériquement (`createRouteMatcher(["/dashboard(.*)", "/admin(.*)", "/onboarding(.*)"])`), donc les nouvelles routes `/onboarding/etape-5` et `etape-6` sont automatiquement couvertes — aucun changement requis.
