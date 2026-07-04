@@ -28,6 +28,7 @@ export function OnboardingChecklist({ wedding, hasGuests, hasGifts }: Props) {
   }, [storageKey])
 
   const items = [
+    { key: "share", label: "Partager votre lien avec vos proches", done: shared },
     {
       key: "hero",
       label: "Ajouter votre photo de couple",
@@ -52,7 +53,6 @@ export function OnboardingChecklist({ wedding, hasGuests, hasGifts }: Props) {
       href: "/dashboard/invites" as Route,
       done: wedding.rsvp_enabled,
     },
-    { key: "share", label: "Partager votre lien avec vos proches", done: shared },
   ]
 
   const completedCount = items.filter((i) => i.done).length
@@ -78,7 +78,7 @@ export function OnboardingChecklist({ wedding, hasGuests, hasGifts }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Démarrer votre mariage</CardTitle>
+        <CardTitle className="text-base">Et maintenant ?</CardTitle>
         <p className="text-sm text-muted-foreground">{completedCount}/5 étapes complétées</p>
       </CardHeader>
       <CardContent className="space-y-1">
