@@ -4,7 +4,14 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -25,7 +32,7 @@ export function OnboardingStep1Form() {
   function onSubmit(values: Step1Values) {
     // Persister en sessionStorage pour consolidation à l'étape 3
     sessionStorage.setItem("onboarding", JSON.stringify(values))
-    router.push("/onboarding/etape-2")
+    router.push("/onboarding/etape-3")
   }
 
   return (
