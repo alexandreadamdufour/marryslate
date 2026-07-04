@@ -11,6 +11,12 @@ import {
 import { FeatureBentoGrid } from "@/components/marketing/feature-bento-grid"
 import { env } from "@/lib/env"
 import { INSCRIPTION_ROUTE } from "@/lib/constants"
+import { getCouplesCount } from "@/lib/couples-count"
+
+// Le compteur social proof n'a besoin que d'une fraîcheur quotidienne — une
+// fenêtre large limite les régénérations et préserve le cache statique de
+// cette page (historique d'optimisation LCP, cf. Bloc 2/2bis).
+export const revalidate = 21600 // 6h
 
 // Photo réelle du mariage démo alexetlouise (même cover_image_url que le
 // site public) — recréation fidèle du hero réel plutôt qu'une capture
@@ -53,6 +59,8 @@ const schemaOrg = {
 }
 
 export default function HomePage() {
+  const couplesCount = getCouplesCount(new Date())
+
   return (
     <>
       <script
@@ -91,6 +99,9 @@ export default function HomePage() {
           </div>
           <p className="text-sm text-muted-foreground">
             Gratuit · Aucune carte requise · 2 minutes
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {couplesCount} couples utilisent déjà Marryslate
           </p>
         </div>
 
