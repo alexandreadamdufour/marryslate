@@ -1,26 +1,20 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import { OnboardingThemeForm } from "@/components/dashboard/onboarding-theme-form"
 import { OnboardingStepIndicator } from "@/components/dashboard/onboarding-step-indicator"
-import { OnboardingCompleteTracker } from "@/components/dashboard/onboarding-complete-tracker"
-import { Button } from "@/components/ui/button"
 
-export const metadata: Metadata = { title: "Votre site est prêt !" }
+export const metadata: Metadata = { title: "Onboarding — Étape 4" }
 
-export default function OnboardingStep4Page() {
+export default function OnboardingStep4ThemePage() {
   return (
-    <div className="w-full max-w-md space-y-8 text-center">
-      <OnboardingCompleteTracker />
+    <div className="w-full max-w-md space-y-8">
       <OnboardingStepIndicator currentStep={4} />
-      <div className="space-y-4">
-        <div className="text-6xl">🎉</div>
-        <h1 className="text-3xl">Votre site est prêt !</h1>
+      <div className="space-y-2">
+        <h1 className="text-3xl">Choisissez votre thème</h1>
         <p className="text-muted-foreground">
-          Commencez à personnaliser votre espace et partagez le lien avec vos invités.
+          Vous pourrez en changer plus tard depuis votre tableau de bord.
         </p>
       </div>
-      <Button asChild size="lg" className="w-full">
-        <Link href="/dashboard">Accéder à mon tableau de bord</Link>
-      </Button>
+      <OnboardingThemeForm />
     </div>
   )
 }
