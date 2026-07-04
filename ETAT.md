@@ -1,6 +1,6 @@
-# État Marryslate — 3 juillet 2026 (suite)
+# État Marryslate — 4 juillet 2026 (suite)
 
-> Dernier commit : `3cc3530` — docs: close Bloc 2bis-B, cumulative LCP bilan 7.8s -> 2.8s (-64%)
+> Dernier commit : `4525564` — feat(marketing): affiche le compteur social proof dans le Hero
 > Ce fichier est la source de vérité sur l'avancement. À remettre à jour à la fin de chaque session (voir CLAUDE.md §17).
 
 ---
@@ -138,6 +138,30 @@
 - **Objectif <2.5s LCP mobile ATTEINT** (budget CLAUDE.md §10), confirmé sur infra stable — le doute laissé par le bruit Lighthouse local est levé.
 - **Bilan cumulé Bloc 2bis (7.8s de départ) : 7.8s → 2.2s (-72%). Bloc 2bis totalement clos.**
 
+### Bloc 3 — UX/conversion, dashboard + homepage (fermé, 4 chantiers)
+
+Méthodologie systématique sur les 4 chantiers : brainstorming (spec validée avant code) → plan d'implémentation détaillé → exécution en subagents (implémenteur + reviewer par tâche, revue finale de branche) → vérification manuelle → push. Chaque chantier a son spec/plan dans `docs/superpowers/specs/` et `docs/superpowers/plans/` (préfixe `2026-07-04-`).
+
+- **Chantier 1 — Onboarding guidé première connexion** : wizard pré-dashboard étendu de 4 à 6 écrans (Bienvenue → Prénoms → Date → **Choix du thème** *(nouveau)* → Adresse du site → Confirmation). `theme_id` réellement transmis à la création du wedding (gap découvert : `createWeddingSchema` ne l'acceptait pas encore). Checklist dashboard post-onboarding réordonnée ("Invitez vos proches" en premier). Bug réel trouvé et corrigé par la revue finale : le picker de thème ne relisait pas `sessionStorage` au montage, un retour en arrière depuis l'écran slug réinitialisait silencieusement le thème (`8b98684`). Commits `7c62a21`..`8b98684`.
+- **Chantier 2 — Empty states scénarisés** : `/dashboard/invites`, `/liste`, `/budget` avaient déjà un empty state ad-hoc (pas absent) — remplacés par le composant `EmptyState` partagé (déjà utilisé par `/cagnotte`, `/plan-de-table`), avec icône Lucide, CTA branché sur les dialogs/formulaires d'ajout existants. `/invites` a deux variantes (vraiment vide vs filtre actif sans résultat) avec extraction d'une fonction `resetFilters()`. Collision de nom découverte et corrigée par l'implémenteur (`Gift` icône vs `Gift` type déjà importé → aliasé `GiftIcon`). Commits `ad2f15b`..`0c6190e`.
+- **Chantier 3 — FAQ homepage** : section de 9 questions (sur les 14 déjà présentes sur `/faq`) ajoutée entre "Social proof" et "CTA", wording raccourci/plus direct que la page dédiée, accordéon plat (shadcn/ui), lien vers `/faq` pour le détail. Commit `31e0295`.
+- **Chantier 4 — Compteur social proof homepage** : ligne discrète dans le Hero ("N couples utilisent déjà Marryslate"), fonction pure déterministe `getCouplesCount()` (`src/lib/couples-count.ts`, testée — 6 tests Vitest, formule re-vérifiée indépendamment en revue) — base 127 au 24/06 (1er commit du projet), croissance ~40%/jour strictement monotone, pas de `Math.random()` ni de composant client. `revalidate = 21600` (6h) ajouté à la homepage pour garder le cache statique (pas de régression LCP vu l'historique Bloc 2/2bis). Affiche **131** au 4 juillet. Commits `1e29aed`, `4525564`.
+
+**Découverte transverse (chantiers 1-4)** : `pnpm test` fait systématiquement échouer 2 suites pré-existantes (`rsvp.test.ts`, `stripe-webhook.test.ts`) — confirmé sans rapport avec ce bloc, déjà documenté ci-dessous ("Tests Vitest bloqués par `env.ts`"). Tous les autres tests (61/61 après chantier 4) passent sur les 4 chantiers.
+
+**Bloc 3 totalement clos, poussé sur `main`.**
+
+---
+
+## Pending — prochains blocs
+
+| Item | Notes |
+|---|---|
+| **Bloc 4 — Polish** | Périmètre à définir. |
+| **Bloc 5 — RSVP i18n refactor** | Refactor du flux RSVP autour de `next-intl` (dossier `src/i18n/` déjà prévu dans la structure cible, cf. CLAUDE.md, jamais implémenté). Périmètre à cadrer. |
+| **CI/CD GitHub Actions** | Aucune CI configurée à ce jour — `pnpm typecheck`/`lint`/`test` tournent uniquement en local/manuel. À mettre en place avant l'arrivée d'un contributeur (cf. CLAUDE.md §14, flux PR requis dès ce moment). |
+| **Infra E2E Playwright** | Découvert en préparant le Bloc 3 chantier 1 : `@playwright/test` est une dépendance et `package.json` référence `test:a11y` → `tests/e2e/a11y`, mais aucun `playwright.config.ts` n'existe et `tests/e2e/` est vide. Les 3 flux critiques listés en §15 de CLAUDE.md (inscription→publication, contribution invité, retrait KYC) n'ont donc aucune couverture E2E automatisée. Chantier à part entière (config + fixtures auth Clerk en test), volontairement exclu du Bloc 3. |
+
 ---
 
 ## Pending — dette perf résiduelle (hors Bloc 2bis, non bloquant beta)
@@ -177,7 +201,7 @@
 | **RSVP incrément 2 (conflit) + vue dashboard** | Détection de conflit (divergence saisie couple + double réponse même email) à cadrer avant build. Puis vue file de validation (`pending_validation`) + vue conflits (`conflict`). Specs dans SPECS-RSVP.md. |
 | **Propagation `guest_count` → `guests`** | RSVP à 2/3/4 personnes : `guest_count` perdu côté liste maître (`guests` n'a que `plus_one` bool + `plus_one_name`). Options : (a) colonne `guest_count` sur `guests`, (b) auto `plus_one=true` si >1, (c) N guests séparés. Non bloquant tant que visible dans "Réponses traitées". |
 | **Résolution conflit multi-réponses (3+)** | `resolveRsvpConflict` traite chaque réponse indépendamment (last-write-wins). Cas rare, non prioritaire. |
-| **Onboarding première connexion** | Rugueux : un nouveau couple ne comprend pas immédiatement comment activer chaque feature (cagnotte cachée si pas de cadeau, RSVP à activer, etc.). |
+| ~~**Onboarding première connexion**~~ | **Résolu par le Bloc 3 chantier 1** (wizard 6 écrans + checklist réordonnée). Reste à valider avec de vrais retours beta si le confort UX est suffisant. |
 
 ---
 
@@ -193,7 +217,7 @@
 | **Race condition `detectConflict` (TOCTOU)** | SELECT puis INSERT sans transaction/verrou — deux réponses concurrentes au même email peuvent ne pas se flaguer mutuellement. Probabilité très faible. |
 | **Lint `seating-table-node.tsx`** | `'X' is defined but never used`, présent depuis plusieurs sessions, ne bloque rien. |
 | **Vestiges MangoPay** | 4 clés `MANGOPAY_*` orphelines dans `.env.local` (absentes de `.env.local.example`) + colonne DB `contributions.mangopay_payment_id` (nullable, jamais lue). Code applicatif déjà retiré (`d3c3238`). Aucun risque, nettoyage cosmétique un jour. |
-| **Bug UI onboarding étape 3 — placeholder slug** | Le placeholder du champ slug (ex. `sophie-et-thomas`) se superpose au préfixe fixe `marryslate.com/m/` — problème de padding/positionnement CSS de l'input. Repéré le 3 juillet lors du test de validation du trigger ownership. Fichier probable : `src/app/onboarding/etape-3/` ou composant slug input. |
+| **Bug UI onboarding — placeholder slug** | Le placeholder du champ slug (ex. `sophie-et-thomas`) se superpose au préfixe fixe `marryslate.com/m/` — problème de padding/positionnement CSS de l'input. Repéré le 3 juillet lors du test de validation du trigger ownership. **Route renumérotée par le Bloc 3 chantier 1** : l'écran slug est désormais `/onboarding/etape-5` (composant `onboarding-step3-form.tsx`, nom de fichier inchangé), pas `etape-3` comme noté initialement. |
 | **4 lignes `contributions` du 1er juillet en `succeeded`** | Alors que refunded côté Stripe — webhook `charge.refunded` n'était pas souscrit à l'époque, l'endpoint a été corrigé depuis (3 juillet). Nettoyage manuel possible en DB si un jour la compta le nécessite. |
 | **Leçon — `RESEND_API_KEY` placeholder résiduel** | La clé Resend en prod était `re_aBcDe...` (placeholder de doc jamais remplacé) depuis le 24 juin. Aucun email n'était envoyé — les `.catch()` silencieux dans les Server Actions masquaient l'erreur 401. Résolu le 1er juillet. **Discipline à retenir** : auditer les placeholders documentaires (`re_aBcDe`, `sk_live_xxx`, etc.) au setup initial de chaque service, ne jamais commit avec la valeur d'exemple. |
 
