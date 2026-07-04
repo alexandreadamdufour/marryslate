@@ -2,6 +2,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion"
 import { FeatureBentoGrid } from "@/components/marketing/feature-bento-grid"
 import { env } from "@/lib/env"
 import { INSCRIPTION_ROUTE } from "@/lib/constants"
@@ -154,6 +160,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <h2 className="mb-12 text-center text-3xl">Questions fréquentes</h2>
+          <div className="mx-auto max-w-2xl">
+            <Accordion type="multiple" className="rounded-lg border">
+              {FAQ_ITEMS.map((item, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`faq-${i}`}
+                  className="px-4 first:rounded-t-lg last:rounded-b-lg last:border-b-0"
+                >
+                  <AccordionTrigger className="text-base">{item.q}</AccordionTrigger>
+                  <AccordionContent className="leading-relaxed text-muted-foreground">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              <Link href="/faq" className="underline underline-offset-4 hover:text-foreground">
+                Voir toutes les questions →
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-muted/50 px-4 py-24">
         <div className="container mx-auto text-center sm:px-6">
@@ -175,4 +209,43 @@ const STATS = [
   { value: "2 min", label: "pour créer votre site" },
   { value: "0 €", label: "d'abonnement" },
   { value: "2,9 %", label: "de commission par transaction" },
+]
+
+const FAQ_ITEMS = [
+  {
+    q: "Comment créer mon site mariage avec Marryslate ?",
+    a: "Inscrivez-vous gratuitement, renseignez les prénoms et la date, et votre site est en ligne en quelques minutes. Vous personnalisez ensuite tout depuis votre tableau de bord.",
+  },
+  {
+    q: "Combien de temps faut-il pour créer le site ?",
+    a: "Le site de base est prêt en moins de 5 minutes. Comptez 30 minutes à 1 heure pour l'enrichir avec votre histoire, vos photos et le programme de la journée.",
+  },
+  {
+    q: "Comment fonctionne la liste de cadeaux ?",
+    a: "Vous créez des cadeaux avec un montant cible, vos invités contribuent librement par carte bancaire. Dès qu'un cadeau est financé, il est marqué comme tel sur votre site.",
+  },
+  {
+    q: "Combien ça coûte ?",
+    a: "C'est gratuit. Aucun abonnement, aucun frais caché. Seule une commission de 2,9 % + 0,30 € est prélevée par contribution reçue — elle couvre les frais de paiement et le service.",
+  },
+  {
+    q: "Dans quel délai recevons-nous les fonds ?",
+    a: "Les fonds sont disponibles sous 2 à 7 jours ouvrés après chaque paiement. Vous demandez le virement vers votre IBAN quand vous voulez.",
+  },
+  {
+    q: "Le paiement est-il sécurisé ?",
+    a: "Oui. Tous les paiements passent par Stripe, certifié PCI-DSS niveau 1. Marryslate ne stocke jamais les données bancaires de vos invités.",
+  },
+  {
+    q: "Comment les invités participent-ils à la liste de cadeaux ?",
+    a: "Ils accèdent à votre site via le lien que vous partagez, choisissent un cadeau ou une contribution libre, et paient par carte. Aucun compte Marryslate n'est nécessaire.",
+  },
+  {
+    q: "Peut-on modifier le site après sa publication ?",
+    a: "Oui, à tout moment. Textes, photos, cadeaux, infos pratiques — tout reste modifiable, avec une mise à jour visible en moins de 60 secondes.",
+  },
+  {
+    q: "Comment fonctionne le RSVP ?",
+    a: "Activez-le en un clic depuis votre tableau de bord. Vos invités indiquent leur présence, le nombre d'accompagnants et leurs restrictions alimentaires directement sur votre site.",
+  },
 ]
