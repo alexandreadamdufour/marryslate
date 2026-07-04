@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable"
-import { Plus } from "lucide-react"
+import { Plus, Gift as GiftIcon } from "lucide-react"
 import { toast } from "sonner"
 import { sendGAEvent } from "@/lib/ga-client-event"
 
@@ -29,6 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import { GiftCard } from "./gift-card"
 import { GiftForm } from "./gift-form"
 import { reorderGifts } from "@/actions/gifts"
@@ -78,12 +79,12 @@ export function GiftListEditor({ initialGifts, weddingId }: GiftListEditorProps)
   return (
     <div className="space-y-4">
       {gifts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-          <p className="text-muted-foreground">Aucun cadeau pour l&apos;instant.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ajoutez votre premier cadeau pour commencer.
-          </p>
-        </div>
+        <EmptyState
+          icon={GiftIcon}
+          title="Aucun cadeau pour l'instant."
+          description="Créez votre premier cadeau pour que vos invités puissent commencer à contribuer."
+          action={{ label: "Ajouter un cadeau", onClick: () => setAddOpen(true) }}
+        />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={gifts.map((g) => g.id)} strategy={verticalListSortingStrategy}>
@@ -97,12 +98,14 @@ export function GiftListEditor({ initialGifts, weddingId }: GiftListEditorProps)
       )}
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="w-full gap-2">
-            <Plus className="h-4 w-4" />
-            Ajouter un cadeau
-          </Button>
-        </DialogTrigger>
+        {gifts.length > 0 && (
+          <DialogTrigger asChild>
+            <Button variant="outline" className="w-full gap-2">
+              <Plus className="h-4 w-4" />
+              Ajouter un cadeau
+            </Button>
+          </DialogTrigger>
+        )}
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Nouveau cadeau</DialogTitle>
