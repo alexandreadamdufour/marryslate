@@ -9,7 +9,10 @@ import { WEDDING_THEMES, type WeddingThemeId } from "@/lib/constants"
 
 export function OnboardingThemeForm() {
   const router = useRouter()
-  const [selected, setSelected] = useState<WeddingThemeId>("classic")
+  const [selected, setSelected] = useState<WeddingThemeId>(() => {
+    const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
+    return existing.themeId ?? "classic"
+  })
 
   function onSubmit() {
     const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
