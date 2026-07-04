@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Pencil, Trash2, MailCheck } from "lucide-react"
+import { Plus, Pencil, Trash2, MailCheck, Users, FilterX } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   Select,
   SelectContent,
@@ -110,6 +111,12 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
     router.refresh()
   }
 
+  function resetFilters() {
+    setFilterStatus("all")
+    setFilterSide("all")
+    setFilterGroup("")
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-4">
@@ -166,15 +173,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
           </Select>
         )}
         {(filterStatus !== "all" || filterSide !== "all" || filterGroup) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setFilterStatus("all")
-              setFilterSide("all")
-              setFilterGroup("")
-            }}
-          >
+          <Button variant="ghost" size="sm" onClick={resetFilters}>
             Réinitialiser
           </Button>
         )}
@@ -270,15 +269,23 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
         </div>
       )}
 
-      {filtered.length === 0 && !addOpen && (
-        <div className="rounded-xl border border-dashed py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            {guests.length === 0
-              ? "Aucun invité pour l'instant."
-              : "Aucun invité pour ces filtres."}
-          </p>
-        </div>
-      )}
+      {filtered.length === 0 &&
+        !addOpen &&
+        (guests.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title="Aucun invité pour l'instant."
+            description="Ajoutez vos premiers invités pour commencer à gérer votre liste et suivre les RSVP."
+            action={{ label: "Ajouter un invité", onClick: () => setAddOpen(true) }}
+          />
+        ) : (
+          <EmptyState
+            icon={FilterX}
+            title="Aucun invité pour ces filtres."
+            description="Essayez d'élargir vos critères de recherche."
+            action={{ label: "Réinitialiser les filtres", onClick: resetFilters }}
+          />
+        ))}
 
       {/* Edit form */}
       {editingGuest && (
@@ -297,7 +304,7 @@ export function GuestEditor({ initialGuests, weddingId }: Props) {
       )}
 
       <div className="flex flex-wrap gap-3">
-        {!addOpen && !editingGuest && (
+        {!addOpen && !editingGuest && guests.length > 0 && (
           <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Ajouter un invité
