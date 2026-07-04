@@ -11,6 +11,7 @@ export const createWeddingSchema = z.object({
   partner1FirstName: z.string().min(1, "Requis").max(50),
   partner2FirstName: z.string().min(1, "Requis").max(50),
   weddingDate: z.string().optional(),
+  themeId: z.string().optional(),
   slug: slugSchema,
 })
 

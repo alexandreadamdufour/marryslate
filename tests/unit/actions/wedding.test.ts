@@ -3,7 +3,7 @@ import { makeMockSupabase } from "../helpers/mock-supabase"
 
 // --- Mocks de modules ---
 vi.mock("@clerk/nextjs/server", () => ({
-  auth:        vi.fn(),
+  auth: vi.fn(),
   currentUser: vi.fn(),
 }))
 vi.mock("@/lib/supabase/admin", () => ({
@@ -19,16 +19,16 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { createClerkSupabaseClient } from "@/lib/supabase/clerk-client"
 import { createWedding } from "@/actions/wedding"
 
-const mockAuth         = vi.mocked(auth)
-const mockCurrentUser  = vi.mocked(currentUser)
-const mockCreateAdmin  = vi.mocked(createAdminClient)
+const mockAuth = vi.mocked(auth)
+const mockCurrentUser = vi.mocked(currentUser)
+const mockCreateAdmin = vi.mocked(createAdminClient)
 const mockCreateClient = vi.mocked(createClerkSupabaseClient)
 
 // --- Fixtures ---
 const CLERK_USER_ID = "user_clerk123"
-const USER_ID       = "user-uuid-1"
-const WEDDING_ID    = "wedding-uuid-1"
-const SLUG          = "alice-et-bob"
+const USER_ID = "user-uuid-1"
+const WEDDING_ID = "wedding-uuid-1"
+const SLUG = "alice-et-bob"
 
 const VALID_INPUT = {
   partner1FirstName: "Alice",
@@ -51,22 +51,25 @@ const VALID_INPUT = {
  *     weddings[0]         → INSERT wedding
  *     wedding_coowners[0] → INSERT coowner
  */
-function makeAdminClient(insertResult: { data: unknown; error: { code?: string; message?: string } | null }) {
+function makeAdminClient(insertResult: {
+  data: unknown
+  error: { code?: string; message?: string } | null
+}) {
   return makeMockSupabase({
     users: [
-      { data: null,              error: null },  // [0] SELECT → not found
-      { ...insertResult },                       // [1] INSERT → configurable
-      { data: { id: USER_ID },  error: null },  // [2] re-SELECT après 23505
+      { data: null, error: null }, // [0] SELECT → not found
+      { ...insertResult }, // [1] INSERT → configurable
+      { data: { id: USER_ID }, error: null }, // [2] re-SELECT après 23505
     ],
     weddings: [
-      { data: null, error: null },              // slug check → libre
+      { data: null, error: null }, // slug check → libre
     ],
   }).client
 }
 
 function makeClerkClient() {
   return makeMockSupabase({
-    weddings:         [{ data: { id: WEDDING_ID, slug: SLUG }, error: null }],
+    weddings: [{ data: { id: WEDDING_ID, slug: SLUG }, error: null }],
     wedding_coowners: [{ data: null, error: null }],
   }).client
 }
@@ -78,7 +81,7 @@ describe("createWedding — gestion de la race condition dans getOrCreateUser", 
     mockCurrentUser.mockResolvedValue({
       emailAddresses: [{ emailAddress: "alice@example.com" }],
       firstName: "Alice",
-      lastName:  "Martin",
+      lastName: "Martin",
     } as never)
     mockCreateClient.mockResolvedValue(makeClerkClient() as never)
   })
@@ -96,7 +99,7 @@ describe("createWedding — gestion de la race condition dans getOrCreateUser", 
   it("race 23505 : re-SELECT le user existant et crée le mariage (PAS USER_NOT_FOUND)", async () => {
     mockCreateAdmin.mockReturnValue(
       makeAdminClient({
-        data:  null,
+        data: null,
         error: { code: "23505", message: "duplicate key value violates unique constraint" },
       }) as never
     )
@@ -111,7 +114,7 @@ describe("createWedding — gestion de la race condition dans getOrCreateUser", 
   it("erreur DB non-23505 : retourne USER_NOT_FOUND", async () => {
     mockCreateAdmin.mockReturnValue(
       makeAdminClient({
-        data:  null,
+        data: null,
         error: { code: "08006", message: "connection failure" },
       }) as never
     )
@@ -119,5 +122,44 @@ describe("createWedding — gestion de la race condition dans getOrCreateUser", 
     const result = await createWedding(VALID_INPUT)
 
     expect(result).toHaveProperty("error", "USER_NOT_FOUND")
+  })
+})
+
+describe("createWedding — thème choisi à l'onboarding", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAuth.mockResolvedValue({ userId: CLERK_USER_ID } as never)
+    mockCurrentUser.mockResolvedValue({
+      emailAddresses: [{ emailAddress: "alice@example.com" }],
+      firstName: "Alice",
+      lastName: "Martin",
+    } as never)
+    mockCreateAdmin.mockReturnValue(
+      makeAdminClient({ data: { id: USER_ID }, error: null }) as never
+    )
+  })
+
+  it("themeId fourni : transmis à l'insert sous theme_id", async () => {
+    const { client, captures } = makeMockSupabase({
+      weddings: [{ data: { id: WEDDING_ID, slug: SLUG }, error: null }],
+      wedding_coowners: [{ data: null, error: null }],
+    })
+    mockCreateClient.mockResolvedValue(client as never)
+
+    await createWedding({ ...VALID_INPUT, themeId: "contemporary" })
+
+    expect(captures.inserts.weddings![0]).toMatchObject({ theme_id: "contemporary" })
+  })
+
+  it("themeId absent : pas de clé theme_id dans l'insert (défaut DB conservé)", async () => {
+    const { client, captures } = makeMockSupabase({
+      weddings: [{ data: { id: WEDDING_ID, slug: SLUG }, error: null }],
+      wedding_coowners: [{ data: null, error: null }],
+    })
+    mockCreateClient.mockResolvedValue(client as never)
+
+    await createWedding(VALID_INPUT)
+
+    expect(captures.inserts.weddings![0]).not.toHaveProperty("theme_id")
   })
 })

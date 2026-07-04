@@ -91,6 +91,7 @@ export async function createWedding(
       partner2_first_name: parsed.data.partner2FirstName,
       wedding_date: parsed.data.weddingDate ?? null,
       slug: parsed.data.slug,
+      ...(parsed.data.themeId !== undefined && { theme_id: parsed.data.themeId }),
     })
     .select("id, slug")
     .single()
