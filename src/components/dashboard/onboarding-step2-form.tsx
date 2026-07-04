@@ -4,7 +4,14 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -24,7 +31,7 @@ export function OnboardingStep2Form() {
   function onSubmit(values: Step2Values) {
     const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
     sessionStorage.setItem("onboarding", JSON.stringify({ ...existing, ...values }))
-    router.push("/onboarding/etape-3")
+    router.push("/onboarding/etape-4")
   }
 
   return (
@@ -44,12 +51,7 @@ export function OnboardingStep2Form() {
           )}
         />
         <div className="flex gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={() => router.back()}
-          >
+          <Button type="button" variant="outline" className="flex-1" onClick={() => router.back()}>
             Retour
           </Button>
           <Button type="submit" className="flex-1">
@@ -62,8 +64,11 @@ export function OnboardingStep2Form() {
           className="w-full text-muted-foreground"
           onClick={() => {
             const existing = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}")
-            sessionStorage.setItem("onboarding", JSON.stringify({ ...existing, weddingDate: undefined }))
-            router.push("/onboarding/etape-3")
+            sessionStorage.setItem(
+              "onboarding",
+              JSON.stringify({ ...existing, weddingDate: undefined })
+            )
+            router.push("/onboarding/etape-4")
           }}
         >
           Je ne sais pas encore
