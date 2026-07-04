@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react"
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Wallet } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { BUDGET_CATEGORIES } from "@/lib/validators/budget"
 import { deleteBudgetItem } from "@/actions/budget"
@@ -216,14 +217,12 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
       )}
 
       {grouped.length === 0 && !addOpen && (
-        <div className="rounded-xl border border-dashed py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Aucun poste budgétaire pour l&apos;instant.
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground/60">
-            Ajoutez votre premier poste pour commencer.
-          </p>
-        </div>
+        <EmptyState
+          icon={Wallet}
+          title="Aucun poste budgétaire pour l'instant."
+          description="Ajoutez vos postes de dépense pour suivre votre budget du jour J."
+          action={{ label: "Ajouter un poste", onClick: () => setAddOpen(true) }}
+        />
       )}
 
       {/* Edit inline form */}
@@ -242,7 +241,7 @@ export function BudgetEditor({ initialItems, weddingId }: Props) {
         </div>
       )}
 
-      {!addOpen && !editingItem && (
+      {!addOpen && !editingItem && grouped.length > 0 && (
         <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" aria-hidden="true" />
           Ajouter un poste
