@@ -7,7 +7,15 @@ import { useState, useCallback } from "react"
 import { z } from "zod"
 import { toast } from "sonner"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { createWedding, checkSlugAvailability } from "@/actions/wedding"
@@ -52,6 +60,7 @@ export function OnboardingStep3Form() {
       partner1FirstName: stored.partner1FirstName ?? "",
       partner2FirstName: stored.partner2FirstName ?? "",
       weddingDate: stored.weddingDate || undefined,
+      themeId: stored.themeId || undefined,
       slug: values.slug,
     })
 
@@ -67,7 +76,7 @@ export function OnboardingStep3Form() {
     }
 
     sessionStorage.removeItem("onboarding")
-    router.push("/onboarding/etape-4")
+    router.push("/onboarding/etape-6")
   }
 
   return (
@@ -107,13 +116,12 @@ export function OnboardingStep3Form() {
                 </div>
               </FormControl>
               <FormDescription>
-                {slugStatus === "available" && (
-                  <span className="text-green-600">Disponible !</span>
-                )}
+                {slugStatus === "available" && <span className="text-green-600">Disponible !</span>}
                 {slugStatus === "taken" && (
                   <span className="text-destructive">Cette adresse est déjà prise.</span>
                 )}
-                {slugStatus === "idle" && "Lettres minuscules, chiffres et tirets. Min. 3 caractères."}
+                {slugStatus === "idle" &&
+                  "Lettres minuscules, chiffres et tirets. Min. 3 caractères."}
               </FormDescription>
               <FormMessage />
             </FormItem>
