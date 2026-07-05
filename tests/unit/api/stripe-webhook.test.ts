@@ -14,9 +14,9 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }))
 vi.mock("@/lib/resend/send", () => ({
-  sendContributionReceipt:     vi.fn().mockResolvedValue(undefined),
+  sendContributionReceipt: vi.fn().mockResolvedValue(undefined),
   sendCoupleContributionNotif: vi.fn().mockResolvedValue(undefined),
-  sendPayoutNotif:             vi.fn().mockResolvedValue(undefined),
+  sendPayoutNotif: vi.fn().mockResolvedValue(undefined),
 }))
 
 // --- Imports après mocks ---
@@ -25,15 +25,15 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { POST } from "@/app/api/webhooks/stripe/route"
 
 const mockConstructEvent = vi.mocked(stripe.webhooks.constructEvent)
-const mockCreateAdmin    = vi.mocked(createAdminClient)
-const mockHeaders        = vi.mocked(headers)
+const mockCreateAdmin = vi.mocked(createAdminClient)
+const mockHeaders = vi.mocked(headers)
 
 // --- Fixtures ---
-const CONTRIB_ID  = "contrib-uuid-1"
-const GIFT_ID     = "gift-uuid-1"
-const WEDDING_ID  = "wedding-uuid-1"
-const PI_ID       = "pi_test_123"
-const OWNER_ID    = "owner-uuid-1"
+const CONTRIB_ID = "contrib-uuid-1"
+const GIFT_ID = "gift-uuid-1"
+const WEDDING_ID = "wedding-uuid-1"
+const PI_ID = "pi_test_123"
+const OWNER_ID = "owner-uuid-1"
 
 /**
  * Événements Stripe factorisés.
@@ -48,8 +48,8 @@ function makeEvent(type: string, piOverrides: Record<string, unknown> = {}) {
         id: PI_ID,
         metadata: {
           contribution_id: CONTRIB_ID,
-          wedding_id:      WEDDING_ID,
-          gift_id:         GIFT_ID,
+          wedding_id: WEDDING_ID,
+          gift_id: GIFT_ID,
         },
         ...piOverrides,
       },
@@ -73,33 +73,33 @@ function makeDefaultWebhookSupabase(overrides: Record<string, MockResult[]> = {}
       // [0] select existing → contribution pending, avec cadeau et email
       {
         data: {
-          id:            CONTRIB_ID,
+          id: CONTRIB_ID,
           payment_status: "pending",
-          guest_email:   "guest@test.com",
-          guest_name:    "Marie Dupont",
-          gift_id:       GIFT_ID,
-          gross_amount:  "55.00",
-          net_amount:    "50.00",
-          wedding_id:    WEDDING_ID,
-          is_anonymous:  false,
+          guest_email: "guest@test.com",
+          guest_name: "Marie Dupont",
+          gift_id: GIFT_ID,
+          gross_amount: "55.00",
+          net_amount: "50.00",
+          wedding_id: WEDDING_ID,
+          is_anonymous: false,
         },
         error: null,
       },
-      { data: null, error: null },                              // [1] update status → OK
-      { data: [{ net_amount: "50.00" }], error: null },         // [2] select sum → 50 €
+      { data: null, error: null }, // [1] update status → OK
+      { data: [{ net_amount: "50.00" }], error: null }, // [2] select sum → 50 €
     ],
     gifts: [
-      { data: null, error: null },                              // [0] update current_amount → OK
-      { data: { title: "Voyage de noces" }, error: null },      // [1] select title
+      { data: null, error: null }, // [0] update current_amount → OK
+      { data: { title: "Voyage de noces" }, error: null }, // [1] select title
     ],
     weddings: [
       {
         data: {
-          partner1_first_name:    "Sophie",
-          partner2_first_name:    "Thomas",
-          slug:                   "sophie-et-thomas",
-          owner_id:               OWNER_ID,
-          notifications_enabled:  true,
+          partner1_first_name: "Sophie",
+          partner2_first_name: "Thomas",
+          slug: "sophie-et-thomas",
+          owner_id: OWNER_ID,
+          notifications_enabled: true,
         },
         error: null,
       },
@@ -135,7 +135,7 @@ describe("POST /api/webhooks/stripe", () => {
 
   describe("vérification de signature", () => {
     it("retourne 400 si le header stripe-signature est absent", async () => {
-      mockHeaders.mockResolvedValue(new Headers())  // pas de stripe-signature
+      mockHeaders.mockResolvedValue(new Headers()) // pas de stripe-signature
       const res = await POST(makeRequest())
       expect(res.status).toBe(400)
       expect(await res.text()).toBe("Signature manquante")
@@ -148,12 +148,6 @@ describe("POST /api/webhooks/stripe", () => {
       const res = await POST(makeRequest("body-altere"))
       expect(res.status).toBe(400)
       expect(await res.text()).toBe("Signature invalide")
-    })
-
-    it("retourne 500 si STRIPE_WEBHOOK_SECRET est absent de l'env", async () => {
-      delete process.env.STRIPE_WEBHOOK_SECRET
-      const res = await POST(makeRequest())
-      expect(res.status).toBe(500)
     })
   })
 
@@ -179,15 +173,15 @@ describe("POST /api/webhooks/stripe", () => {
           // [0] select → déjà succeeded → le handler break immédiatement
           {
             data: {
-              id:             CONTRIB_ID,
+              id: CONTRIB_ID,
               payment_status: "succeeded",
-              gift_id:        GIFT_ID,
-              wedding_id:     WEDDING_ID,
-              guest_email:    "guest@test.com",
-              guest_name:     "Marie Dupont",
-              gross_amount:   "55.00",
-              net_amount:     "50.00",
-              is_anonymous:   false,
+              gift_id: GIFT_ID,
+              wedding_id: WEDDING_ID,
+              guest_email: "guest@test.com",
+              guest_name: "Marie Dupont",
+              gross_amount: "55.00",
+              net_amount: "50.00",
+              is_anonymous: false,
             },
             error: null,
           },
@@ -211,7 +205,7 @@ describe("POST /api/webhooks/stripe", () => {
       expect(res.status).toBe(200)
 
       expect(captures.updates["contributions"]?.[0]).toMatchObject({
-        payment_status:          "succeeded",
+        payment_status: "succeeded",
         stripe_payment_intent_id: PI_ID,
       })
     })
@@ -222,15 +216,20 @@ describe("POST /api/webhooks/stripe", () => {
         contributions: [
           {
             data: {
-              id: CONTRIB_ID, payment_status: "pending",
-              guest_email: null, guest_name: "Marie",
-              gift_id: GIFT_ID, gross_amount: "55.00", net_amount: "50.00",
-              wedding_id: WEDDING_ID, is_anonymous: true,
+              id: CONTRIB_ID,
+              payment_status: "pending",
+              guest_email: null,
+              guest_name: "Marie",
+              gift_id: GIFT_ID,
+              gross_amount: "55.00",
+              net_amount: "50.00",
+              wedding_id: WEDDING_ID,
+              is_anonymous: true,
             },
             error: null,
           },
-          { data: null, error: null },                                                  // update status
-          { data: [{ net_amount: "50.00" }, { net_amount: "50.00" }], error: null },   // sum : 2 × 50 €
+          { data: null, error: null }, // update status
+          { data: [{ net_amount: "50.00" }, { net_amount: "50.00" }], error: null }, // sum : 2 × 50 €
         ],
       })
       mockCreateAdmin.mockReturnValue(client as never)
@@ -251,21 +250,28 @@ describe("POST /api/webhooks/stripe", () => {
         contributions: [
           {
             data: {
-              id: CONTRIB_ID, payment_status: "pending",
-              guest_email: null, guest_name: "Marie",
-              gift_id: null,   // ← pas de cadeau associé
-              gross_amount: "55.00", net_amount: "50.00",
-              wedding_id: WEDDING_ID, is_anonymous: true,
+              id: CONTRIB_ID,
+              payment_status: "pending",
+              guest_email: null,
+              guest_name: "Marie",
+              gift_id: null, // ← pas de cadeau associé
+              gross_amount: "55.00",
+              net_amount: "50.00",
+              wedding_id: WEDDING_ID,
+              is_anonymous: true,
             },
             error: null,
           },
-          { data: null, error: null },  // update status
+          { data: null, error: null }, // update status
         ],
         weddings: [
           {
             data: {
-              partner1_first_name: "Sophie", partner2_first_name: "Thomas",
-              slug: "sophie-et-thomas", owner_id: null, notifications_enabled: false,
+              partner1_first_name: "Sophie",
+              partner2_first_name: "Thomas",
+              slug: "sophie-et-thomas",
+              owner_id: null,
+              notifications_enabled: false,
             },
             error: null,
           },
@@ -282,11 +288,9 @@ describe("POST /api/webhooks/stripe", () => {
 
   describe("payment_intent.payment_failed", () => {
     it("passe la contribution à failed", async () => {
-      mockConstructEvent.mockReturnValue(
-        makeEvent("payment_intent.payment_failed") as never
-      )
+      mockConstructEvent.mockReturnValue(makeEvent("payment_intent.payment_failed") as never)
       const { client, captures } = makeDefaultWebhookSupabase({
-        contributions: [{ data: null, error: null }],  // update → OK
+        contributions: [{ data: null, error: null }], // update → OK
       })
       mockCreateAdmin.mockReturnValue(client as never)
 

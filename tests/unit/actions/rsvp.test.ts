@@ -6,12 +6,12 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }))
 vi.mock("@/lib/rate-limit", () => ({
-  getClientIp:        vi.fn().mockReturnValue("127.0.0.1"),
+  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
   checkRsvpRateLimit: vi.fn().mockResolvedValue(true),
 }))
 vi.mock("@/lib/resend/send", () => ({
   sendRsvpConfirmationToGuest: vi.fn().mockResolvedValue(undefined),
-  sendRsvpNotifToCouple:       vi.fn().mockResolvedValue(undefined),
+  sendRsvpNotifToCouple: vi.fn().mockResolvedValue(undefined),
 }))
 
 // --- Imports après mocks ---
@@ -20,26 +20,27 @@ import { checkRsvpRateLimit } from "@/lib/rate-limit"
 import { submitRsvp } from "@/actions/rsvp"
 
 const mockCreateAdmin = vi.mocked(createAdminClient)
-const mockRateLimit   = vi.mocked(checkRsvpRateLimit)
+const mockRateLimit = vi.mocked(checkRsvpRateLimit)
 
 // --- Fixtures ---
 const WEDDING_ID = "550e8400-e29b-41d4-a716-446655440099"
-const RSVP_ID    = "rsvp-uuid-1"
-const OWNER_ID   = "owner-uuid-1"
+const RSVP_ID = "rsvp-uuid-1"
+const OWNER_ID = "owner-uuid-1"
 
 const VALID_RSVP = {
-  weddingId:  WEDDING_ID,
-  firstName:  "Marie",
-  lastName:   "Dupont",
-  email:      "marie.dupont@test.com",
-  attending:  true,
+  weddingId: WEDDING_ID,
+  firstName: "Marie",
+  lastName: "Dupont",
+  email: "marie.dupont@test.com",
+  attending: true,
   guestCount: 2,
 }
 
 /**
  * Ordre des appels from() dans submitRsvp :
  *   weddings[0]       → select mariage (is_published, rsvp_enabled, ...)
- *   rsvp_responses[0] → insert RSVP
+ *   rsvp_responses[0] → detectConflict: select réponses existantes (conflit)
+ *   rsvp_responses[1] → insert RSVP
  *   users[0]          → select email owner (couple notif, si notifications_enabled)
  *   guests            → update rsvp_status (fire-and-forget, non awaitée — ignorée en tests)
  */
@@ -48,24 +49,23 @@ function makeDefaultRsvpSupabase(overrides: Record<string, MockResult[]> = {}) {
     weddings: [
       {
         data: {
-          id:                    WEDDING_ID,
-          is_published:          true,
-          rsvp_enabled:          true,
-          partner1_first_name:   "Sophie",
-          partner2_first_name:   "Thomas",
-          owner_id:              OWNER_ID,
-          slug:                  "sophie-et-thomas",
-          notifications_enabled: false,  // désactivé par défaut → pas d'appel users
+          id: WEDDING_ID,
+          is_published: true,
+          rsvp_enabled: true,
+          partner1_first_name: "Sophie",
+          partner2_first_name: "Thomas",
+          owner_id: OWNER_ID,
+          slug: "sophie-et-thomas",
+          notifications_enabled: false, // désactivé par défaut → pas d'appel users
         },
         error: null,
       },
     ],
     rsvp_responses: [
-      { data: { id: RSVP_ID }, error: null },  // insert
+      { data: [], error: null }, // detectConflict: select réponses existantes (aucun conflit)
+      { data: { id: RSVP_ID }, error: null }, // insert
     ],
-    users: [
-      { data: { email: "couple@test.com" }, error: null },
-    ],
+    users: [{ data: { email: "couple@test.com" }, error: null }],
     ...overrides,
   })
 }
@@ -109,12 +109,36 @@ describe("submitRsvp", () => {
     it("retourne RSVP_NOT_AVAILABLE si le mariage n'est pas publié [casserait si le check is_published était retiré]", async () => {
       mockCreateAdmin.mockReturnValue(
         makeDefaultRsvpSupabase({
-          weddings: [{ data: { ...makeDefaultRsvpSupabase().client, id: WEDDING_ID, is_published: false, rsvp_enabled: true }, error: null }],
+          weddings: [
+            {
+              data: {
+                ...makeDefaultRsvpSupabase().client,
+                id: WEDDING_ID,
+                is_published: false,
+                rsvp_enabled: true,
+              },
+              error: null,
+            },
+          ],
         }).client as never
       )
       // Reconstruction propre du mock wedding non publié
       const { client } = makeMockSupabase({
-        weddings: [{ data: { id: WEDDING_ID, is_published: false, rsvp_enabled: true, partner1_first_name: "Sophie", partner2_first_name: "Thomas", owner_id: OWNER_ID, slug: "s-et-t", notifications_enabled: false }, error: null }],
+        weddings: [
+          {
+            data: {
+              id: WEDDING_ID,
+              is_published: false,
+              rsvp_enabled: true,
+              partner1_first_name: "Sophie",
+              partner2_first_name: "Thomas",
+              owner_id: OWNER_ID,
+              slug: "s-et-t",
+              notifications_enabled: false,
+            },
+            error: null,
+          },
+        ],
         rsvp_responses: [{ data: { id: RSVP_ID }, error: null }],
         users: [{ data: { email: "couple@test.com" }, error: null }],
       })
@@ -126,7 +150,21 @@ describe("submitRsvp", () => {
 
     it("retourne RSVP_NOT_AVAILABLE si le RSVP est désactivé sur ce mariage [casserait si le check rsvp_enabled était retiré — bug distinct du check is_published]", async () => {
       const { client } = makeMockSupabase({
-        weddings: [{ data: { id: WEDDING_ID, is_published: true, rsvp_enabled: false, partner1_first_name: "Sophie", partner2_first_name: "Thomas", owner_id: OWNER_ID, slug: "s-et-t", notifications_enabled: false }, error: null }],
+        weddings: [
+          {
+            data: {
+              id: WEDDING_ID,
+              is_published: true,
+              rsvp_enabled: false,
+              partner1_first_name: "Sophie",
+              partner2_first_name: "Thomas",
+              owner_id: OWNER_ID,
+              slug: "s-et-t",
+              notifications_enabled: false,
+            },
+            error: null,
+          },
+        ],
         rsvp_responses: [{ data: { id: RSVP_ID }, error: null }],
         users: [{ data: { email: "couple@test.com" }, error: null }],
       })
