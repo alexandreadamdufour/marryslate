@@ -12,57 +12,47 @@ env:
   NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
   CLERK_SECRET_KEY: sk_test_placeholder
   CLERK_WEBHOOK_SECRET: whsec_placeholder
   SUPABASE_SERVICE_ROLE_KEY: placeholder
-  MANGOPAY_CLIENT_ID: placeholder
-  MANGOPAY_API_KEY: placeholder
-  MANGOPAY_BASE_URL: https://api.sandbox.mangopay.com
-  MANGOPAY_WEBHOOK_SECRET: placeholder
+  STRIPE_SECRET_KEY: sk_test_placeholder
+  STRIPE_WEBHOOK_SECRET: whsec_placeholder
+  STRIPE_WEBHOOK_SECRET_CONNECT: placeholder
   RESEND_API_KEY: re_placeholder
 
 jobs:
-  typecheck:
-    name: Typecheck
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
+
       - run: pnpm install --frozen-lockfile
+
       - run: pnpm typecheck
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
 
-  test:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+      - run: pnpm build
+
+      - name: Notify ntfy on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          curl -H "Title: CI Marryslate a échoué" \
+               -H "Priority: high" \
+               -d "Branche ${{ github.ref_name }} — voir ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+               "https://ntfy.sh/$NTFY_TOPIC"
