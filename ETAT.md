@@ -1,6 +1,6 @@
-# État Marryslate — 4 juillet 2026 (suite)
+# État Marryslate — 5 juillet 2026 (suite)
 
-> Dernier commit : `4525564` — feat(marketing): affiche le compteur social proof dans le Hero
+> Dernier commit : `76f1c61` — docs(ci): corrige ci → CI dans le nom du check affiché par GitHub
 > Ce fichier est la source de vérité sur l'avancement. À remettre à jour à la fin de chaque session (voir CLAUDE.md §17).
 
 ---
@@ -10,6 +10,7 @@
 - **Live et fonctionnel** : inscription Google → onboarding → création de site → RSVP → cagnotte/liste de cadeaux → retrait. Vérifié en direct (HTTP 200 sur `/` et `/m/alexetlouise`) le 3 juillet.
 - Monitoring Sentry actif, GA4 + Google Search Console vérifiés, CSP durcie avec reporting, rate limiting (Upstash) sur tous les endpoints publics.
 - Hooks pre-commit/commit-msg (Husky + commitlint) actifs sur le repo.
+- **CI GitHub Actions active** (job séquentiel typecheck/lint/test/build + notification ntfy sur échec) — voir chantier CI/CD ci-dessous.
 
 **Avancement estimé** (qualitatif, pas de métrique formelle) :
 
@@ -151,6 +152,20 @@ Méthodologie systématique sur les 4 chantiers : brainstorming (spec validée a
 
 **Bloc 3 totalement clos, poussé sur `main`.**
 
+### CI/CD GitHub Actions (fermé)
+
+Déclencheur : une régression sessionStorage sur `/onboarding/etape-4` (accès en render-time au lieu de `useEffect`, corrigée en `4b4545f`) avait bloqué 4 déploiements Vercel d'affilée sans qu'aucune alerte ne remonte — découverte 2h après en testant manuellement en prod. Objectif : détection automatique + notification. Méthodologie identique au Bloc 3 (brainstorming → plan → subagents implémenteur/reviewer par tâche → revue finale de branche), spec/plan dans `docs/superpowers/specs/2026-07-05-ci-cd-github-actions-design.md` et `docs/superpowers/plans/2026-07-05-ci-cd-github-actions.md`.
+
+- **`.github/workflows/ci.yml` réécrit** : les 3 anciens jobs parallèles (`typecheck`/`lint`/`test`, chacun avec son propre install, pas de `build`) remplacés par un seul job séquentiel `install → typecheck → lint → test → build → notify ntfy on failure` (fail-fast natif : un échec précoce arrête le job, pas de minutes CI gaspillées). Notification par `curl` direct vers ntfy.sh (topic dans le secret GitHub `NTFY_TOPIC`, pas en clair) (`effcbe6`).
+- **`docs/ci-branch-protection.md`** : marche à suivre GitHub UI pour activer "Require status checks to pass before merging" sur `main` sans bloquer le commit direct solo (CLAUDE.md §14) (`e806b4b`).
+- **Test de bout en bout réel** : branche jetable + PR avec un typecheck volontairement cassé → job `ci` a échoué exactement au step `pnpm typecheck` (lint/test/build jamais exécutés, fail-fast confirmé) → notification ntfy reçue et confirmée → PR fermée sans merge, branche supprimée. `main` jamais touché par le commit cassé.
+- **Découverte 1 — env vars obsolètes** : le bloc d'env placeholder de l'ancien `ci.yml` référençait encore MangoPay ; `src/lib/env.ts` exige désormais des clés Stripe (migration déjà faite dans le code applicatif, jamais répercutée en CI). Corrigé dans le même commit (`effcbe6`).
+- **Découverte 2 — 2 tests préexistants cassés** : `tests/unit/actions/rsvp.test.ts` avait une fixture de mock obsolète (`detectConflict()`, ajouté après coup, fait un `SELECT` sur `rsvp_responses` avant l'insert — la fixture ne prévoyait qu'une entrée) ; `tests/unit/api/stripe-webhook.test.ts` avait un test qui simulait un état inatteignable (`env.ts` fige les valeurs à l'import, `delete process.env...` après coup n'a aucun effet, et la route n'a de toute façon aucun chemin `500`). Fixture corrigée, test inatteignable supprimé — 76/76 tests verts (`88ffd9b`).
+- **Découverte 3 — la plus importante** : `pnpm-workspace.yaml` n'avait pas de champ `packages` (il ne servait qu'à `allowBuilds`/`onlyBuiltDependencies`). En pnpm 9 (installé en CI), `pnpm store path` — utilisé par le cache d'`actions/setup-node` — exige ce champ et plante avec `packages field missing or empty`, avant même `pnpm install`. pnpm 11 (local) ne l'exige pas, d'où l'écart resté invisible. Confirmé via `gh run list` : **tous les runs CI sur `main` échouaient déjà en 15-19s depuis au moins le 4 juillet**, silencieusement — exactement le problème que ce chantier visait à corriger. Fixé en ajoutant `packages: ["."]` (`3e8fe0a`) ; `main` tourne maintenant vert en ~2min.
+- Revue finale multi-commits (Opus) : 0 Critical/Important, 1 Minor (doc disait de sélectionner le check `ci`, GitHub l'affiche `CI` par son `name:`) corrigé (`76f1c61`).
+
+**Chantier CI/CD totalement clos, poussé sur `main`.**
+
 ---
 
 ## Pending — prochains blocs
@@ -159,7 +174,6 @@ Méthodologie systématique sur les 4 chantiers : brainstorming (spec validée a
 |---|---|
 | **Bloc 4 — Polish** | Périmètre à définir. |
 | **Bloc 5 — RSVP i18n refactor** | Refactor du flux RSVP autour de `next-intl` (dossier `src/i18n/` déjà prévu dans la structure cible, cf. CLAUDE.md, jamais implémenté). Périmètre à cadrer. |
-| **CI/CD GitHub Actions** | Aucune CI configurée à ce jour — `pnpm typecheck`/`lint`/`test` tournent uniquement en local/manuel. À mettre en place avant l'arrivée d'un contributeur (cf. CLAUDE.md §14, flux PR requis dès ce moment). |
 | **Infra E2E Playwright** | Découvert en préparant le Bloc 3 chantier 1 : `@playwright/test` est une dépendance et `package.json` référence `test:a11y` → `tests/e2e/a11y`, mais aucun `playwright.config.ts` n'existe et `tests/e2e/` est vide. Les 3 flux critiques listés en §15 de CLAUDE.md (inscription→publication, contribution invité, retrait KYC) n'ont donc aucune couverture E2E automatisée. Chantier à part entière (config + fixtures auth Clerk en test), volontairement exclu du Bloc 3. |
 
 ---
@@ -213,7 +227,7 @@ Méthodologie systématique sur les 4 chantiers : brainstorming (spec validée a
 | **Return_url Stripe Connect** | Fix `env.NEXT_PUBLIC_APP_URL` du 1er juillet devrait avoir résolu le bug `.vercel.app`, jamais revalidé empiriquement depuis. À confirmer au prochain onboarding Stripe Connect beta. |
 | **Section galerie site public** | Pas de vraie feature — `story_images` détourné comme galerie temporaire (fonctionne visuellement, mélange "Notre histoire" et photos de lieu). |
 | **Refactor `assertWeddingCoowner`** | Remplacer `.rpc("is_wedding_coowner")` par un SELECT direct. Fermerait les 2 derniers WARNs Supabase Advisor (`authenticated_security_definer`). |
-| **Tests Vitest bloqués par `env.ts`** | `rsvp.test.ts` et `stripe-webhook.test.ts` échouent à l'import (Vitest ne charge pas `.env.local`). Fix ~30 min (`envDir` ou mock `@/lib/env`). Non bloquant. |
+| **Tests Vitest bloqués par `env.ts` sans env vars exportées** | Vitest ne charge pas `.env.local` : `pnpm test` sans export manuel des placeholders échoue à l'import sur `rsvp.test.ts`/`stripe-webhook.test.ts` (`env.ts` throw). Distinct des 2 bugs de fond corrigés par le chantier CI/CD (fixture obsolète + test inatteignable) — la CI contourne ce point via son bloc `env:`. Fix ~30 min pour le confort local (`envDir` ou mock `@/lib/env`). Non bloquant. |
 | **Race condition `detectConflict` (TOCTOU)** | SELECT puis INSERT sans transaction/verrou — deux réponses concurrentes au même email peuvent ne pas se flaguer mutuellement. Probabilité très faible. |
 | **Lint `seating-table-node.tsx`** | `'X' is defined but never used`, présent depuis plusieurs sessions, ne bloque rien. |
 | **Vestiges MangoPay** | 4 clés `MANGOPAY_*` orphelines dans `.env.local` (absentes de `.env.local.example`) + colonne DB `contributions.mangopay_payment_id` (nullable, jamais lue). Code applicatif déjà retiré (`d3c3238`). Aucun risque, nettoyage cosmétique un jour. |
