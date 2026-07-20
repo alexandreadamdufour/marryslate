@@ -205,7 +205,11 @@ export default function HomePage() {
           <h2 className="mb-4 text-3xl">Prêt·e à commencer ?</h2>
           <p className="mb-8 text-muted-foreground">
             Création gratuite. Aucun abonnement. Seulement 2,9&nbsp;% + 0,30&nbsp;€ par contribution
-            reçue.
+            reçue —{" "}
+            <Link href="/tarifs" className="underline underline-offset-4 hover:text-foreground">
+              voir le détail des tarifs
+            </Link>
+            .
           </p>
           <Button asChild size="lg">
             <Link href={INSCRIPTION_ROUTE}>Créer mon site gratuitement</Link>
@@ -236,12 +240,12 @@ const FAQ_ITEMS = [
     a: "Vous créez des cadeaux avec un montant cible, vos invités contribuent librement par carte bancaire. Dès qu'un cadeau est financé, il est marqué comme tel sur votre site.",
   },
   {
-    q: "Combien ça coûte ?",
-    a: "C'est gratuit. Aucun abonnement, aucun frais caché. Seule une commission de 2,9 % + 0,30 € est prélevée par contribution reçue — elle couvre les frais de paiement et le service.",
+    q: "Puis-je protéger mon site avec un code d'accès ?",
+    a: "Oui. Activez un code de 4 à 8 caractères depuis votre tableau de bord pour réserver l'accès à vos invités. Optionnel, et modifiable à tout moment.",
   },
   {
-    q: "Dans quel délai recevons-nous les fonds ?",
-    a: "Les fonds sont disponibles sous 2 à 7 jours ouvrés après chaque paiement. Vous demandez le virement vers votre IBAN quand vous voulez.",
+    q: "Le site affiche-t-il un compte à rebours et le programme de la journée ?",
+    a: "Oui, un compte à rebours jusqu'au jour J s'affiche automatiquement. Vous pouvez aussi détailler cérémonie, cocktail, dîner et soirée, avec ajout au calendrier en un clic pour vos invités.",
   },
   {
     q: "Le paiement est-il sécurisé ?",

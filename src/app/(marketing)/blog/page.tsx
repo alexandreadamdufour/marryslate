@@ -22,6 +22,19 @@ export default function BlogPage() {
         <p className="mt-4 text-lg text-muted-foreground">
           Guides et conseils pour organiser votre mariage sereinement.
         </p>
+        <p className="mt-3 text-muted-foreground">
+          Liste de cadeaux, cagnotte en ligne, site de mariage personnalisé : nos guides détaillent
+          le fonctionnement concret de chaque fonctionnalité — les frais, la sécurité des paiements,
+          les comparatifs avec les autres solutions du marché — pour que vous sachiez exactement à
+          quoi vous attendre avant de vous lancer. Pour la création pas à pas, voir aussi{" "}
+          <Link
+            href="/comment-ca-marche"
+            className="underline underline-offset-4 hover:text-foreground"
+          >
+            comment ça marche
+          </Link>
+          .
+        </p>
 
         <div className="mt-12 space-y-8">
           {posts.map((post) => (
@@ -30,7 +43,7 @@ export default function BlogPage() {
                 <h2 className="font-serif text-2xl font-semibold text-foreground transition-colors group-hover:text-primary">
                   {post.title}
                 </h2>
-                <p className="mt-2 text-muted-foreground line-clamp-2">{post.description}</p>
+                <p className="mt-2 line-clamp-2 text-muted-foreground">{post.description}</p>
                 <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
                   <time dateTime={post.publishedAt}>
                     {format(new Date(post.publishedAt), "d MMMM yyyy", { locale: fr })}
