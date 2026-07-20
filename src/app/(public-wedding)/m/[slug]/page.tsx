@@ -21,13 +21,13 @@ import { ViewTracker } from "@/components/wedding-site/view-tracker"
 import type { PracticalInfo } from "@/lib/validators/practical-info"
 
 const WeddingRsvpSection = dynamic(() =>
-  import("@/components/wedding-site/wedding-rsvp-section").then((m) => m.WeddingRsvpSection),
+  import("@/components/wedding-site/wedding-rsvp-section").then((m) => m.WeddingRsvpSection)
 )
 
 const WeddingGuestbookSection = dynamic(() =>
   import("@/components/wedding-site/wedding-guestbook-section").then(
-    (m) => m.WeddingGuestbookSection,
-  ),
+    (m) => m.WeddingGuestbookSection
+  )
 )
 
 // ISR : revalidation toutes les 60 secondes
@@ -42,15 +42,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const wedding = await getWeddingPublicData(slug)
   if (!wedding) return { title: "Page introuvable" }
 
-  const isProtected = wedding.access_code_enabled && !!wedding.access_code
-
   const title = `Mariage de ${wedding.partner1_first_name} & ${wedding.partner2_first_name}`
   const description = `Site de mariage de ${wedding.partner1_first_name} et ${wedding.partner2_first_name}. Retrouvez toutes les informations et participez à leur liste de cadeaux.`
 
   return {
     title,
     description,
-    ...(isProtected && { robots: { index: false, follow: false } }),
+    // Toujours noindex : noms, date, lieu, liste d'invités = données privées
+    // du couple, jamais indexables même si le site n'est pas protégé par code.
+    robots: { index: false, follow: false },
     openGraph: {
       title,
       description,
@@ -94,8 +94,7 @@ export default async function WeddingPublicPage({ params }: Props) {
     getTimelineSteps(wedding.id),
   ])
 
-  const themeClass =
-    wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
+  const themeClass = wedding.theme_id === "contemporary" ? "theme-contemporary" : "theme-classic"
 
   // Inject per-wedding CSS variables to override theme defaults
   const weddingStyle: React.CSSProperties & Record<string, string> = {}
@@ -126,14 +125,15 @@ export default async function WeddingPublicPage({ params }: Props) {
       "@type": "Person",
       name: `${wedding.partner1_first_name} & ${wedding.partner2_first_name}`,
     },
-    offers: wedding.gifts.length > 0
-      ? {
-          "@type": "Offer",
-          url: `${pageUrl}/contribuer`,
-          availability: "https://schema.org/InStock",
-          priceCurrency: "EUR",
-        }
-      : undefined,
+    offers:
+      wedding.gifts.length > 0
+        ? {
+            "@type": "Offer",
+            url: `${pageUrl}/contribuer`,
+            availability: "https://schema.org/InStock",
+            priceCurrency: "EUR",
+          }
+        : undefined,
   }
 
   return (
@@ -164,9 +164,7 @@ export default async function WeddingPublicPage({ params }: Props) {
         accommodations={(wedding.practical_info as PracticalInfo | null)?.accommodations}
       />
 
-      <WeddingPracticalInfoSection
-        info={wedding.practical_info as PracticalInfo | null}
-      />
+      <WeddingPracticalInfoSection info={wedding.practical_info as PracticalInfo | null} />
 
       <WeddingGiftsSection gifts={wedding.gifts} weddingSlug={slug} />
 
@@ -207,7 +205,7 @@ export default async function WeddingPublicPage({ params }: Props) {
           Créé avec{" "}
           <Link href="/" className="underline underline-offset-4 hover:text-foreground">
             Marryslate
-</Link>
+          </Link>
         </p>
       </footer>
 

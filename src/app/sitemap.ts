@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next"
-import { createAdminClient } from "@/lib/supabase/admin"
 import { getAllPosts } from "@/lib/blog"
 import { env } from "@/lib/env"
 
@@ -12,30 +11,15 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/blog`, changeFrequency: "weekly", priority: 0.8 },
   { url: `${BASE_URL}/faq`, changeFrequency: "monthly", priority: 0.7 },
   { url: `${BASE_URL}/trouver-une-liste`, changeFrequency: "monthly", priority: 0.6 },
-  { url: `${BASE_URL}/mentions-legales`, changeFrequency: "yearly", priority: 0.2 },
-  { url: `${BASE_URL}/cgu`, changeFrequency: "yearly", priority: 0.2 },
-  { url: `${BASE_URL}/cgv`, changeFrequency: "yearly", priority: 0.2 },
-  { url: `${BASE_URL}/confidentialite`, changeFrequency: "yearly", priority: 0.2 },
+  // mentions-legales, cgu, cgv, confidentialite volontairement absentes :
+  // ces pages sont en noindex (metadata robots), les lister ici enverrait
+  // un signal contradictoire à Google.
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createAdminClient()
-
-  const { data: weddings } = await supabase
-    .from("weddings")
-    .select("slug, updated_at, access_code_enabled")
-    .eq("is_published", true)
-
-  // Exclude access-code-protected weddings from public sitemap
-  const weddingRoutes: MetadataRoute.Sitemap = (weddings ?? [])
-    .filter((w) => !w.access_code_enabled)
-    .map((w) => ({
-      url: `${BASE_URL}/m/${w.slug}`,
-      lastModified: w.updated_at ? new Date(w.updated_at) : new Date(),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }))
-
+  // Sites de mariage (/m/[slug]) volontairement absents : données privées
+  // du couple (noms, date, lieu, invités), toujours en noindex, jamais
+  // dans le sitemap public.
   const posts = getAllPosts()
   const blogRoutes: MetadataRoute.Sitemap = posts.map((p) => ({
     url: `${BASE_URL}/blog/${p.slug}`,
@@ -44,5 +28,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  return [...STATIC_ROUTES, ...blogRoutes, ...weddingRoutes]
+  return [...STATIC_ROUTES, ...blogRoutes]
 }
