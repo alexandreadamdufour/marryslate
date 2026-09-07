@@ -47,3 +47,4 @@ supabase/.temp
 # husky internals (régénéré par `pnpm install` via le script prepare)
 .husky/_
 .playwright-mcp/
+docs/superpowers/
